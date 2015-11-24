@@ -1,0 +1,10 @@
+.vs
+packages
+src/*/bin/
+src/*/obj/
+*.js
+*.js.map
+!src/MoManI.Ui/scripts/lib/*.js
+*.user
+*.log
+*.pubxml
