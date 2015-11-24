@@ -1,0 +1,57 @@
+<div ng-if="equation.canRender" dropdown class="inline">
+    <div href ng-bind="equation.render()" dropdown-toggle class="equation-object"></div>
+    <ul class="dropdown-menu" aria-labelledby="simple-dropdown">
+        <li role="menuitem" ng-repeat="action in equation.actions">
+            <a ng-click="action.handler()">{{action.text}}</a>
+        </li>
+    </ul>
+</div>
+<div ng-if="!equation.canRender" class="equation-composite">
+    <div ng-if="equation.operator1" dropdown class="inline">
+        <div href ng-bind="equation.operator1" dropdown-toggle class="equation-operator"></div>
+        <ul class="dropdown-menu" aria-labelledby="simple-dropdown">
+            <li role="menuitem" ng-repeat="action in equation.actions">
+                <a ng-click="action.handler()">{{action.text}}</a>
+            </li>
+        </ul>
+    </div>
+
+    <span ng-if="equation.innerEquation1">
+        <span ng-repeat="equation in [equation.innerEquation1]">
+            <span ng-include="'partials/equation-object.html'">
+            </span>
+        </span>
+    </span>
+
+    <div ng-if="equation.operator2" dropdown class="inline">
+        <div href ng-bind="equation.operator2" dropdown-toggle class="equation-operator"></div>
+        <ul class="dropdown-menu" aria-labelledby="simple-dropdown">
+            <li role="menuitem" ng-repeat="action in equation.actions">
+                <a ng-click="action.handler()">{{action.text}}</a>
+            </li>
+        </ul>
+    </div>
+
+    <span ng-if="equation.innerEquation2">
+        <span ng-repeat="equation in [equation.innerEquation2]">
+            <span ng-include="'partials/equation-object.html'">
+            </span>
+        </span>
+    </span>
+
+    <div ng-if="equation.operator3" dropdown class="inline">
+        <div href ng-bind="equation.operator3" dropdown-toggle class="equation-operator"></div>
+        <ul class="dropdown-menu" aria-labelledby="simple-dropdown">
+            <li role="menuitem" ng-repeat="action in equation.actions">
+                <a ng-click="action.handler()">{{action.text}}</a>
+            </li>
+        </ul>
+    </div>
+
+    <span ng-if="equation.innerEquation3">
+        <span ng-repeat="equation in [equation.innerEquation3]">
+            <span ng-include="'partials/equation-object.html'">
+            </span>
+        </span>
+    </span>
+</div>

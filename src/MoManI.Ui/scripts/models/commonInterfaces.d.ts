@@ -1,0 +1,3 @@
+﻿interface IRenderable {
+    render: () => string
+}

@@ -1,0 +1,26 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <div>
+            Search: <input type="text" class="form-control" ng-model="query">
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="model in models | filter: {name: query} | orderBy: orderProp">
+                <td>{{model.name}}</td>
+                <td>{{model.description}}</td>
+                <td>
+                    <a href="#/results/{{model.modelId}}">View</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

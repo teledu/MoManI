@@ -1,0 +1,36 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <div>
+            Search: <input type="text" class="form-control" ng-model="query">
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="model in models | filter: {name: query} | orderBy: orderProp">
+                    <td>{{model.name}}</td>
+                    <td>{{model.description}}</td>
+                    <td>
+                        <a href="#/models/{{model.id}}/compose">Edit</a>
+                    </td>
+                    <td>
+                        <a href="#/models/{{model.id}}/data">Enter data</a>
+                    </td>
+                    <td>
+                        <a ng-click="downloadExec(model)">Download executable</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="#/models/new/compose">Create new model</a>
+    </div>
+</div>

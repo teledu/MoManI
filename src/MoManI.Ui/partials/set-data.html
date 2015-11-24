@@ -1,0 +1,27 @@
+﻿<h3>Data entry for set {{data.setName}}</h3>
+
+<div ng-repeat="value in data.values" class="clearfix">
+    <div class="col-sm-6">
+        <input class="form-control" type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value" />
+    </div>
+    <div class="col-sm-1">
+        <button type="button" class="btn btn-default" ng-click="data.removeValue(value)">
+            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+        </button>
+    </div>
+</div>
+
+<div>
+    <button type="button" class="btn btn-default" ng-click="data.addValue()">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    </button>
+</div>
+
+<div class="alert alert-danger" role="alert" ng-if="invalidValuesNotUnique">
+    Some values are not unique
+</div>
+
+<div>
+    <button class="btn btn-default" ng-click="save()">Save</button>
+    <a href="#/models/{{data.modelId}}/data" class="btn btn-default">Cancel</a>
+</div>

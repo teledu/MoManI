@@ -1,0 +1,30 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <h3>Variable results for model {{model.name}}</h3>
+        <div>{{model.description}}</div>
+        <br/>
+
+        <div>
+            Search: <input type="text" class="form-control" ng-model="query">
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="variable in model.variables | filter: {name: query} | orderBy: orderProp">
+                <td>{{variable.name}}</td>
+                <td>{{variable.description}}</td>
+                <td>
+                    <a href="#/results/{{$parent.model.id}}/{{variable.id}}/charts">View charts</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

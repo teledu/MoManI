@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoManI.Api", "src\MoManI.Api\MoManI.Api.csproj", "{416BDBF9-79B5-47E1-81EB-5ECED923220E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoManI.Ui", "src\MoManI.Ui\MoManI.Ui.csproj", "{CD163077-3AD5-4E52-ACA9-18D660224773}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoManI.WinExecApp", "src\MoManI.WinExecApp\MoManI.WinExecApp.csproj", "{28C16376-9C96-42F2-8EC2-0EDA4B4607F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{416BDBF9-79B5-47E1-81EB-5ECED923220E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{416BDBF9-79B5-47E1-81EB-5ECED923220E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{416BDBF9-79B5-47E1-81EB-5ECED923220E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{416BDBF9-79B5-47E1-81EB-5ECED923220E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD163077-3AD5-4E52-ACA9-18D660224773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD163077-3AD5-4E52-ACA9-18D660224773}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD163077-3AD5-4E52-ACA9-18D660224773}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD163077-3AD5-4E52-ACA9-18D660224773}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28C16376-9C96-42F2-8EC2-0EDA4B4607F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28C16376-9C96-42F2-8EC2-0EDA4B4607F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28C16376-9C96-42F2-8EC2-0EDA4B4607F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28C16376-9C96-42F2-8EC2-0EDA4B4607F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

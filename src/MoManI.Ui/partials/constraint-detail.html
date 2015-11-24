@@ -1,0 +1,53 @@
+<div class="container-fluid">
+    <div class="row">
+        <form name="detailsForm" class="form-horizontal">
+            <div class="form-group">
+                <label for="constraintName" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="constraintName" ng-model="constraint.name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="constraintDescription" class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="constraintDescription" ng-model="constraint.description"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="constraintEquation" class="col-sm-2 control-label">Equation</label>
+                <div id="constraintEquation" class="col-sm-10" ng-repeat="equation in [constraint.equation]">
+                    <div ng-include="'partials/equation-object.html'">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="constraintEnumerators" class="col-sm-2 control-label">Enumerators</label>
+                <div id="constraintEnumerators" class="col-sm-10">
+                    <span>{{constraint.enumeratorListString}}</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" ng-model="constraint.hasSetConstraint"> Has enumerator constraint
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" ng-if="constraint.hasSetConstraint">
+                <label for="constraintEnumeratorConstraint" class="col-sm-2 control-label">Enumerator constraint</label>
+                <div id="constraintEnumeratorConstraint" class="col-sm-10" ng-repeat="equation in [constraint.setConstraint]">
+                    <div ng-include="'partials/equation-object.html'">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button class="btn btn-default" ng-click="save()">Save</button>
+                    <a href="#/constraints" class="btn btn-default">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

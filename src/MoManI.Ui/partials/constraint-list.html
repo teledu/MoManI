@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <div class="row">
+    <div>
+        Search: <input type="text" class="form-control" ng-model="query">
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="constraint in constraints | filter: {name: query} | orderBy: orderProp">
+            <td>{{constraint.name}}</td>
+            <td>{{constraint.description}}</td>
+            <td>
+                <a href="#/constraints/{{constraint.id}}">Edit</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="#/constraints/new">Create new constraint</a>
+  </div>
+</div>

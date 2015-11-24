@@ -1,0 +1,30 @@
+<div class="container-fluid">
+  <div class="row">
+    <div>
+        Search: <input type="text" class="form-control" ng-model="query">
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Abbreviation</th>
+            <th>Numeric</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="set in sets | filter: {name: query} | orderBy: orderProp">
+            <td>{{set.name}}</td>
+            <td>{{set.abbreviation}}</td>
+            <td>{{set.numeric | checkmark}}</td>
+            <td>
+                <a href="#/sets/{{set.id}}">Edit</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="#/sets/new">Create new set</a>
+  </div>
+</div>

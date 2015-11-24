@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta itemprop="momani-settings-api" content="http://localhost/MoManI.Api/" />
+    <title>Model Management Infrastructure (OSEMOSyS)</title>
+    <link rel="stylesheet" href="styles/bootstrap.css">
+    <link rel="stylesheet" href="styles/handsontable.full.css">
+    <link rel="stylesheet" href="styles/nv.d3.css">
+    <link rel="stylesheet" href="styles/app.css">
+    <script src="scripts/lib/require.js" data-main="scripts/requireMain"></script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-default" role="navigation" bs-navbar>
+    <ul class="nav navbar-nav">
+        <li data-match-route="/$"><a href="#/">Home</a></li>
+        <li data-match-route="/sets"><a href="#/sets">Sets</a></li>
+        <li data-match-route="/parameters"><a href="#/parameters">Parameters</a></li>
+        <li data-match-route="/variables"><a href="#/variables">Variables</a></li>
+        <li data-match-route="/functions"><a href="#/functions">Objective functions</a></li>
+        <li data-match-route="/constraints"><a href="#/constraints">Constraints</a></li>
+        <li data-match-route="/models"><a href="#/models">Models</a></li>
+        <li data-match-route="/results"><a href="#/results">Results</a></li>
+    </ul>
+</nav>
+
+<div class="view-container">
+    <div ng-view class="view-frame"></div>
+</div>
+
+</body>
+
+</html>

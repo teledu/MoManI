@@ -1,0 +1,29 @@
+<div class="container-fluid">
+  <div class="row">
+    <div>
+        Search: <input type="text" class="form-control" ng-model="query">
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="parameter in parameters | filter: {name: query} | orderBy: orderProp">
+            <td>{{parameter.name}}</td>
+            <td>{{parameter.description}}</td>
+            <td>
+                <a href="#/parameters/{{parameter.id}}">Edit</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="#/parameters/new">Create new parameter</a>
+
+  </div>
+</div>

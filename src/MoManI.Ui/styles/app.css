@@ -1,0 +1,65 @@
+.equation-composite {
+    border-style: dashed;
+    border-color: lightsteelblue;
+    border-width: 1px;
+    -ms-border-radius: 8px;
+    border-radius: 8px;
+    background: white;
+    display: inline-block;
+    margin: 5px 3px 5px 3px;
+}
+
+.equation-composite-hovered {
+    border-color: darkslategray;
+    background: #e7e7e7;
+}
+
+.equation-object {
+    border-style: solid;
+    border-color: darkgray;
+    border-width: 1px;
+    -ms-border-radius: 4px;
+    border-radius: 4px;
+    background: white;
+    display: inline-block;
+    margin: 5px 3px 5px 3px;
+    padding: 3px;
+}
+
+.equation-object:hover {
+    border-color: darkslategray;
+    cursor: pointer;
+}
+
+.equation-operator {
+    border-style: solid;
+    border-color: darkgray;
+    border-width: 1px;
+    -ms-border-radius: 4px;
+    border-radius: 4px;
+    background: white;
+    display: inline-block;
+    margin: 5px 3px 5px 3px;
+    padding: 3px;
+}
+
+.equation-operator-hovered {
+    border-color: darkslategray;
+    cursor: pointer;
+}
+
+div.inline {
+    display: inline-block;
+}
+
+a[ng-click]{
+    cursor: pointer;
+}
+
+label.selection-title {
+    font-weight: bold;
+}
+
+.enumerators-constraint {
+    border-top: solid 1px darkgray;
+}

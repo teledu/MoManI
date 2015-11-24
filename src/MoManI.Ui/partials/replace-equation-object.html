@@ -1,0 +1,55 @@
+<div class="modal-header">
+    <h3 class="modal-title">Replace equation object</h3>
+</div>
+<div class="modal-body">
+    <accordion close-others="true">
+        <accordion-group heading="Basic" is-open="true">
+            <ul>
+                <li>
+                    <a ng-click="select(empty, 'Empty')">{{ empty.display }}</a>
+                </li>
+                <li ng-if="numberVisible">
+                    <span>Number</span>
+                    <input type="number" ng-model="numberValue" />
+                    <a ng-click="selectNumber(numberValue)">Select</a>
+                </li>
+            </ul>
+        </accordion-group>
+        <accordion-group heading="Operators" ng-if="operatorsVisible">
+            <ul>
+                <li ng-repeat="item in operators">
+                    <a ng-click="select(item, 'Operator')">{{ item.display }}</a>
+                </li>
+            </ul>
+        </accordion-group>
+        <accordion-group heading="Parameters" ng-if="parametersVisible">
+            <ul>
+                <li ng-repeat="item in parameters">
+                    <a ng-click="select(item, 'Parameter')">{{ item.display }}</a>
+                </li>
+            </ul>
+        </accordion-group>
+        <accordion-group heading="Variables" ng-if="variablesVisible">
+            <ul>
+                <li ng-repeat="item in variables">
+                    <a ng-click="select(item, 'Variable')">{{ item.display }}</a>
+                </li>
+            </ul>
+        </accordion-group>
+        <accordion-group heading="Sets" ng-if="setsVisible">
+            <ul>
+                <li ng-repeat="item in sets">
+                    <a ng-click="select(item, 'Set')">{{ item.display }}</a>
+                </li>
+            </ul>
+        </accordion-group>
+    </accordion>
+
+    <div ng-if="selected">
+        Selected: <b>{{ selected.display }}</b>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="ok()" ng-disabled="!selected">OK</button>
+    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+</div>

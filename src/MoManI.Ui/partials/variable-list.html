@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <div class="row">
+    <div>
+        Search: <input type="text" class="form-control" ng-model="query">
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="variable in variables | filter: {name: query} | orderBy: orderProp">
+            <td>{{variable.name}}</td>
+            <td>{{variable.description}}</td>
+            <td>
+                <a href="#/variables/{{variable.id}}">Edit</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="#/variables/new">Create new variable</a>
+  </div>
+</div>

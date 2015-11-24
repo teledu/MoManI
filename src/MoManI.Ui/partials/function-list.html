@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <div class="row">
+    <div>
+        Search: <input type="text" class="form-control" ng-model="query">
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="objectiveFunction in objectiveFunctions | filter: {name: query} | orderBy: orderProp">
+            <td>{{objectiveFunction.name}}</td>
+            <td>{{objectiveFunction.description}}</td>
+            <td>
+                <a href="#/functions/{{objectiveFunction.id}}">Edit</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="#/functions/new">Create new objective function</a>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="container-fluid">
+    <div class="row">
+        <form name="detailsForm" class="form-horizontal">
+            <div class="form-group">
+                <label for="functionName" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="functionName" ng-model="objectiveFunction.name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="functionDescription" class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="functionDescription" ng-model="objectiveFunction.description"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="functionFunction" class="col-sm-2 control-label">Function</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="functionFunction" ng-model="objectiveFunction.function">
+                        <option value="Minimize">Minimize</option>
+                        <option value="Maximize">Maximize</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="functionEquation" class="col-sm-2 control-label">Equation</label>
+                <div id="functionEquation" class="col-sm-10" ng-repeat="equation in [objectiveFunction.equation]">
+                    <div ng-include="'partials/equation-object.html'">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button class="btn btn-default" ng-click="save()">Save</button>
+                    <a href="#/functions" class="btn btn-default">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
