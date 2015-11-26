@@ -11,7 +11,7 @@ interface IDimension {
 
 interface IDataItem {
     dimensions: any[];
-    value: number;
+    value: string;
 }
 
 interface IIdValuePair {
@@ -72,7 +72,7 @@ export class ParameterData {
             this.data = _.map(parameterData.data, item => {
                 var res = {
                     dimensions: [],
-                    value: item.v,
+                    value: item.v.toString(),
                 };
                 _.forEach(item.c, (coordinate, index) => {
                     var dimensionId = this.dimensions[index].id;
@@ -135,12 +135,16 @@ export class ParameterData {
                     index: dimension.index,
                 }
             }),
-            data: _(this.data).filter(dataItem => dataItem.value != this.defaultValue).map(dataItem => {
+            data: _(this.data).map(dataItem => {
+                var numValue = +dataItem.value.trim();
+                var value = isNaN(numValue) ? null : numValue;
                 return {
                     c: _.map(this.dimensions, dimension => dataItem.dimensions[dimension.id]),
-                    v: dataItem.value,
+                    v: value,
                 }
-            }).value(),
+            }).filter(dataItem =>
+                dataItem.v != this.defaultValue && dataItem.v != null
+            ).value(),
         };
     }
 
