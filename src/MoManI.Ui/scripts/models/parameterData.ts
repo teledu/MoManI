@@ -136,7 +136,7 @@ export class ParameterData {
                 }
             }),
             data: _(this.data).map(dataItem => {
-                var numValue = +dataItem.value.trim();
+                var numValue = +dataItem.value.trim().replace(',', '.');
                 var value = isNaN(numValue) ? null : numValue;
                 return {
                     c: _.map(this.dimensions, dimension => dataItem.dimensions[dimension.id]),
