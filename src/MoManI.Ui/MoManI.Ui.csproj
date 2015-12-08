@@ -74,10 +74,6 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <None Include="momani - FTP.pubxml" />
-    <None Include="momani - Web Deploy.pubxml" />
-    <None Include="momani-osemosys - FTP.pubxml" />
-    <None Include="momani-osemosys - Web Deploy.pubxml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="partials\set-data.html" />

@@ -144,9 +144,6 @@
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Properties\PublishProfiles\momani-api.pubxml" />
-    <None Include="Properties\PublishProfiles\momani-osemosys-api - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\momani-osemosys-api - Web Deploy.pubxml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config">
