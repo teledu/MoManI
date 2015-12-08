@@ -187,6 +187,7 @@ export class ParameterData {
             if (isActual) {
                 var rowIndex = _.indexOf(this.rows, dataItem.dimensions[this.rowSet.id]);
                 var colIndex = this.colSet ? _.indexOf(this.columns, dataItem.dimensions[this.colSet.id]) : 0;
+                if (rowIndex < 0 || colIndex < 0) return;
                 this.spreadsheetItems[rowIndex][colIndex] = dataItem.value;
             } else {
                 this.otherItems.push(dataItem);
