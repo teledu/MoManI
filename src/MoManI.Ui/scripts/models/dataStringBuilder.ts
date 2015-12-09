@@ -1,5 +1,6 @@
 ﻿import _ = require('lodash');
 import setModel = require('models/set');
+import parameterModel = require('models/parameter');
 import setDataModel = require('models/setData');
 import parameterDataSerializer = require('models/parameterDataStringSerializer');
 
@@ -12,7 +13,7 @@ export interface ISetComponent {
 export class Builder {
     $q: angular.IQService;
     parameterDataService: angular.resource.IResourceClass<IParameterDataResource>;
-    parameters: IParameter[];
+    parameters: parameterModel.Parameter[];
     modelId: string;
     parameterDataReqs: ng.IPromise<void>[];
     setsLoading: ng.IPromise<boolean>;
@@ -21,7 +22,7 @@ export class Builder {
 
     constructor(
         $q: angular.IQService, setDataService: angular.resource.IResourceClass<ISetDataResource>, parameterDataService: angular.resource.IResourceClass<IParameterDataResource>,
-        sets: ISet[], parameters: IParameter[], modelId: string, setModels: setModel.Set[]
+        parameters: parameterModel.Parameter[], modelId: string, setModels: setModel.Set[]
     ) {
         this.$q = $q;
         this.parameterDataService = parameterDataService;
@@ -35,24 +36,26 @@ export class Builder {
         this.setsLoading = deferred.promise;
         var setDataReqs = _.map(setModels, sm => {
             return setDataService.get({ setId: sm.id, modelId: this.modelId }).$promise.then(data => {
-                var set = _.find(sets, 'id', sm.id);
-                this.setData.push(new setDataModel.SetData(this.modelId, set, data));
+                this.setData.push(new setDataModel.SetData(this.modelId, sm.serialize(), data));
             });
         });
         $q.all(setDataReqs).then(() => { deferred.resolve(true); }, () => deferred.reject(false));
     }
 
     addParameter = (parameterId: string) => {
+        var loaded = this.$q.defer();
         var req = this.parameterDataService.get({ parameterId: parameterId, modelId: this.modelId }).$promise;
         var load = this.$q.all([req, this.setsLoading]).then(res => {
-            var parameter = _.find(this.parameters, 'id', parameterId);
+            var parameter = _.find(this.parameters, 'id', parameterId).serialize();
             var parameterData = <IParameterData>res[0];
             var dependentSetData = _.map(parameter.sets, s => {
                 return _.find(this.setData, 'setId', s);
             });
             this.parameterData.push(new parameterDataSerializer.ParameterData(parameter, dependentSetData, parameterData));
+            loaded.resolve();
         });
         this.parameterDataReqs.push(load);
+        return loaded;
     }
 
     build: () => ng.IPromise<string> = () => {

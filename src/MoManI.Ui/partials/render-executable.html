@@ -1,0 +1,23 @@
+<div class="modal-header">
+    <h3 class="modal-title">Please wait, generating executable</h3>
+</div>
+<div class="modal-body">
+    <ul>
+        <li>
+            <span>Executable</span>
+            <img ng-if="executableLoading" src="images/spinner.gif" alt="Loading..." height="16" />
+            <span ng-if="executableLoaded">&#10003;</span>
+        </li>
+        <li>
+            <span>Model</span>
+            <img ng-if="modelLoading" src="images/spinner.gif" alt="Loading..." height="16"/>
+            <span ng-if="modelLoaded">&#10003;</span>
+        </li>
+        <li>
+            <span>Data</span>
+            <img ng-if="dataLoading" src="images/spinner.gif" alt="Loading..." height="16"/>
+            <span ng-if="dataProgress">{{dataProgress}}</span>
+            <span ng-if="dataLoaded">&#10003;</span>
+        </li>
+    </ul>
+</div>
