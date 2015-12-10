@@ -131,7 +131,7 @@ export class ParameterData {
             defaultValue: this.defaultValue,
             sets: _.map(this.dimensions, dimension => {
                 return {
-                    id: dimension.id,
+                    id: dimension.setId,
                     index: dimension.index,
                 }
             }),
