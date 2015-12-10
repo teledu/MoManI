@@ -8,7 +8,6 @@ namespace MoManI.WinExecApp
     {
         public async Task<bool> Run()
         {
-            var success = true;
             try
             {
                 RunCommands();
@@ -22,13 +21,13 @@ namespace MoManI.WinExecApp
             }
             catch (Exception e)
             {
-                Console.WriteLine($"An error has occured: {e.Message}");
-                success = false;
+                Console.WriteLine($"ERROR: {e.Message}");
+                return false;
             }
             Console.WriteLine("Success!");
             Console.WriteLine("Press ENTER to exit");
             Console.ReadLine();
-            return success;
+            return true;
         }
 
         private void RunCommands()
@@ -48,10 +47,17 @@ namespace MoManI.WinExecApp
             cmd.StandardInput.WriteLine(@"del /s /q res");
             cmd.StandardInput.WriteLine(@"rmdir /s /q res");
             cmd.StandardInput.WriteLine(@"mkdir res\csv");
-            cmd.StandardInput.WriteLine(@"glpsol -m model.txt -d data.txt -o res/output.txt");
             cmd.StandardInput.Flush();
             cmd.StandardInput.Close();
             Console.WriteLine(cmd.StandardOutput.ReadToEnd());
+            Console.WriteLine();
+            Console.WriteLine("Running simulation in a separate window, please wait");
+            var process = Process.Start("CMD.exe", @"/C glpsol -m model.txt -d data.txt -o res/output.txt");
+            process?.WaitForExit();
+            if (process == null || process.ExitCode != 0)
+            {
+                throw new Exception("Simulation did not complete successfully");
+            }
         }
     }
 }
