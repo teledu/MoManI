@@ -11,41 +11,76 @@ export class ParameterData {
     name: string;
     setCount: number;
     defaultValue: number;
-    setDatas: setDataModel.SetData[];
-    data: any;
+    setDatas: string[][];
+    data: any[];
 
     constructor(parameter: IParameter, setDatas: setDataModel.SetData[], parameterData: IParameterData) {
         this.name = parameter.name;
         this.setCount = setDatas.length;
         this.defaultValue = parameterData.defaultValue || 0;
-        this.setDatas = setDatas;
-        this.data = this.generateMatrix(0, [], parameterData.data);
 
+        if (this.setCount == 0) {
+            this.defaultValue = parameterData.data.length > 0 ? _.first(parameterData.data).v : this.defaultValue;
+            return;
+        }
+
+        var orderedSetDatas = _.map(parameterData.sets, s => {
+            return _.find(setDatas, 'setId', s.id);
+        });
+        if (_.some(orderedSetDatas, s => s == null)) {    // needed as a fallback due to a fixed mistake that caused incorrect set ids in parameter data
+            orderedSetDatas = setDatas;
+        }
+        this.setDatas = _.map(orderedSetDatas, s => s.getValues());
+
+        this.data = this.createArray(this.setDatas);
+        this.loadData(parameterData.data);
     }
 
-    private generateMatrix: (index: number, fixedCoordinates: string[], data: IParameterDataItem[]) => any = (index: number, fixedCoordinates: string[], data: IParameterDataItem[]) => {
-        var actualSetData = this.setDatas[index];
-        return _.map(actualSetData.getValues(), s => {
-            //var sameSetCoordinateCount = _.filter(fixedCoordinates, f => f.id == actualSetData.setId).length;
-            var coordinates = fixedCoordinates.concat([s]);
-            if (index + 1 == this.setCount) {
-                var val = findDataItem(coordinates, data);
-                if (val != null) {
-                    var valueIndex = _.indexOf(data, val);
-                    data.splice(valueIndex, 1);
-                    return val.v;
-                }
-                return this.defaultValue;
-            } else {
-                return this.generateMatrix(index + 1, coordinates, data);
+    private createArray(setDatas: string[][]): any[] {
+        var otherElements = setDatas.slice(1, setDatas.length);
+        return _.map(_.first(setDatas), () => {
+            return otherElements.length > 0 ? this.createArray(otherElements) : this.defaultValue;
+        });
+    }
+
+    private loadData(parameterData: IParameterDataItem[]) {
+        if (this.setDatas.length == 0) {
+            this.defaultValue = parameterData && parameterData.length > 0 ? _.first(parameterData).v : this.defaultValue;
+            return;
+        }
+        _.forEach(parameterData, item => {
+            var coordinateIdexes = this.mapToCoordinateIndexes(item.c);
+            if (_.some(coordinateIdexes, i => i < 0)) {
+                return;
             }
+            this.placeItem(this.data, coordinateIdexes, item.v);
+        });
+    }
+
+    private placeItem(grid: any[], coordinates: number[], value: number) {
+        var currentCoord = _.first(coordinates);
+        if (coordinates.length == 1) {
+            grid[currentCoord] = value;
+            return;
+        }
+        this.placeItem(grid[currentCoord], coordinates.slice(1, coordinates.length), value);
+    }
+
+    mapToCoordinateIndexes(coordinates: string[]): number[] {
+        return _.map(coordinates, (coord, index) => {
+            return _.indexOf(this.setDatas[index], coord);
         });
     }
 
     asDataString: () => string[] = () => {
         var res = [];
+        if (this.setCount == 0) {
+            res.unshift(`param ${this.name} default ${this.defaultValue}`);
+            res.push(`;`);
+            return res;
+        }
         if (this.setCount == 1) {
-            _.forEach(this.setDatas[0].getValues(), (val, index) => {
+            _.forEach(this.setDatas[0], (val, index) => {
                 if (this.data[index] != this.defaultValue) {
                     res.push(`${val} ${this.data[index]}`);
                 }
@@ -62,7 +97,7 @@ export class ParameterData {
         if (this.setCount - fixedValues.length > 2) {
             var res = [];
             _.forEach(data, (dataValue, index) => {
-                var value = this.setDatas[fixedValues.length].getValues()[index];
+                var value = this.setDatas[fixedValues.length][index];
                 var fixed = fixedValues.concat([value]);
                 res = res.concat(this.getMultidimensionlStrings(fixed, dataValue));
             });
@@ -74,13 +109,13 @@ export class ParameterData {
 
     get2DStrings = (fixedValues: string[], data: any[]) => {
         var res = [];
-        _.forEach(this.setDatas[this.setCount - 2].getValues(), (val, valIndex) => {
+        _.forEach(this.setDatas[this.setCount - 2], (val, valIndex) => {
             if (_.some(data[valIndex], d => d != this.defaultValue)) {
                 res.push(`${val} ${data[valIndex].join(' ') }`);
             }
         });
         if (res.length > 0) {
-            res.unshift(`${this.setDatas[this.setCount - 1].getValues().join(' ') }:=`);
+            res.unshift(`${this.setDatas[this.setCount - 1].join(' ') }:=`);
             if (fixedValues.length > 0) {
                 res.unshift(`[${fixedValues.join(',') },*,*]:`);
             }
