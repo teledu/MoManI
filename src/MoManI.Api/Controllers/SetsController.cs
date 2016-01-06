@@ -4,12 +4,14 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
+using MoManI.Api.Infrastructure;
 using MoManI.Api.Models;
 using MoManI.Api.Services;
 
 namespace MoManI.Api.Controllers
 {
     //[Authorize]
+    [LimitedWriteModel]
     public class SetsController : ApiController
     {
         private readonly IModelRepository _modelRepository;
@@ -23,7 +25,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> GetSets()
         {
-            var asdf = _principal;
+            //var asdf = _principal;
             var result = await _modelRepository.GetSets();
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }

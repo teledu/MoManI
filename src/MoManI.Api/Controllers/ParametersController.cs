@@ -4,11 +4,13 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using MoManI.Api.Infrastructure;
 using MoManI.Api.Models;
 using MoManI.Api.Services;
 
 namespace MoManI.Api.Controllers
 {
+    [LimitedWriteModel]
     public class ParametersController : ApiController
     {
         private readonly IModelRepository _modelRepository;
