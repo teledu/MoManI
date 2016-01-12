@@ -7,8 +7,20 @@ namespace MoManI.Api.Models
     {
         public Guid VariableId { get; set; }
         public Guid ModelId { get; set; }
+        public Guid ScenarioId { get; set; }
         public IEnumerable<VariableSet> Sets { get; set; } 
         public IEnumerable<VariableResultItem> Data { get; set; }
+
+        public VariableResult WithoutData()
+        {
+            return new VariableResult
+            {
+                VariableId = VariableId,
+                ModelId = ModelId,
+                ScenarioId = ScenarioId,
+                Sets = Sets,
+            };
+        }
     }
 
     public class VariableSet

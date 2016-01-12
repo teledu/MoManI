@@ -1,5 +1,6 @@
 ﻿interface IVariableResult {
     variableId: string,
+    scenarioId: string,
     modelId: string,
     sets: IVariableResultSet[],
     data: IVariableResultItem[],

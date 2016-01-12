@@ -201,9 +201,10 @@ export class Model {
         return res;
     }
 
-    asMeteDataTextFile: () => string[] = () => {
+    asScenarioMetaDataTextFile: (scenarioId: string) => string[] = (scenarioId: string) => {
         var res = [];
         res.push(urls.baseUrl);
+        res.push(scenarioId);
         res.push(this.id);
         _.forEach(this.selectedVariables(), v => {
             res.push(v.asMetaData());

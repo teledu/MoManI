@@ -1,0 +1,36 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <div>
+            Search: <input type="text" class="form-control" ng-model="query">
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Revision</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="scenario in scenarios | filter: {name: query} | orderBy: orderProp">
+                    <td>{{scenario.name}}</td>
+                    <td>{{scenario.description}}</td>
+                    <td>{{scenario.revision}}</td>
+                    <td>
+                        <a href="#/models/{{scenario.modelId}}/{{scenario.id}}/data">Enter data</a>
+                    </td>
+                    <td>
+                        <a ng-click="downloadExec(scenario)">Download executable</a>
+                    </td>
+                    <td>
+                        <a ng-click="clone(scenario)">Clone revision</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -35,6 +35,7 @@ class DimensionSelector {
 }
 
 export class ParameterData {
+    scenarioId: string;
     modelId: string;
     parameter: IParameter;
     defaultValue: number;
@@ -53,7 +54,8 @@ export class ParameterData {
     private otherItems: IDataItem[];
 
 
-    constructor(modelId: string, parameter: IParameter, setDatas: setDataModel.SetData[], parameterData?: IParameterData) {
+    constructor(scenarioId: string, modelId: string, parameter: IParameter, setDatas: setDataModel.SetData[], parameterData?: IParameterData) {
+        this.scenarioId = scenarioId;
         this.modelId = modelId;
         this.parameter = parameter;
         this.setDatas = setDatas;
@@ -127,6 +129,7 @@ export class ParameterData {
         this.saveSpreadsheetItems();
         return {
             parameterId: this.parameter.id,
+            scenarioId: this.scenarioId,
             modelId: this.modelId,
             defaultValue: this.defaultValue,
             sets: _.map(this.dimensions, dimension => {

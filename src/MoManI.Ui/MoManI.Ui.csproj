@@ -27,10 +27,12 @@
     <Content Include="images\spinner.gif" />
     <Content Include="index.html" />
     <Content Include="partials\composition-details.html" />
-    <Content Include="partials\model-data.html" />
+    <Content Include="partials\scenario-details.html" />
+    <Content Include="partials\result-scenario-list.html" />
+    <Content Include="partials\scenario-list.html" />
     <Content Include="partials\render-executable.html" />
-    <Content Include="partials\result-detail.html" />
-    <Content Include="partials\result-list.html" />
+    <Content Include="partials\variable-result-list.html" />
+    <Content Include="partials\result-model-list.html" />
     <Content Include="partials\model-list.html" />
     <Content Include="partials\constraint-detail.html" />
     <Content Include="partials\constraint-list.html" />
@@ -82,12 +84,13 @@
     <TypeScriptCompile Include="scripts\application.ts" />
     <TypeScriptCompile Include="scripts\appSettings.ts" />
     <TypeScriptCompile Include="scripts\controllers\executableRenderingControllers.ts" />
+    <TypeScriptCompile Include="scripts\controllers\scenarioControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\modelCompositionControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\enumeratingSetsSelectionController.ts" />
     <TypeScriptCompile Include="scripts\controllers\equationObjectEditSetsController.ts" />
     <TypeScriptCompile Include="scripts\controllers\equationObjectModalControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\constraintControllers.ts" />
-    <TypeScriptCompile Include="scripts\controllers\modelDataControllers.ts" />
+    <TypeScriptCompile Include="scripts\controllers\scenarioDataControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\variableResultControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\resultListControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\modelListControllers.ts" />
@@ -110,10 +113,10 @@
     <TypeScriptCompile Include="scripts\lib\uuid.d.ts" />
     <TypeScriptCompile Include="scripts\models\commonInterfaces.d.ts" />
     <TypeScriptCompile Include="scripts\models\dataStringBuilder.ts" />
+    <TypeScriptCompile Include="scripts\models\scenario.ts" />
+    <TypeScriptCompile Include="scripts\models\scenario.d.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.d.ts" />
-    <TypeScriptCompile Include="scripts\models\modelResult.ts" />
-    <TypeScriptCompile Include="scripts\models\modelResult.d.ts" />
     <TypeScriptCompile Include="scripts\models\model.ts" />
     <TypeScriptCompile Include="scripts\models\equationObject.d.ts" />
     <TypeScriptCompile Include="scripts\models\equationObject.ts" />
@@ -140,11 +143,11 @@
     <TypeScriptCompile Include="scripts\requireMain.ts" />
     <TypeScriptCompile Include="scripts\routes.ts" />
     <TypeScriptCompile Include="scripts\services\constraintService.ts" />
+    <TypeScriptCompile Include="scripts\services\scenarioService.ts" />
     <TypeScriptCompile Include="scripts\services\objectiveFunctionService.ts" />
     <TypeScriptCompile Include="scripts\services\modelService.ts" />
     <TypeScriptCompile Include="scripts\services\parameterDataService.ts" />
     <TypeScriptCompile Include="scripts\services\setDataService.ts" />
-    <TypeScriptCompile Include="scripts\services\modelResultService.ts" />
     <TypeScriptCompile Include="scripts\services\variableResultService.ts" />
     <TypeScriptCompile Include="scripts\services\variableService.ts" />
     <TypeScriptCompile Include="scripts\services\parameterService.ts" />
@@ -195,6 +198,17 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
 </Project>

@@ -27,6 +27,7 @@ namespace MoManI.WinExecApp
                 });
                 yield return new Result
                 {
+                    ScenarioId = metadata.ScenarioId,
                     ModelId = metadata.ModelId,
                     VariableId = variable.Id,
                     Sets = variable.Sets.Select(s => new VariableSet {Id = s.Id, Index = s.Index}),

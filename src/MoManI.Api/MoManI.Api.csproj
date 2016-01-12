@@ -156,11 +156,13 @@
     <Compile Include="Controllers\ConstraintsController.cs" />
     <Compile Include="Controllers\ComposedModelsController.cs" />
     <Compile Include="Controllers\ExecutableController.cs" />
+    <Compile Include="Controllers\ScenarioCloningController.cs" />
+    <Compile Include="Controllers\ScenariosController.cs" />
     <Compile Include="Infrastructure\LimitedWriteAttribute.cs" />
     <Compile Include="Controllers\ParameterDataController.cs" />
     <Compile Include="Controllers\SetDataController.cs" />
-    <Compile Include="Controllers\ModelResultsController.cs" />
     <Compile Include="Models\ModelResult.cs" />
+    <Compile Include="Models\Scenario.cs" />
     <Compile Include="Models\VariableResult.cs" />
     <Compile Include="Controllers\VariableResultsController.cs" />
     <Compile Include="Models\ComposedModel.cs" />

@@ -19,18 +19,28 @@ namespace MoManI.Api.Controllers
             _resultsRepository = resultsRepository;
         }
 
-        public async Task<HttpResponseMessage> GetVariableResult(Guid variableId, Guid modelId)
+        public async Task<HttpResponseMessage> GetVariableResults(Guid scenarioId)
         {
-            var result = await _resultsRepository.GetVariableResult(variableId, modelId);
+            var result = await _resultsRepository.GetVariableResults(scenarioId);
+            return Request.CreateResponse(HttpStatusCode.OK, result);
+        }
+
+        public async Task<HttpResponseMessage> GetVariableResult(Guid id, Guid scenarioId)
+        {
+            var result = await _resultsRepository.GetVariableResult(id, scenarioId);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostVariable(VariableResultSaveRequest request)
         {
-            System.Diagnostics.Trace.TraceError($"{DateTime.Now}: saving result data for variable {request.VariableId} in {request.ModelId}, {request.Data?.Count() ?? 0} data items, request size {Request.Content.Headers.ContentLength}");
+            if (request.ScenarioId == Guid.Empty)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.UpgradeRequired, "Request no longer supported, please redownload executable file");
+            }
             await _resultsRepository.SaveVariableResults(new VariableResult
             {
                 VariableId = request.VariableId,
+                ScenarioId = request.ScenarioId,
                 ModelId = request.ModelId,
                 Sets = request.Sets?.Select(s => new VariableSet { Id = s.Id, Index = s.Index }),
                 Data = request.Data?.Select(d => new VariableResultItem {C = d.C, V = d.V}),
@@ -42,6 +52,7 @@ namespace MoManI.Api.Controllers
     public class VariableResultSaveRequest
     {
         public Guid VariableId { get; set; }
+        public Guid ScenarioId { get; set; }
         public Guid ModelId { get; set; }
         public IEnumerable<VariableResultSetSaveRequest> Sets { get; set; }
         public IEnumerable<VariableResultItemSaveRequest> Data { get; set; }

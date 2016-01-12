@@ -6,7 +6,7 @@ import objectiveFunctionControllers = require('controllers/objectiveFunctionCont
 import constraintControllers = require('controllers/constraintControllers');
 import modelListControllers = require('controllers/modelListControllers');
 import modelCompositionControllers = require('controllers/modelCompositionControllers');
-import modelDataControllers = require('controllers/modelDataControllers');
+import scenarioControllers = require('controllers/scenarioControllers');
 import setDataControllers = require('controllers/setDataControllers');
 import parameterDataControllers = require('controllers/parameterDataControllers');
 import resultListControllers = require('controllers/resultListControllers');
@@ -76,32 +76,42 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/composition-details.html'
             })
         .when(
-            '/models/:id/data', {
-                controller: modelDataControllers.ModelDataController,
-                templateUrl: 'partials/model-data.html'
+            '/models/:modelId/scenarios', {
+            controller: scenarioControllers.ScenarioListController,
+                templateUrl: 'partials/scenario-list.html'
             })
         .when(
-            '/models/:modelId/data/set/:setId', {
+            '/models/:modelId/:scenarioId/data', {
+            controller: scenarioControllers.ScenarioDetailsController,
+                templateUrl: 'partials/scenario-details.html'
+            })
+        .when(
+            '/models/:modelId/:scenarioId/data/set/:setId', {
                 controller: setDataControllers.SetDataController,
                 templateUrl: 'partials/set-data.html'
             })
         .when(
-            '/models/:modelId/data/parameter/:parameterId', {
+            '/models/:modelId/:scenarioId/data/parameter/:parameterId', {
                 controller: parameterDataControllers.ParameterDataController,
                 templateUrl: 'partials/parameter-data.html'
             })
         .when(
             '/results', {
-                controller: resultListControllers.ResultsListController,
-                templateUrl: 'partials/result-list.html'
+                controller: resultListControllers.ResultsModelListController,
+                templateUrl: 'partials/result-model-list.html'
             })
         .when(
             '/results/:modelId', {
-                controller: resultListControllers.ResultDetailsController,
-                templateUrl: 'partials/result-detail.html'
+                controller: resultListControllers.ResultsScenarioListController,
+                templateUrl: 'partials/result-scenario-list.html'
             })
         .when(
-            '/results/:modelId/:variableId/charts', {
+            '/results/:modelId/:scenarioId', {
+                controller: variableResultControllers.VariableResultListController,
+                templateUrl: 'partials/variable-result-list.html'
+            })
+        .when(
+            '/results/:modelId/:scenarioId/:variableId/charts', {
                 controller: variableResultControllers.VariableResultChartsController,
                 templateUrl: 'partials/variable-result-charts.html'
             })

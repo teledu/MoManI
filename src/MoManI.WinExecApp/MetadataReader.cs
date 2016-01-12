@@ -11,11 +11,17 @@ namespace MoManI.WinExecApp
         public static Metadata Read(string fileName)
         {
             var metadataLines = File.ReadAllLines(fileName).Where(l => l.Any()).ToList();
+            Guid scenarioId;
+            if (!Guid.TryParse(metadataLines.Skip(1).First(), out scenarioId))
+            {
+                throw new Exception("Old data format, please redownload executable files");
+            }
             return new Metadata
             {
                 ApiAddress = new Uri(metadataLines.First()),
-                ModelId = Guid.Parse(metadataLines.Skip(1).First()),
-                Variables = metadataLines.Skip(2).Select(l =>
+                ScenarioId = scenarioId,
+                ModelId = Guid.Parse(metadataLines.Skip(2).First()),
+                Variables = metadataLines.Skip(3).Select(l =>
                 {
                     var varRecords = l.Split(',');
                     var name = varRecords.First();

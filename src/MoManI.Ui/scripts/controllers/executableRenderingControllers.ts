@@ -33,6 +33,7 @@ export class ExecutableRenderingController {
     private $q: angular.IQService;
     private $http: angular.IHttpService;
     private zip: JSZip;
+    private scenarioId: string;
     private modelId: string;
     private setService: ng.resource.IResourceClass<ISetResource>;
     private parameterService: angular.resource.IResourceClass<IParameterResource>;
@@ -52,7 +53,7 @@ export class ExecutableRenderingController {
         VariableService: angular.resource.IResourceClass<IVariableResource>, ObjectiveFunctionService: angular.resource.IResourceClass<IObjectiveFunctionResource>,
         ConstraintService: angular.resource.IResourceClass<IConstraintResource>, ModelService: angular.resource.IResourceClass<IModelResource>,
         SetDataService: angular.resource.IResourceClass<ISetDataResource>, ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>,
-        model: IModel
+        scenario: IScenario
     ) {
         this.$scope = $scope;
         this.$q = $q;
@@ -66,14 +67,15 @@ export class ExecutableRenderingController {
         this.setDataService = SetDataService;
         this.parameterDataService = ParameterDataService;
         this.zip = new JSZip();
-        this.modelId = model.id;
+        this.scenarioId = scenario.id;
+        this.modelId = scenario.modelId;
 
         $q.when(this.loadExecutable().promise).then(() => {
             $q.when(this.loadModel().promise).then(() => {
                 $q.when(this.loadData().promise).then(() => {
                     try {
                         var blob = this.zip.generate({ type: 'blob' });
-                        saveAs(blob, `${model.name}.zip`);
+                        saveAs(blob, `${scenario.name}.zip`);
                         setTimeout($modalInstance.close, 1000);
                     } catch (e) {
                         console.log(e);
@@ -117,7 +119,7 @@ export class ExecutableRenderingController {
             this.sets = this.model.selectedSets();
             this.parameters = this.model.selectedParameters();
             this.zip.file('model.txt', this.model.asTextFile().join(`\r\n`));
-            this.zip.file('metadata.txt', this.model.asMeteDataTextFile().join(`\r\n`));
+            this.zip.file('metadata.txt', this.model.asScenarioMetaDataTextFile(this.scenarioId).join(`\r\n`));
             this.$scope.modelLoading = false;
             this.$scope.modelLoaded = true;
             done.resolve();
@@ -128,7 +130,7 @@ export class ExecutableRenderingController {
     private loadData = () => {
         this.$scope.dataLoading = true;
         var done = this.$q.defer();
-        var dataBuilder = new dataStringBuilder.Builder(this.$q, this.setDataService, this.parameterDataService, this.parameters, this.modelId, this.sets);
+        var dataBuilder = new dataStringBuilder.Builder(this.$q, this.setDataService, this.parameterDataService, this.parameters, this.scenarioId, this.modelId, this.sets);
         this.$scope.dataProgress = `0/${this.parameters.length}`;
         this.$q.when(this.loadParameters(dataBuilder, this.parameters.map(p => p.id)).promise).then(() => {
             dataBuilder.build().then(data => {

@@ -19,18 +19,19 @@ namespace MoManI.Api.Controllers
             _dataRepository = dataRepository;
         }
 
-        public async Task<HttpResponseMessage> GetParameterData(Guid parameterId, Guid modelId)
+        public async Task<HttpResponseMessage> GetParameterData(Guid parameterId, Guid scenarioId)
         {
-            var result = await _dataRepository.GetParameterData(parameterId, modelId);
+            var result = await _dataRepository.GetParameterData(parameterId, scenarioId);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostParameterData(ParameterDataSaveRequest parameterData)
         {
-            System.Diagnostics.Trace.TraceError($"{DateTime.Now}: saving data for parameter {parameterData.ParameterId} in {parameterData.ModelId}, {parameterData.Data?.Count() ?? 0} data items, request size {Request.Content.Headers.ContentLength}");
+            System.Diagnostics.Trace.TraceError($"{DateTime.Now}: saving data for parameter {parameterData.ParameterId} in {parameterData.ScenarioId}, {parameterData.Data?.Count() ?? 0} data items, request size {Request.Content.Headers.ContentLength}");
             await _dataRepository.SaveParameterData(new ParameterData
             {
                 ParameterId = parameterData.ParameterId,
+                ScenarioId = parameterData.ScenarioId,
                 ModelId = parameterData.ModelId,
                 DefaultValue = parameterData.DefaultValue,
                 Sets = parameterData.Sets?.Select(s => new ParameterDataSet {Id = s.Id, Index = s.Index}),
@@ -49,6 +50,7 @@ namespace MoManI.Api.Controllers
     public class ParameterDataSaveRequest
     {
         public Guid ParameterId { get; set; }
+        public Guid ScenarioId { get; set; }
         public Guid ModelId { get; set; }
         public decimal DefaultValue { get; set; }
         public IEnumerable<ParameterDataSetSaveRequest> Sets { get; set; }

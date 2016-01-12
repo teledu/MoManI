@@ -18,9 +18,9 @@ namespace MoManI.Api.Controllers
             _dataRepository = dataRepository;
         }
 
-        public async Task<HttpResponseMessage> GetSetData(Guid setId, Guid modelId)
+        public async Task<HttpResponseMessage> GetSetData(Guid setId, Guid scenarioId)
         {
-            var result = await _dataRepository.GetSetData(setId, modelId);
+            var result = await _dataRepository.GetSetData(setId, scenarioId);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
@@ -29,15 +29,16 @@ namespace MoManI.Api.Controllers
             await _dataRepository.SaveSetData(new SetData
             {
                 SetId = setData.SetId,
+                ScenarioId = setData.ScenarioId,
                 ModelId = setData.ModelId,
                 Values = setData.Values ?? new List<string>(),
             });
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
-        public async Task<HttpResponseMessage> DeleteSetData(Guid setId, Guid modelId)
+        public async Task<HttpResponseMessage> DeleteSetData(Guid setId, Guid scenarioId)
         {
-            await _dataRepository.DeleteSetData(setId, modelId);
+            await _dataRepository.DeleteSetData(setId, scenarioId);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }
@@ -45,6 +46,7 @@ namespace MoManI.Api.Controllers
     public class SetDataSaveRequest
     {
         public Guid SetId { get; set; }
+        public Guid ScenarioId { get; set; }
         public Guid ModelId { get; set; }
         public IEnumerable<string> Values { get; set; } 
     }

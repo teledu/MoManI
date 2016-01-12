@@ -52,7 +52,15 @@ namespace MoManI.Api.Infrastructure
             }
             if (controllerType == typeof(ComposedModelsController))
             {
-                return new ComposedModelsController(_modelRepository);
+                return new ComposedModelsController(_modelRepository, _dataRepository);
+            }
+            if (controllerType == typeof(ScenariosController))
+            {
+                return new ScenariosController(_dataRepository, _resultsRepository);
+            }
+            if (controllerType == typeof(ScenarioCloningController))
+            {
+                return new ScenarioCloningController(_modelRepository, _dataRepository);
             }
             if (controllerType == typeof(SetDataController))
             {
@@ -69,10 +77,6 @@ namespace MoManI.Api.Infrastructure
             if (controllerType == typeof(ExecutableController))
             {
                 return new ExecutableController();
-            }
-            if (controllerType == typeof (ModelResultsController))
-            {
-                return new ModelResultsController(_resultsRepository);
             }
 
             throw new Exception("Unknown controller type " + controllerType);

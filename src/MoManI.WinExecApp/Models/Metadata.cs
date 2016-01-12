@@ -5,6 +5,7 @@ namespace MoManI.WinExecApp.Models
 {
     public class Metadata
     {
+        public Guid ScenarioId { get; set; }
         public Guid ModelId { get; set; }
         public Uri ApiAddress { get; set; }
         public IEnumerable<Variable> Variables { get; set; }

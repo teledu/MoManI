@@ -7,9 +7,9 @@ namespace MoManI.Api.Services
 {
     public interface IResultsRepository
     {
-        Task<VariableResult> GetVariableResult(Guid variableId, Guid modelId);
+        Task<IEnumerable<VariableResult>> GetVariableResults(Guid scenarioId);
+        Task<VariableResult> GetVariableResult(Guid variableId, Guid scenarioId);
         Task SaveVariableResults(VariableResult variableResults);
-        Task<IEnumerable<ModelResult>> GetModelResults();
-        Task<ModelResult> GetModelResult(Guid id);
+        Task<bool> HasResultsForScenario(Guid scenarioId);
     }
 }

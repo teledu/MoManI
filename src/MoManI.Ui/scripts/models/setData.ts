@@ -7,14 +7,16 @@ interface IValue {
 
 export class SetData {
     setId: string;
+    scenarioId: string;
     modelId: string;
     private values: IValue[];
     setName: string;
     description: string;
     numeric: boolean;
 
-    constructor(modelId: string, set: ISet, setData?: ISetData) {
+    constructor(scenarioId: string, modelId: string, set: ISet, setData?: ISetData) {
         this.setId = set.id;
+        this.scenarioId = scenarioId;
         this.modelId = modelId;
         this.setName = set.name;
         this.description = set.description;
@@ -30,6 +32,7 @@ export class SetData {
     serialize: () => ISetData = () => {
         return {
             setId: this.setId,
+            scenarioId: this.scenarioId,
             modelId: this.modelId,
             values: _.map(this.values, val => val.value.toString()),
         };

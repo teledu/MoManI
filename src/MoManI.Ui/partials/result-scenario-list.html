@@ -9,24 +9,21 @@
                 <tr>
                     <th>Name</th>
                     <th>Description</th>
-                    <th></th>
+                    <th>Revision</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="model in models | filter: {name: query} | orderBy: orderProp">
-                    <td>{{model.name}}</td>
-                    <td>{{model.description}}</td>
+                <tr ng-repeat="scenario in scenarios | filter: {name: query} | orderBy: orderProp">
+                    <td>{{scenario.name}}</td>
+                    <td>{{scenario.description}}</td>
+                    <td>{{scenario.revision}}</td>
                     <td>
-                        <a href="#/models/{{model.id}}/compose">Edit model</a>
-                    </td>
-                    <td>
-                        <a href="#/models/{{model.id}}/scenarios">Scenarios</a>
+                        <a href="#/results/{{scenario.modelId}}/{{scenario.id}}" ng-if="scenario.hasResults">View results</a>
+                        <span ng-if="!scenario.hasResults">No results yet</span>
                     </td>
                 </tr>
             </tbody>
         </table>
-
-        <a href="#/models/new/compose">Create new model</a>
     </div>
 </div>

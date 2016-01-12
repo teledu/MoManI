@@ -2,6 +2,9 @@
 import variableModel = require('models/variable')
 
 export class VariableResult {
+    variableId: string;
+    scenarioId: string;
+    modelId: string;
     name: string;
     description: string;
     data: IVariableResultItem[];
@@ -13,7 +16,10 @@ export class VariableResult {
     private chartOptions: any;
     private chartData: IChartGroup[];
 
-    constructor(variable: variableModel.Variable, variableResult: IVariableResult, sets: ISet[], setDatas: ISetData[]) {
+    constructor(variable: variableModel.Variable, variableResult: IVariableResult, sets: ISet[]) {
+        this.variableId = variableResult.variableId;
+        this.scenarioId = variableResult.scenarioId;
+        this.modelId = variableResult.modelId;
         this.name = variable.name;
         this.description = variable.description;
         this.data = variableResult.data;

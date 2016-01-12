@@ -1,5 +1,6 @@
 ﻿interface IParameterData {
     parameterId: string;
+    scenarioId: string;
     modelId: string;
     defaultValue: number;
     sets: IParameterDataSet[];

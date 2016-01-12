@@ -1,5 +1,6 @@
 ﻿interface ISetData {
     setId: string;
+    scenarioId: string;
     modelId: string;
     values: string[];
 }

@@ -9,6 +9,7 @@ namespace MoManI.Api.Services
 {
     public class MongoDataRepository : IDataRepository
     {
+        private readonly IMongoCollection<Scenario> _scenariosCollection;
         private readonly IMongoCollection<SetData> _setDataCollection;
         private readonly IMongoCollection<ParameterDataStorageModel> _parameterDataCollection;
         private readonly IMongoCollection<ParameterDataItemStorageModel> _parameterDataItemCollection;
@@ -18,31 +19,61 @@ namespace MoManI.Api.Services
             _setDataCollection = database.GetCollection<SetData>("SetData");
             _parameterDataCollection = database.GetCollection<ParameterDataStorageModel>("ParameterData");
             _parameterDataItemCollection = database.GetCollection<ParameterDataItemStorageModel>("ParameterDataItem");
+            _scenariosCollection = database.GetCollection<Scenario>("Scenario");
         }
 
-        public async Task<SetData> GetSetData(Guid setId, Guid modelId)
+        public async Task<IEnumerable<Scenario>> GetScenarios(Guid modelId)
         {
-            var builder = Builders<SetData>.Filter;
-            var filter = builder.Eq("setId", setId) & builder.Eq("modelId", modelId);
-            return await _setDataCollection.Find(filter).FirstOrDefaultAsync();
+            var filter = Builders<Scenario>.Filter.Eq("modelId", modelId);
+            return await _scenariosCollection.Find(filter)
+                .ToListAsync();
         }
 
-        public async Task SaveSetData(SetData setData)
+        public async Task<Scenario> GetScenario(Guid id)
         {
-            await _setDataCollection.ReplaceOneAsync(x => x.SetId == setData.SetId && x.ModelId == setData.ModelId, setData, new UpdateOptions
+            var filter = Builders<Scenario>.Filter.Eq("_id", id);
+            return await _scenariosCollection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task SaveScenario(Scenario scenario)
+        {
+            await _scenariosCollection.ReplaceOneAsync(x => x.Id == scenario.Id, scenario, new UpdateOptions
             {
                 IsUpsert = true
             });
         }
 
-        public async Task DeleteSetData(Guid setId, Guid modelId)
+        public async Task CloneScenario(Guid id, int revision)
         {
-            await _setDataCollection.DeleteOneAsync(x => x.SetId == setId && x.ModelId == modelId);
+            var source = await GetScenario(id);
+            var scenario = source.Clone(revision);
+            await SaveScenario(scenario);
+            await CloneData(id, scenario.Id);
         }
 
-        public async Task<ParameterData> GetParameterData(Guid parameterId, Guid modelId)
+        public async Task<SetData> GetSetData(Guid setId, Guid scenarioId)
         {
-            var data = await GetParameterDataStorageModel(parameterId, modelId);
+            var builder = Builders<SetData>.Filter;
+            var filter = builder.Eq("setId", setId) & builder.Eq("ScenarioId", scenarioId);
+            return await _setDataCollection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task SaveSetData(SetData setData)
+        {
+            await _setDataCollection.ReplaceOneAsync(x => x.SetId == setData.SetId && x.ScenarioId == setData.ScenarioId, setData, new UpdateOptions
+            {
+                IsUpsert = true
+            });
+        }
+
+        public async Task DeleteSetData(Guid setId, Guid scenarioId)
+        {
+            await _setDataCollection.DeleteOneAsync(x => x.SetId == setId && x.ScenarioId == scenarioId);
+        }
+
+        public async Task<ParameterData> GetParameterData(Guid parameterId, Guid scenarioId)
+        {
+            var data = await GetParameterDataStorageModel(parameterId, scenarioId);
             if (data == null)
             {
                 return null;
@@ -64,10 +95,11 @@ namespace MoManI.Api.Services
 
         public async Task SaveParameterData(ParameterData parameterData)
         {
-            var existingData = await GetParameterDataStorageModel(parameterData.ParameterId, parameterData.ModelId);
+            var existingData = await GetParameterDataStorageModel(parameterData.ParameterId, parameterData.ScenarioId);
             var dataModel = new ParameterDataStorageModel
             {
                 Id = existingData?.Id ?? Guid.NewGuid(),
+                ScenarioId = parameterData.ScenarioId,
                 ModelId = parameterData.ModelId,
                 ParameterId = parameterData.ParameterId,
                 DefaultValue = parameterData.DefaultValue,
@@ -90,19 +122,50 @@ namespace MoManI.Api.Services
             }
         }
 
-        public async Task DeleteParameterData(Guid parameterId, Guid modelId)
+        public async Task DeleteParameterData(Guid parameterId, Guid scenarioId)
         {
-            var existingData = await GetParameterDataStorageModel(parameterId, modelId);
+            var existingData = await GetParameterDataStorageModel(parameterId, scenarioId);
             if (existingData == null)
                 return;
             await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == existingData.Id);
             await _parameterDataCollection.DeleteOneAsync(x => x.Id == existingData.Id);
         }
 
-        private async Task<ParameterDataStorageModel> GetParameterDataStorageModel(Guid parameterId, Guid modelId)
+        private async Task CloneData(Guid sourceId, Guid scenarioId)
+        {
+            await CloneSetData(sourceId, scenarioId);
+            await CloneParameterData(sourceId, scenarioId);
+        }
+
+        private async Task CloneSetData(Guid sourceId, Guid scenarioId)
+        {
+            var filter = Builders<SetData>.Filter.Eq("scenarioId", sourceId);
+            var setDatas = await _setDataCollection.Find(filter).ToListAsync();
+            foreach (var setData in setDatas.Select(s => s.Clone(scenarioId)))
+            {
+                await SaveSetData(setData);
+            }
+        }
+
+        private async Task CloneParameterData(Guid sourceId, Guid scenarioId)
+        {
+            var filter = Builders<ParameterDataStorageModel>.Filter.Eq("scenarioId", sourceId);
+            var parameterDatas = await _parameterDataCollection.Find(filter).ToListAsync();
+            foreach (var parameterData in parameterDatas)
+            {
+                var newParameterData = parameterData.Clone(scenarioId);
+                await _parameterDataCollection.InsertOneAsync(newParameterData);
+                var items = await GetParameterDataItemStorageModels(parameterData.Id);
+                var parameterDataItemStorageModels = items as ParameterDataItemStorageModel[] ?? items.ToArray();
+                if (!parameterDataItemStorageModels.Any()) continue;
+                await _parameterDataItemCollection.InsertManyAsync(parameterDataItemStorageModels.Select(i => i.Clone(newParameterData.Id)));
+            }
+        }
+
+        private async Task<ParameterDataStorageModel> GetParameterDataStorageModel(Guid parameterId, Guid scenarioId)
         {
             var builder = Builders<ParameterDataStorageModel>.Filter;
-            var filter = builder.Eq("parameterId", parameterId) & builder.Eq("modelId", modelId);
+            var filter = builder.Eq("parameterId", parameterId) & builder.Eq("scenarioId", scenarioId);
             return await _parameterDataCollection.Find(filter).FirstOrDefaultAsync();
         }
 
@@ -117,9 +180,23 @@ namespace MoManI.Api.Services
         {
             public Guid Id { get; set; }
             public Guid ParameterId { get; set; }
+            public Guid ScenarioId { get; set; }
             public Guid ModelId { get; set; }
             public decimal DefaultValue { get; set; }
             public IEnumerable<ParameterDataSet> Sets { get; set; }
+
+            public ParameterDataStorageModel Clone(Guid scenarioId)
+            {
+                return new ParameterDataStorageModel
+                {
+                    Id = Guid.NewGuid(),
+                    ParameterId = ParameterId,
+                    ScenarioId = scenarioId,
+                    ModelId = ModelId,
+                    DefaultValue = DefaultValue,
+                    Sets = Sets.ToList(),
+                };
+            }
         }
 
         private class ParameterDataItemStorageModel
@@ -127,6 +204,16 @@ namespace MoManI.Api.Services
             public Guid ParameterDataId { get; set; }
             public IEnumerable<string> Coordinates { get; set; }
             public decimal Value { get; set; }
+
+            public ParameterDataItemStorageModel Clone(Guid parameterDataId)
+            {
+                return new ParameterDataItemStorageModel
+                {
+                    ParameterDataId = parameterDataId,
+                    Coordinates = Coordinates.ToList(),
+                    Value = Value,
+                };
+            }
         }
     }
 }

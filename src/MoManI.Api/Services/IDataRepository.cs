@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MoManI.Api.Models;
 
@@ -6,12 +7,17 @@ namespace MoManI.Api.Services
 {
     public interface IDataRepository
     {
-        Task<SetData> GetSetData(Guid setId, Guid modelId);
-        Task SaveSetData(SetData setData);
-        Task DeleteSetData(Guid setId, Guid modelId);
+        Task<IEnumerable<Scenario>> GetScenarios(Guid modelId);
+        Task<Scenario> GetScenario(Guid id);
+        Task SaveScenario(Scenario scenario);
+        Task CloneScenario(Guid id, int revision);
 
-        Task<ParameterData> GetParameterData(Guid parameterId, Guid modelId);
+        Task<SetData> GetSetData(Guid setId, Guid scenarioId);
+        Task SaveSetData(SetData setData);
+        Task DeleteSetData(Guid setId, Guid scenarioId);
+
+        Task<ParameterData> GetParameterData(Guid parameterId, Guid scenarioId);
         Task SaveParameterData(ParameterData parameterData);
-        Task DeleteParameterData(Guid parameterId, Guid modelId);
+        Task DeleteParameterData(Guid parameterId, Guid scenarioId);
     }
 }

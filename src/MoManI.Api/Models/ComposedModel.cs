@@ -13,5 +13,6 @@ namespace MoManI.Api.Models
         public IEnumerable<Guid> Variables { get; set; }
         public Guid? ObjectiveFunction { get; set; }
         public IEnumerable<Guid> Constraints { get; set; }
+        public int LastRevision { get; set; }
     }
 }

@@ -12,10 +12,12 @@ namespace MoManI.Api.Controllers
     public class ComposedModelsController : ApiController
     {
         private readonly IModelRepository _modelRepository;
+        private readonly IDataRepository _dataRepository;
 
-        public ComposedModelsController(IModelRepository modelRepository)
+        public ComposedModelsController(IModelRepository modelRepository, IDataRepository dataRepository)
         {
             _modelRepository = modelRepository;
+            _dataRepository = dataRepository;
         }
 
         public async Task<HttpResponseMessage> GetComposedModels()
@@ -32,6 +34,8 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> PostComposedModel(Guid id, ComposedModelSaveRequest composedModel)
         {
+            var model = await _modelRepository.GetComposedModel(id);
+            var isNew = model == null;
             await _modelRepository.SaveComposedModel(new ComposedModel
             {
                 Id = id,
@@ -42,7 +46,20 @@ namespace MoManI.Api.Controllers
                 Variables = composedModel.Variables,
                 ObjectiveFunction = composedModel.ObjectiveFunction,
                 Constraints = composedModel.Constraints,
+                LastRevision = isNew ? 1 : model.LastRevision,
             });
+            if (isNew)
+            {
+                var scenario = new Scenario
+                {
+                    Id = Guid.NewGuid(),
+                    ModelId = id,
+                    Name = composedModel.Name,
+                    Description = composedModel.Description,
+                    Revision = 1,
+                };
+                await _dataRepository.SaveScenario(scenario);
+            }
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 

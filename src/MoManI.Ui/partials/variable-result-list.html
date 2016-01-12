@@ -1,7 +1,7 @@
 ﻿<div class="container-fluid">
     <div class="row">
-        <h3>Variable results for model {{model.name}}</h3>
-        <div>{{model.description}}</div>
+        <h3>Variable results for scenario {{scenario.name}}</h3>
+        <div>{{scenario.description}}</div>
         <br/>
 
         <div>
@@ -17,11 +17,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="variable in model.variables | filter: {name: query} | orderBy: orderProp">
-                <td>{{variable.name}}</td>
-                <td>{{variable.description}}</td>
+            <tr ng-repeat="variableResult in variableResults | filter: {name: query} | orderBy: orderProp">
+                <td>{{variableResult.name}}</td>
+                <td>{{variableResult.description}}</td>
                 <td>
-                    <a href="#/results/{{$parent.model.id}}/{{variable.id}}/charts">View charts</a>
+                    <a href="#/results/{{variableResult.modelId}}/{{variableResult.scenarioId}}/{{variableResult.variableId}}/charts">View charts</a>
                 </td>
             </tr>
             </tbody>

@@ -14,6 +14,7 @@ export class Builder {
     $q: angular.IQService;
     parameterDataService: angular.resource.IResourceClass<IParameterDataResource>;
     parameters: parameterModel.Parameter[];
+    scenarioId: string;
     modelId: string;
     parameterDataReqs: ng.IPromise<void>[];
     setsLoading: ng.IPromise<boolean>;
@@ -22,11 +23,12 @@ export class Builder {
 
     constructor(
         $q: angular.IQService, setDataService: angular.resource.IResourceClass<ISetDataResource>, parameterDataService: angular.resource.IResourceClass<IParameterDataResource>,
-        parameters: parameterModel.Parameter[], modelId: string, setModels: setModel.Set[]
+        parameters: parameterModel.Parameter[], scenarioId: string, modelId: string, setModels: setModel.Set[]
     ) {
         this.$q = $q;
         this.parameterDataService = parameterDataService;
         this.parameters = parameters;
+        this.scenarioId = scenarioId;
         this.modelId = modelId;
 
         this.setData = [];
@@ -35,8 +37,8 @@ export class Builder {
         var deferred = this.$q.defer();
         this.setsLoading = deferred.promise;
         var setDataReqs = _.map(setModels, sm => {
-            return setDataService.get({ setId: sm.id, modelId: this.modelId }).$promise.then(data => {
-                this.setData.push(new setDataModel.SetData(this.modelId, sm.serialize(), data));
+            return setDataService.get({ setId: sm.id, scenarioId: this.scenarioId }).$promise.then(data => {
+                this.setData.push(new setDataModel.SetData(this.scenarioId, this.modelId, sm.serialize(), data));
             });
         });
         $q.all(setDataReqs).then(() => { deferred.resolve(true); }, () => deferred.reject(false));
@@ -44,7 +46,7 @@ export class Builder {
 
     addParameter = (parameterId: string) => {
         var loaded = this.$q.defer();
-        var req = this.parameterDataService.get({ parameterId: parameterId, modelId: this.modelId }).$promise;
+        var req = this.parameterDataService.get({ parameterId: parameterId, scenarioId: this.scenarioId }).$promise;
         var load = this.$q.all([req, this.setsLoading]).then(res => {
             var parameter = _.find(this.parameters, 'id', parameterId).serialize();
             var parameterData = <IParameterData>res[0];

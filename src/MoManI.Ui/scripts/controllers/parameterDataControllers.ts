@@ -20,31 +20,32 @@ export class ParameterDataController {
         ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>
     ) {
         var modelId = $routeParams['modelId'];
+        var scenarioId = $routeParams['scenarioId'];
         var parameterId = $routeParams['parameterId'];
 
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.get({ id: parameterId }).$promise;
-        var parameterDataReq = ParameterDataService.get({ parameterId: parameterId, modelId: modelId }).$promise;
+        var parameterDataReq = ParameterDataService.get({ parameterId: parameterId, scenarioId: scenarioId }).$promise;
 
         $q.all([setReq, parameterReq, parameterDataReq]).then(res => {
             var sets = <ISet[]>res[0];
             var parameter = <IParameter>res[1];
             var parameterData = <IParameterData>res[2];
             var setDataReqs = _.map(parameter.sets, setId => {
-                return SetDataService.get({ setId: setId, modelId: modelId }).$promise;
+                return SetDataService.get({ setId: setId, scenarioId: scenarioId }).$promise;
             });
             $q.all(setDataReqs).then(setDataRes => {
                 var setDatas = _.map(parameter.sets, (setId, index) => {
                     var actualSet = _.find(sets, 'id', setId);
-                    return new setDataModel.SetData(modelId, actualSet, <ISetData>setDataRes[index]);
+                    return new setDataModel.SetData(scenarioId, modelId, actualSet, <ISetData>setDataRes[index]);
                 });
-                $scope.data = new parameterDataModel.ParameterData(modelId, parameter, setDatas, parameterData);
+                $scope.data = new parameterDataModel.ParameterData(scenarioId, modelId, parameter, setDatas, parameterData);
             });
         });
 
         $scope.save = () => {
             ParameterDataService.save($scope.data.serialize(), () => {
-                $window.location.href = `#/models/${modelId}/data`;
+                $window.location.href = `#/models/${modelId}/${scenarioId}/data`;
             }, () => {
                 alert('An error occured');
             });

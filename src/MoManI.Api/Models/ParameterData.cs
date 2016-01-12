@@ -7,6 +7,7 @@ namespace MoManI.Api.Models
     {
         public Guid ParameterId { get; set; }
         public Guid ModelId { get; set; }
+        public Guid ScenarioId { get; set; }
         public decimal DefaultValue { get; set; }
         public IEnumerable<ParameterDataSet> Sets { get; set; }
         public IEnumerable<ParameterDataItem> Data { get; set; }

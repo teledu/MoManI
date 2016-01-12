@@ -1,0 +1,85 @@
+﻿<div class="container-fluid">
+    <div>
+        <h4>Entering scenario data for model</h4>
+        <h3>{{model.name}}</h3>
+    </div>
+    <div class="row">
+        <h4>Scenario</h4>
+        <form class="form-horizontal" name="detailsForm">
+            <div class="form-group">
+                <label for="scenarioName" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="scenarioName" ng-model="scenario.name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="scenarioDescription" class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="scenarioDescription" ng-model="scenario.description"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button class="btn btn-default" ng-click="save()">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="row">
+        <h4>Sets</h4>
+        <div>
+            Search: <input type="text" class="form-control" ng-model="setQuery">
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="set in model.sets | filter: {selected: true, data: {name: setQuery}} | orderBy: setOrderProp">
+                <td>{{set.data.name}}</td>
+                <td>{{set.data.description}}</td>
+                <td>
+                    <a href="#/models/{{scenario.modelId}}/{{scenario.id}}/data/set/{{set.data.id}}">Enter data</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <h4>Parameters</h4>
+        <div>
+            Search: <input type="text" class="form-control" ng-model="parameterQuery">
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="parameter in model.parameters | filter: {selected: true, data: {name: parameterQuery}} | orderBy: parameterOrderProp">
+                <td>{{parameter.data.name}}</td>
+                <td>{{parameter.data.description}}</td>
+                <td>
+                    <a href="#/models/{{scenario.modelId}}/{{scenario.id}}/data/parameter/{{parameter.data.id}}">Enter data (slices)</a>
+                </td>
+                <!--<td>
+                    <a href="#/models/{{scenario.modelId}}/{{scenario.id}}}/data/parameter/{{parameter.data.id}}/csv">Enter data (csv)</a>
+                </td>-->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <a href="#/models/{{scenario.modelId}}/scenarios">Back to scenario list</a>
+    </div>
+</div>
