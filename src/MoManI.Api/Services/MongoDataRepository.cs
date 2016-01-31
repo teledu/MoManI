@@ -43,6 +43,18 @@ namespace MoManI.Api.Services
             });
         }
 
+        public async Task DeleteScenario(Guid scenarioId)
+        {
+            var parameters = await _parameterDataCollection.Find(x => x.ScenarioId == scenarioId).ToListAsync();
+            foreach (var parameter in parameters)
+            {
+                await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == parameter.Id);
+            }
+            await _parameterDataCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
+            await _setDataCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
+            await _scenariosCollection.DeleteOneAsync(x => x.Id == scenarioId);
+        }
+
         public async Task CloneScenario(Guid id, int revision)
         {
             var source = await GetScenario(id);

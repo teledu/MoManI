@@ -19,6 +19,7 @@ export interface IScenarioListScope extends ng.IScope {
     scenarios: angular.resource.IResourceArray<IScenario>;
     downloadExec: (scenario: IScenario) => void;
     clone: (scenario: IScenario) => void;
+    delete: (scenario: IScenario) => void;
 }
 
 export interface IScenarioDetailsScope extends ng.IScope {
@@ -54,6 +55,12 @@ export class ScenarioListController {
                 params: {id: scenario.id},
             });
             $q.when(cloneReq).then(() => {
+                $scope.scenarios = ScenarioService.query({ modelId: $routeParams['modelId'] });
+            });
+        }
+
+        $scope.delete = (scenario: IScenario) => {
+            ScenarioService.delete({ id: scenario.id }).$promise.then(() => {
                 $scope.scenarios = ScenarioService.query({ modelId: $routeParams['modelId'] });
             });
         }

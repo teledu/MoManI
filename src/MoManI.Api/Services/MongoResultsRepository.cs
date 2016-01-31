@@ -9,12 +9,10 @@ namespace MoManI.Api.Services
 {
     public class MongoResultsRepository : IResultsRepository
     {
-        private readonly IMongoCollection<ComposedModel> _composedModelsCollection;
         private readonly IMongoCollection<VariableResult> _variableResultsCollection;
 
         public MongoResultsRepository(IMongoDatabase database)
         {
-            _composedModelsCollection = database.GetCollection<ComposedModel>("ComposedModel");
             _variableResultsCollection = database.GetCollection<VariableResult>("VariableResult");
         }
 
@@ -44,6 +42,11 @@ namespace MoManI.Api.Services
             var filter = Builders<VariableResult>.Filter.Eq("scenarioId", scenarioId);
             var count = await _variableResultsCollection.CountAsync(filter);
             return count > 0;
+        }
+
+        public async Task DeleteScenarioResults(Guid scenarioId)
+        {
+            await _variableResultsCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
         }
     }
 }

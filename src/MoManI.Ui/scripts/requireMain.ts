@@ -9,6 +9,7 @@ require.config({
         'angular-resource': 'lib/angular-resource',
         'angular-ui-bootstrap': 'lib/ui-bootstrap-tpls',
         'angular-strap-navbar': 'lib/angular-strap-navbar',
+        'angular-confirm': 'lib/angular-confirm',
         'checklist-model': 'lib/checklist-model',
         'handsontable': 'lib/handsontable.full',
         'ngHandsontable': 'lib/ngHandsontable',
@@ -32,6 +33,7 @@ require.config({
         'ngHandsontable': { exports: 'ngHandsontable', deps: ['angular', 'handsontable'] },
         'nvd3': { exports: 'nvd3', deps: ['d3'] },
         'angular-nvd3': { exports: 'angular-nvd3', deps: ['angular', 'd3', 'nvd3'] },
+        'angular-confirm': {exports: 'angular-confirm', deps: ['angular', 'angular-ui-bootstrap']},
     },
 });
 
@@ -47,8 +49,10 @@ declare module 'ngHandsontable' {
 }
 declare module 'angular-nvd3' {
 }
+declare module 'angular-confirm' {
+}
 
-require(['jquery', 'angular', 'angular-route', 'angular-resource', 'angular-ui-bootstrap', 'angular-strap-navbar', 'angular-nvd3', 'checklist-model', 'ngHandsontable', 'application', 'routes'],
-    ($, angular, angularRoute, angularResource, angularUiBootstrap, angularStrapNavbar, angularNvd3, checklistModel, ngHandsontable, application, routes) => {
+require(['jquery', 'angular', 'angular-route', 'angular-resource', 'angular-ui-bootstrap', 'angular-strap-navbar', 'angular-nvd3', 'angular-confirm', 'checklist-model', 'ngHandsontable', 'application', 'routes'],
+    ($, angular, angularRoute, angularResource, angularUiBootstrap, angularStrapNavbar, angularNvd3, angularConfirm, checklistModel, ngHandsontable, application, routes) => {
         $(() => { angular.bootstrap(document, ['application']); });
     });

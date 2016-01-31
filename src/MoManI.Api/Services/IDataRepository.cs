@@ -8,9 +8,10 @@ namespace MoManI.Api.Services
     public interface IDataRepository
     {
         Task<IEnumerable<Scenario>> GetScenarios(Guid modelId);
-        Task<Scenario> GetScenario(Guid id);
+        Task<Scenario> GetScenario(Guid scenarioId);
         Task SaveScenario(Scenario scenario);
-        Task CloneScenario(Guid id, int revision);
+        Task DeleteScenario(Guid scenarioId);
+        Task CloneScenario(Guid scenarioId, int revision);
 
         Task<SetData> GetSetData(Guid setId, Guid scenarioId);
         Task SaveSetData(SetData setData);

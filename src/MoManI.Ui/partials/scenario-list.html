@@ -13,6 +13,7 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -28,6 +29,9 @@
                     </td>
                     <td>
                         <a ng-click="clone(scenario)">Clone revision</a>
+                    </td>
+                    <td>
+                        <a ng-click="delete(scenario)" confirm="Are you sure you want to delete the scenario {{scenario.name}}? This will remove all of its associated data and results">Delete</a>
                     </td>
                 </tr>
             </tbody>

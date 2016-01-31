@@ -47,6 +47,13 @@ namespace MoManI.Api.Controllers
             await _dataRepository.SaveScenario(scenario);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
+
+        public async Task<HttpResponseMessage> DeleteScenario(Guid id)
+        {
+            await _resultsRepository.DeleteScenarioResults(id);
+            await _dataRepository.DeleteScenario(id);
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
     }
 
     public class ScenarioSaveRequest

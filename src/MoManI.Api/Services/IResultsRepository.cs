@@ -11,5 +11,6 @@ namespace MoManI.Api.Services
         Task<VariableResult> GetVariableResult(Guid variableId, Guid scenarioId);
         Task SaveVariableResults(VariableResult variableResults);
         Task<bool> HasResultsForScenario(Guid scenarioId);
+        Task DeleteScenarioResults(Guid scenarioId);
     }
 }

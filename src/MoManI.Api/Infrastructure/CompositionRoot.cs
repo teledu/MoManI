@@ -52,7 +52,7 @@ namespace MoManI.Api.Infrastructure
             }
             if (controllerType == typeof(ComposedModelsController))
             {
-                return new ComposedModelsController(_modelRepository, _dataRepository);
+                return new ComposedModelsController(_modelRepository, _dataRepository, _resultsRepository);
             }
             if (controllerType == typeof(ScenariosController))
             {

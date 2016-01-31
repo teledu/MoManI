@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
     <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
@@ -50,6 +50,7 @@
     <Content Include="partials\variable-result-charts.html" />
     <Content Include="partials\variable-detail.html" />
     <Content Include="partials\variable-list.html" />
+    <Content Include="scripts\lib\angular-confirm.js" />
     <Content Include="scripts\lib\angular-nvd3.js" />
     <Content Include="scripts\lib\angular-resource.js" />
     <Content Include="scripts\lib\angular-route.js" />

@@ -9,6 +9,7 @@ export interface IModelListScope extends ng.IScope {
     orderProp: string;
     models: angular.resource.IResourceArray<IModel>;
     downloadExec: (model: IModel) => void;
+    delete: (model: IModel) => void;
 }
 
 export class ModelListController {
@@ -23,6 +24,12 @@ export class ModelListController {
                 resolve: {
                     model() { return model; },
                 }
+            });
+        }
+
+        $scope.delete = (model: IModel) => {
+            ModelService.delete({ id: model.id }).$promise.then(() => {
+                $scope.models = ModelService.query();
             });
         }
     }
