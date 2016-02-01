@@ -11,6 +11,7 @@ namespace MoManI.WinExecApp
             try
             {
                 RunCommands();
+                OutputReader.VerifyCompleted("res/output.txt");
                 var metadata = MetadataReader.Read("metadata.txt");
                 var results = ResultReader.Read(metadata);
                 var uploader = new Uploader(metadata.ApiAddress);
@@ -22,6 +23,9 @@ namespace MoManI.WinExecApp
             catch (Exception e)
             {
                 Console.WriteLine($"ERROR: {e.Message}");
+                Console.WriteLine("Aborting. No results will be uploaded");
+                Console.WriteLine("Press ENTER to exit");
+                Console.ReadLine();
                 return false;
             }
             Console.WriteLine("Success!");
