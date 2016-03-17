@@ -31,6 +31,7 @@
     <Content Include="partials\result-scenario-list.html" />
     <Content Include="partials\scenario-list.html" />
     <Content Include="partials\render-executable.html" />
+    <Content Include="partials\compare-results.html" />
     <Content Include="partials\variable-result-list.html" />
     <Content Include="partials\result-model-list.html" />
     <Content Include="partials\model-list.html" />
@@ -92,6 +93,7 @@
     <TypeScriptCompile Include="scripts\controllers\equationObjectModalControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\constraintControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\scenarioDataControllers.ts" />
+    <TypeScriptCompile Include="scripts\controllers\compareResultsControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\variableResultControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\resultListControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\modelListControllers.ts" />

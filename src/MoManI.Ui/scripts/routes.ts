@@ -11,6 +11,7 @@ import setDataControllers = require('controllers/setDataControllers');
 import parameterDataControllers = require('controllers/parameterDataControllers');
 import resultListControllers = require('controllers/resultListControllers');
 import variableResultControllers = require('controllers/variableResultControllers');
+import compareResultsControllers = require('controllers/compareResultsControllers');
 
 application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProvider) => {
     $rootScopeProvider.digestTtl(100);
@@ -101,12 +102,12 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/result-model-list.html'
             })
         .when(
-            '/results/:modelId', {
+            '/results/:modelId/scenarios', {
                 controller: resultListControllers.ResultsScenarioListController,
                 templateUrl: 'partials/result-scenario-list.html'
             })
         .when(
-            '/results/:modelId/:scenarioId', {
+            '/results/:modelId/:scenarioId/variables', {
                 controller: variableResultControllers.VariableResultListController,
                 templateUrl: 'partials/variable-result-list.html'
             })
@@ -114,6 +115,11 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
             '/results/:modelId/:scenarioId/:variableId/charts', {
                 controller: variableResultControllers.VariableResultChartsController,
                 templateUrl: 'partials/variable-result-charts.html'
+            })
+        .when(
+            '/results/:modelId/compare', {
+                controller: compareResultsControllers.CompareResultsController,
+                templateUrl: 'partials/compare-results.html'
             })
         .otherwise({
             redirectTo: '/models'

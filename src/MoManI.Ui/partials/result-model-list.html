@@ -10,6 +10,7 @@
                 <th>Name</th>
                 <th>Description</th>
                 <th></th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -17,7 +18,10 @@
                 <td>{{model.name}}</td>
                 <td>{{model.description}}</td>
                 <td>
-                    <a href="#/results/{{model.id}}">View scenarios</a>
+                    <a href="#/results/{{model.id}}/scenarios">View scenarios</a>
+                </td>
+                <td>
+                    <a href="#/results/{{model.id}}/compare">Compare results</a>
                 </td>
             </tr>
             </tbody>

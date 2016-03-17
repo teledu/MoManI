@@ -63,3 +63,8 @@ label.selection-title {
 .enumerators-constraint {
     border-top: solid 1px darkgray;
 }
+
+.half-width {
+    width: 50%;
+    float: left;
+}

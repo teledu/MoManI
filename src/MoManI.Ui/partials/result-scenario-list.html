@@ -19,7 +19,7 @@
                     <td>{{scenario.description}}</td>
                     <td>{{scenario.revision}}</td>
                     <td>
-                        <a href="#/results/{{scenario.modelId}}/{{scenario.id}}" ng-if="scenario.hasResults">View results</a>
+                        <a href="#/results/{{scenario.modelId}}/{{scenario.id}}/variables" ng-if="scenario.hasResults">View results</a>
                         <span ng-if="!scenario.hasResults">No results yet</span>
                     </td>
                 </tr>

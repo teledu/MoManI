@@ -15,6 +15,7 @@ export class VariableResult {
 
     private chartOptions: any;
     private chartData: IChartGroup[];
+    private legendVisible: boolean;
 
     constructor(variable: variableModel.Variable, variableResult: IVariableResult, sets: ISet[]) {
         this.variableId = variableResult.variableId;
@@ -67,6 +68,11 @@ export class VariableResult {
             };
         }).value();
     }
+
+    toggleLegend = (visible: boolean) => {
+        this.chartOptions.chart.showControls = visible;
+        this.chartOptions.chart.showLegend = visible;
+    }
 }
 
 var defaultChartOptions = {
@@ -91,6 +97,8 @@ var defaultChartOptions = {
         showMaxMin: true,
     },
     yAxis: {
-        
-    }
+    
+    },
+    showControls: true,
+    showLegend: true
 };
