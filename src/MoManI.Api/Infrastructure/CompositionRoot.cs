@@ -46,6 +46,10 @@ namespace MoManI.Api.Infrastructure
             {
                 return new ObjectiveFunctionsController(_modelRepository);
             }
+            if (controllerType == typeof(ConstraintGroupsController))
+            {
+                return new ConstraintGroupsController(_modelRepository);
+            }
             if (controllerType == typeof(ConstraintsController))
             {
                 return new ConstraintsController(_modelRepository);

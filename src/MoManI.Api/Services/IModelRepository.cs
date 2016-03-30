@@ -27,6 +27,11 @@ namespace MoManI.Api.Services
         Task SaveObjectiveFunction(ObjectiveFunction objectiveFunction);
         Task DeleteObjectiveFunction(Guid id);
 
+        Task<IEnumerable<ConstraintGroup>> GetConstraintGroups();
+        Task<ConstraintGroup> GetConstraintGroup(Guid id);
+        Task SaveConstraintGroup(ConstraintGroup constraintGroup);
+        Task DeleteConstraintGroup(Guid id);
+
         Task<IEnumerable<Constraint>> GetConstraints();
         Task<Constraint> GetConstraint(Guid id);
         Task SaveConstraint(Constraint constraint);

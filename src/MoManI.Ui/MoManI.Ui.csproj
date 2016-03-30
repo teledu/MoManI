@@ -32,6 +32,7 @@
     <Content Include="partials\scenario-list.html" />
     <Content Include="partials\render-executable.html" />
     <Content Include="partials\compare-results.html" />
+    <Content Include="partials\constraint-group-detail.html" />
     <Content Include="partials\variable-result-list.html" />
     <Content Include="partials\result-model-list.html" />
     <Content Include="partials\model-list.html" />
@@ -85,6 +86,7 @@
     <Content Include="partials\set-data.html" />
     <TypeScriptCompile Include="scripts\application.ts" />
     <TypeScriptCompile Include="scripts\appSettings.ts" />
+    <TypeScriptCompile Include="scripts\controllers\constraintGroupControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\executableRenderingControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\scenarioControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\modelCompositionControllers.ts" />
@@ -115,9 +117,12 @@
     <TypeScriptCompile Include="scripts\lib\lodash.d.ts" />
     <TypeScriptCompile Include="scripts\lib\uuid.d.ts" />
     <TypeScriptCompile Include="scripts\models\commonInterfaces.d.ts" />
+    <TypeScriptCompile Include="scripts\models\constraintGroup.d.ts" />
     <TypeScriptCompile Include="scripts\models\dataStringBuilder.ts" />
+    <TypeScriptCompile Include="scripts\models\constraintList.ts" />
     <TypeScriptCompile Include="scripts\models\scenario.ts" />
     <TypeScriptCompile Include="scripts\models\scenario.d.ts" />
+    <TypeScriptCompile Include="scripts\models\constraintGroup.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.d.ts" />
     <TypeScriptCompile Include="scripts\models\model.ts" />
@@ -145,6 +150,7 @@
     <TypeScriptCompile Include="scripts\models\variable.ts" />
     <TypeScriptCompile Include="scripts\requireMain.ts" />
     <TypeScriptCompile Include="scripts\routes.ts" />
+    <TypeScriptCompile Include="scripts\services\constraintGroupService.ts" />
     <TypeScriptCompile Include="scripts\services\constraintService.ts" />
     <TypeScriptCompile Include="scripts\services\scenarioService.ts" />
     <TypeScriptCompile Include="scripts\services\objectiveFunctionService.ts" />
@@ -200,7 +206,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
-    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
     <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>

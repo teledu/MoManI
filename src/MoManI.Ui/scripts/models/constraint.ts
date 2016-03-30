@@ -4,7 +4,9 @@ import equationObject = require('models/equationObject');
 export class Constraint {
     data: IEquationObjectData;
     modal: angular.ui.bootstrap.IModalService;
+    constraintGroups: IConstraintGroup[];
     id: string;
+    constraintGroupId: string;
     name: string;
     description: string;
     equation: IEquationObject;
@@ -14,18 +16,22 @@ export class Constraint {
     setConstraint: IEquationObject;
     loading: boolean;
 
-    constructor(data: IEquationObjectData, modal: angular.ui.bootstrap.IModalService, constraint?: IConstraint) {
+    constructor(data: IEquationObjectData, modal: angular.ui.bootstrap.IModalService, constraintGroups: IConstraintGroup[], constraint?: IConstraint) {
         this.data = data;
         this.modal = modal;
+        var emptyGroup: IConstraintGroup[] = [{ id: null, name: '', description: null }];
+        this.constraintGroups = emptyGroup.concat(constraintGroups);
         this.loading = true;
         if (constraint) {
             this.id = constraint.id;
+            this.constraintGroupId = constraint.constraintGroupId;
             this.name = constraint.name;
             this.description = constraint.description;
             this.equation = equationObject.createEquationObject(data, equationObject.availableGroupOptions.all, this.replaceEquation, modal, constraint.equation, this.updateEnumeratorsHandler);
             this.setConstraint = equationObject.createEquationObject(data, equationObject.availableGroupOptions.all, this.replaceSetConstraint, modal, constraint.setConstraint);
         } else {
             this.id = uuid.v4();
+            this.constraintGroupId = null;
             this.name = '';
             this.description = '';
             this.equation = equationObject.createEquationObject(data, equationObject.availableGroupOptions.all, this.replaceEquation, modal, null, this.updateEnumeratorsHandler);
@@ -39,6 +45,7 @@ export class Constraint {
     serialize: () => IConstraint = () => {
         return {
             id: this.id,
+            constraintGroupId: this.constraintGroupId,
             name: this.name,
             description: this.description,
             equation: this.equation.serialize(),

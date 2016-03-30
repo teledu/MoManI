@@ -13,16 +13,18 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="constraint in constraints | filter: {name: query} | orderBy: orderProp">
-            <td>{{constraint.name}}</td>
-            <td>{{constraint.description}}</td>
+        <tr ng-repeat="row in constraintList.flattened | filter: constraintFilter" ng-class="row.css">
+            <td>{{row.name}}</td>
+            <td>{{row.description}}</td>
             <td>
-                <a href="#/constraints/{{constraint.id}}">Edit</a>
+                <a ng-if="row.editLink" href="{{row.editLink}}">Edit</a>
             </td>
         </tr>
         </tbody>
     </table>
 
+    <a href="#/constraintGroups/new">Create new group</a>
+    <br/>
     <a href="#/constraints/new">Create new constraint</a>
   </div>
 </div>

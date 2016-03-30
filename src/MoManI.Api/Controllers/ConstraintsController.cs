@@ -36,6 +36,7 @@ namespace MoManI.Api.Controllers
             await _modelRepository.SaveConstraint(new Constraint
             {
                 Id = id,
+                ConstraintGroupId = constraint.ConstraintGroupId,
                 Name = constraint.Name,
                 Description = constraint.Description,
                 Equation = constraint.Equation.ToEquationObject(),
@@ -53,6 +54,7 @@ namespace MoManI.Api.Controllers
 
     public class ConstraintSaveRequest
     {
+        public Guid? ConstraintGroupId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Function { get; set; }

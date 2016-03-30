@@ -1,0 +1,24 @@
+<div class="container-fluid">
+    <div class="row">
+        <form class="form-horizontal" name="detailsForm">
+            <div class="form-group">
+                <label for="constraintGroupName" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="constraintGroupName" ng-model="constraintGroup.name" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="constraintGroupDescription" class="col-sm-2 control-label">Description</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="constraintGroupDescription" ng-model="constraintGroup.description"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button class="btn btn-default" ng-click="save()">Save</button>
+                    <a href="#/constraints" class="btn btn-default">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

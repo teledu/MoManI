@@ -13,6 +13,7 @@ namespace MoManI.Api.Services
         private readonly IMongoCollection<Parameter> _parametersCollection;
         private readonly IMongoCollection<Variable> _variablesCollection;
         private readonly IMongoCollection<ObjectiveFunction> _objectiveFunctionsCollection;
+        private readonly IMongoCollection<ConstraintGroup> _constraintGroupsCollection;
         private readonly IMongoCollection<Constraint> _constraintsCollection;
         private readonly IMongoCollection<ComposedModel> _composedModelsCollection;
 
@@ -22,6 +23,7 @@ namespace MoManI.Api.Services
             _parametersCollection = database.GetCollection<Parameter>("Parameters");
             _variablesCollection = database.GetCollection<Variable>("Variables");
             _objectiveFunctionsCollection = database.GetCollection<ObjectiveFunction>("ObjectiveFunction");
+            _constraintGroupsCollection = database.GetCollection<ConstraintGroup>("ConstraintGroup");
             _constraintsCollection = database.GetCollection<Constraint>("Constraint");
             _composedModelsCollection = database.GetCollection<ComposedModel>("ComposedModel");
         }
@@ -123,6 +125,37 @@ namespace MoManI.Api.Services
         public async Task DeleteObjectiveFunction(Guid id)
         {
             await _objectiveFunctionsCollection.DeleteOneAsync(x => x.Id == id);
+        }
+
+        public async Task<IEnumerable<ConstraintGroup>> GetConstraintGroups()
+        {
+            return await _constraintGroupsCollection.Find(new BsonDocument())
+                .ToListAsync();
+        }
+
+        public async Task<ConstraintGroup> GetConstraintGroup(Guid id)
+        {
+            var filter = Builders<ConstraintGroup>.Filter.Eq("_id", id);
+            return await _constraintGroupsCollection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task SaveConstraintGroup(ConstraintGroup constraintGroup)
+        {
+            await _constraintGroupsCollection.ReplaceOneAsync(x => x.Id == constraintGroup.Id, constraintGroup, new UpdateOptions
+            {
+                IsUpsert = true
+            });
+        }
+
+        public async Task DeleteConstraintGroup(Guid id)
+        {
+            var constraintsFilter = Builders<Constraint>.Filter.Eq("constraintGroupId", id);
+            var constraintCount = await _constraintsCollection.Find(constraintsFilter).CountAsync();
+            if (constraintCount > 0)
+            {
+                throw new InvalidOperationException($"Constraint group contains {constraintCount} constraints and can not be deleted");
+            }
+            await _constraintGroupsCollection.DeleteOneAsync(x => x.Id == id);
         }
 
         public async Task<IEnumerable<Constraint>> GetConstraints()

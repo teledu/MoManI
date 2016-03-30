@@ -3,6 +3,7 @@ import setControllers = require('controllers/setControllers');
 import parameterControllers = require('controllers/parameterControllers');
 import variableControllers = require('controllers/variableControllers');
 import objectiveFunctionControllers = require('controllers/objectiveFunctionControllers');
+import constraintGroupControllers = require('controllers/constraintGroupControllers');
 import constraintControllers = require('controllers/constraintControllers');
 import modelListControllers = require('controllers/modelListControllers');
 import modelCompositionControllers = require('controllers/modelCompositionControllers');
@@ -55,6 +56,11 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
             '/functions/:id', {
                 controller: objectiveFunctionControllers.ObjectiveFunctionDetailsController,
                 templateUrl: 'partials/function-detail.html'
+            })
+        .when(
+            '/constraintGroups/:id', {
+                controller: constraintGroupControllers.ConstraintGroupDetailsController,
+                templateUrl: 'partials/constraint-group-detail.html'
             })
         .when(
             '/constraints', {

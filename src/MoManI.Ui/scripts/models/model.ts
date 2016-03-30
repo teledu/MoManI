@@ -59,7 +59,7 @@ export class Model {
         });
         this.constraints = _.map(constraints, c => {
             return {
-                data: new constraintModel.Constraint(data, null, c),
+                data: new constraintModel.Constraint(data, null, [], c),
                 selected: model ? _.some(model.constraints, constraintId => constraintId == c.id) : false,
             }
         });

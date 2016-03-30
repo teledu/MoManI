@@ -1,5 +1,6 @@
 ﻿interface IConstraint {
     id: string;
+    constraintGroupId: string;
     name: string;
     description: string;
     equation: IEquation;

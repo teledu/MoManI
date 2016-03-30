@@ -153,6 +153,7 @@
   <ItemGroup>
     <Compile Include="App_Start\Startup.cs" />
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Controllers\ConstraintGroupsController.cs" />
     <Compile Include="Controllers\ConstraintsController.cs" />
     <Compile Include="Controllers\ComposedModelsController.cs" />
     <Compile Include="Controllers\ExecutableController.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Infrastructure\LimitedWriteAttribute.cs" />
     <Compile Include="Controllers\ParameterDataController.cs" />
     <Compile Include="Controllers\SetDataController.cs" />
+    <Compile Include="Models\ConstraintGroup.cs" />
     <Compile Include="Models\ModelResult.cs" />
     <Compile Include="Models\Scenario.cs" />
     <Compile Include="Models\VariableResult.cs" />
