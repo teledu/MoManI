@@ -8,11 +8,12 @@ import setService = require('services/setService');
 import parameterService = require('services/parameterService');
 import variableService = require('services/variableService');
 import objectiveFunctionService = require('services/objectiveFunctionService');
+import constraintGroupService = require('services/constraintGroupService');
 import constraintService = require('services/constraintService');
 import modelService = require('services/modelService');
 import scenarioService = require('services/scenarioService');
 
-var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintService, modelService, scenarioService];
+var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintGroupService, constraintService, modelService, scenarioService];
 
 export interface IScenarioListScope extends ng.IScope {
     orderProp: string;
@@ -71,13 +72,14 @@ export class ScenarioDetailsController {
     constructor($scope: IScenarioDetailsScope, $routeParams: angular.route.IRouteParamsService, $window: angular.IWindowService, $q: angular.IQService,
         SetService: ng.resource.IResourceClass<ISetResource>, ParameterService: angular.resource.IResourceClass<IParameterResource>,
         VariableService: angular.resource.IResourceClass<IVariableResource>, ObjectiveFunctionService: angular.resource.IResourceClass<IObjectiveFunctionResource>,
-        ConstraintService: angular.resource.IResourceClass<IConstraintResource>, ModelService: angular.resource.IResourceClass<IModelResource>,
-        ScenarioService: angular.resource.IResourceClass<IScenarioResource>
+        ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: angular.resource.IResourceClass<IConstraintResource>,
+        ModelService: angular.resource.IResourceClass<IModelResource>, ScenarioService: angular.resource.IResourceClass<IScenarioResource>
     ) {
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var variableReq = VariableService.query().$promise;
         var objectiveFunctionReq = ObjectiveFunctionService.query().$promise;
+        var constraintGroupReq = ConstraintGroupService.query().$promise;
         var constraintReq = ConstraintService.query().$promise;
         var modelReq = ModelService.get({ id: $routeParams['modelId'] }).$promise;
         var scenarioReq = ScenarioService.get({ modelId: $routeParams['modelId'], id: $routeParams['scenarioId'] }).$promise;
@@ -85,8 +87,8 @@ export class ScenarioDetailsController {
         $q.all([scenarioReq]).then(res => {
             $scope.scenario = new scenarioModel.Scenario(<IScenario>res[0]);
         });
-        $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintReq, modelReq]).then(res => {
-            $scope.model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraint[]>res[4], <IModel>res[5]);
+        $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
+            $scope.model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
         });
 
         $scope.setOrderProp = 'data.name';

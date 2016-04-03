@@ -8,6 +8,36 @@ import objectiveFunctionModel = require('models/objectiveFunction');
 import constraintModel = require('models/constraint');
 import modelDependency = require('models/modelDependency');
 
+export class ModelConstraintGroup {
+    id: string;
+    name: string;
+    constraints: ISelectableEntry<constraintModel.Constraint>[];
+    selected: boolean;
+    toggleGroupConstraints: (event) => void;
+    selectedConstraints: () => constraintModel.Constraint[];
+
+    constructor(id : string, name: string, constraints: IConstraint[], selectedConstraints: string[], data: IEquationObjectData, changeHandler: () => void) {
+        this.id = id;
+        this.name = name;
+        var sortedConstraints = _.sortBy(constraints, c => c.name);
+        this.constraints = _.map(sortedConstraints, (c: IConstraint) => {
+            return {
+                data: new constraintModel.Constraint(data, null, [], c),
+                selected: _.some(selectedConstraints, constraintId => constraintId == c.id),
+            }
+        });
+        this.selected = _.all(this.constraints, c => c.selected);
+        this.toggleGroupConstraints = (checked) => {
+            var checkbox = <ICheckbox>checked.target;
+            _.forEach(this.constraints, c => { c.selected = checkbox.checked });
+            changeHandler();
+        }
+        this.selectedConstraints = () => {
+            return _(this.constraints).filter(c => c.selected).map(c => c.data).value();
+        }
+    }
+}
+
 export class Model {
     id: string;
     name: string;
@@ -16,9 +46,10 @@ export class Model {
     parameters: ISelectableEntry<parameterModel.Parameter>[];
     variables: ISelectableEntry<variableModel.Variable>[];
     objectiveFunctions: ISelectableEntry<objectiveFunctionModel.ObjectiveFunction>[];
-    constraints: ISelectableEntry<constraintModel.Constraint>[];
+    constraintGroups: ModelConstraintGroup[];
+    allConstraintsSelected: boolean;
 
-    constructor(sets: ISet[], parameters: IParameter[], variables: IVariable[], objectiveFunctions: IObjectiveFunction[], constraints: IConstraint[], model?: IModel) {
+    constructor(sets: ISet[], parameters: IParameter[], variables: IVariable[], objectiveFunctions: IObjectiveFunction[], constraintGroups: IConstraintGroup[], constraints: IConstraint[], model?: IModel) {
         if (model) {
             this.id = model.id;
             this.name = model.name;
@@ -33,36 +64,41 @@ export class Model {
             parameters: parameters,
             variables: variables,
         };
-        this.sets = _.map(sets, s => {
+        this.sets = _.map(_.sortBy(sets, s => s.name), s => {
             return {
                 data: new setModel.Set(s),
                 selected: model ? _.some(model.sets, setId => setId == s.id) : false,
             }
         });
-        this.parameters = _.map(parameters, p => {
+        this.parameters = _.map(_.sortBy(parameters, p => p.name), p => {
             return {
                 data: new parameterModel.Parameter(sets, p),
                 selected: model ? _.some(model.parameters, parameterId => parameterId == p.id) : false,
             }
         });
-        this.variables = _.map(variables, v => {
+        this.variables = _.map(_.sortBy(variables, v => v.name), v => {
             return {
                 data: new variableModel.Variable(sets, v),
                 selected: model ? _.some(model.variables, variableId => variableId == v.id) : false,
             }
         });
-        this.objectiveFunctions = _.map(objectiveFunctions, o => {
+        this.objectiveFunctions = _.map(_.sortBy(objectiveFunctions, o => o.name), o => {
             return {
                 data: new objectiveFunctionModel.ObjectiveFunction(data, null, o),
                 selected: model ? model.objectiveFunction == o.id : false,
             }
         });
-        this.constraints = _.map(constraints, c => {
-            return {
-                data: new constraintModel.Constraint(data, null, [], c),
-                selected: model ? _.some(model.constraints, constraintId => constraintId == c.id) : false,
-            }
+
+        var modelConstraints = model ? model.constraints : [];
+        var sortedConstraintGroups = _.sortBy(constraintGroups, cg => cg.name);
+        var constraintGroupList = _.map(sortedConstraintGroups, cg => {
+            var groupConstraints = _.filter(constraints, c => c.constraintGroupId == cg.id);
+            return new ModelConstraintGroup(cg.id, cg.name, groupConstraints, modelConstraints, data, this.recalculateDependencies);
         });
+        var ungroupedConstraints = _.filter(constraints, c => c.constraintGroupId == null);
+        constraintGroupList.push(new ModelConstraintGroup(null, 'Ungrouped', ungroupedConstraints, modelConstraints, data, this.recalculateDependencies));
+        this.constraintGroups = constraintGroupList;
+        this.allConstraintsSelected = this.selectedConstraints().length == constraints.length;
     }
 
     toggleObjectiveFunction: (event, objFun: ISelectableEntry<objectiveFunctionModel.ObjectiveFunction>) => void = (event, objFun) => {
@@ -78,15 +114,25 @@ export class Model {
         this.recalculateDependencies();
     }
 
+    toggleAllConstraints: (event) => void = (event) => {
+        var checkbox = <ICheckbox>event.target;
+        _.forEach(this.constraintGroups, cg => {
+            _.forEach(cg.constraints, c => {
+                c.selected = checkbox.checked;
+            });
+            cg.selected = checkbox.checked;
+        });
+        this.recalculateDependencies();
+    }
+
     recalculateDependencies: () => void = () => {
         var dependencies = new modelDependency.ModelDependency([], [], []);
         var selectedObjectiveFunctions = _.filter(this.objectiveFunctions, objFun => objFun.selected);
         _.forEach(selectedObjectiveFunctions, objFun => {
             dependencies = dependencies.join(objFun.data.getDependencies());
         });
-        var selectedConstraints = _.filter(this.constraints, constraint => constraint.selected);
-        _.forEach(selectedConstraints, constraint => {
-            dependencies = dependencies.join(constraint.data.getDependencies());
+        _.forEach(this.selectedConstraints(), constraint => {
+            dependencies = dependencies.join(constraint.getDependencies());
         });
         this.markDependencies(dependencies);
     }
@@ -126,7 +172,11 @@ export class Model {
     }
 
     selectedConstraints = () => {
-        return _(this.constraints).filter(c => c.selected).map(c => c.data).value();
+        return _.flatten(_.map(this.constraintGroups, cg => cg.selectedConstraints()));
+    }
+
+    selectedConstraintGroups = () => {
+        return _.filter(this.constraintGroups, cg => _.any(cg.constraints, c => c.selected));
     }
 
     serialize: () => IModel = () => {
@@ -178,10 +228,13 @@ export class Model {
         res.push('#    Constraints    #');
         res.push('#####################');
         res.push('#');
-        _.forEach(this.selectedConstraints(), c => {
-            res.push(c.asModelString());
+        _.forEach(this.selectedConstraintGroups(), cg => {
+            res.push(`#  ${cg.name}`);
+            _.forEach(cg.selectedConstraints(), c => {
+                res.push(c.asModelString());
+            });
+            res.push('#');
         });
-        res.push('#');
         res.push('#####################');
         res.push('#');
         res.push('solve;');

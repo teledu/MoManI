@@ -12,11 +12,12 @@ import parameterService = require('services/parameterService');
 import variableService = require('services/variableService');
 import objectiveFunctionService = require('services/objectiveFunctionService');
 import constraintService = require('services/constraintService');
+import constraintGroupService = require('services/constraintGroupService');
 import modelService = require('services/modelService');
 import setDataService = require('services/setDataService');
 import parameterDataService = require('services/parameterDataService');
 
-var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintService, modelService, setDataService, parameterDataService];
+var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintGroupService, constraintService, modelService, setDataService, parameterDataService];
 
 export interface IExecutableRenderingModalScope extends ng.IScope {
     executableLoading: boolean;
@@ -40,6 +41,7 @@ export class ExecutableRenderingController {
     private variableService: angular.resource.IResourceClass<IVariableResource>;
     private objectiveFunctionService: angular.resource.IResourceClass<IObjectiveFunctionResource>;
     private constraintService: angular.resource.IResourceClass<IConstraintResource>;
+    private constraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>;
     private modelService: angular.resource.IResourceClass<IModelResource>;
     private setDataService: angular.resource.IResourceClass<ISetDataResource>;
     private parameterDataService: angular.resource.IResourceClass<IParameterDataResource>;
@@ -51,8 +53,9 @@ export class ExecutableRenderingController {
     constructor($scope: IExecutableRenderingModalScope, $q: angular.IQService, $http: angular.IHttpService, $modalInstance: angular.ui.bootstrap.IModalServiceInstance,
         SetService: ng.resource.IResourceClass<ISetResource>, ParameterService: angular.resource.IResourceClass<IParameterResource>,
         VariableService: angular.resource.IResourceClass<IVariableResource>, ObjectiveFunctionService: angular.resource.IResourceClass<IObjectiveFunctionResource>,
-        ConstraintService: angular.resource.IResourceClass<IConstraintResource>, ModelService: angular.resource.IResourceClass<IModelResource>,
-        SetDataService: angular.resource.IResourceClass<ISetDataResource>, ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>,
+        ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: angular.resource.IResourceClass<IConstraintResource>,
+        ModelService: angular.resource.IResourceClass<IModelResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>,
+        ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>,
         scenario: IScenario
     ) {
         this.$scope = $scope;
@@ -62,6 +65,7 @@ export class ExecutableRenderingController {
         this.parameterService = ParameterService;
         this.variableService = VariableService;
         this.objectiveFunctionService = ObjectiveFunctionService;
+        this.constraintGroupService = ConstraintGroupService;
         this.constraintService = ConstraintService;
         this.modelService = ModelService;
         this.setDataService = SetDataService;
@@ -110,12 +114,13 @@ export class ExecutableRenderingController {
         var parameterReq = this.parameterService.query().$promise;
         var variableReq = this.variableService.query().$promise;
         var objectiveFunctionReq = this.objectiveFunctionService.query().$promise;
+        var constraintGroupReq = this.constraintGroupService.query().$promise;
         var constraintReq = this.constraintService.query().$promise;
         var modelReq = this.modelService.get({ id: this.modelId }).$promise;
-        this.$q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintReq, modelReq]).then(res => {
+        this.$q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
             var sets = <ISet[]>res[0];
             var parameters = <IParameter[]>res[1];
-            this.model = new modelModel.Model(sets, parameters, <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraint[]>res[4], <IModel>res[5]);
+            this.model = new modelModel.Model(sets, parameters, <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
             this.sets = this.model.selectedSets();
             this.parameters = this.model.selectedParameters();
             this.zip.file('model.txt', this.model.asTextFile().join(`\r\n`));
