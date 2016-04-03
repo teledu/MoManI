@@ -13,7 +13,6 @@ var forceLoad = [setService, parameterService, variableService, objectiveFunctio
 
 export interface IModelDataScope extends ng.IScope {
     setOrderProp: string;
-    parameterOrderProp: string;
     model: modelModel.Model;
 }
 
@@ -37,6 +36,5 @@ export class ModelDataController {
         });
 
         $scope.setOrderProp = 'data.name';
-        $scope.parameterOrderProp = 'data.name';
     }
 }

@@ -13,9 +13,10 @@ namespace MoManI.Api.Services
         Task DeleteScenario(Guid scenarioId);
         Task CloneScenario(Guid scenarioId, int revision);
 
-        Task<SetData> GetSetData(Guid setId, Guid scenarioId);
+        Task<SetData> GetSetData(Guid setId, Guid modelId);
         Task SaveSetData(SetData setData);
-        Task DeleteSetData(Guid setId, Guid scenarioId);
+        Task DeleteSetData(Guid setId, Guid modelId);
+        Task DeleteModelSetData(Guid modelId);
 
         Task<ParameterData> GetParameterData(Guid parameterId, Guid scenarioId);
         Task SaveParameterData(ParameterData parameterData);

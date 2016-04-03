@@ -26,31 +26,6 @@
         </form>
     </div>
     <div class="row">
-        <h4>Sets</h4>
-        <div>
-            Search: <input type="text" class="form-control" ng-model="setQuery">
-        </div>
-
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="set in model.sets | filter: {selected: true, data: {name: setQuery}} | orderBy: setOrderProp">
-                <td>{{set.data.name}}</td>
-                <td>{{set.data.description}}</td>
-                <td>
-                    <a href="#/models/{{scenario.modelId}}/{{scenario.id}}/data/set/{{set.data.id}}">Enter data</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="row">
         <h4>Parameters</h4>
         <div>
             Search: <input type="text" class="form-control" ng-model="parameterQuery">

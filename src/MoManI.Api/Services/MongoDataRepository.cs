@@ -51,7 +51,6 @@ namespace MoManI.Api.Services
                 await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == parameter.Id);
             }
             await _parameterDataCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
-            await _setDataCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
             await _scenariosCollection.DeleteOneAsync(x => x.Id == scenarioId);
         }
 
@@ -60,27 +59,32 @@ namespace MoManI.Api.Services
             var source = await GetScenario(id);
             var scenario = source.Clone(revision);
             await SaveScenario(scenario);
-            await CloneData(id, scenario.Id);
+            await CloneParameterData(id, scenario.Id);
         }
 
-        public async Task<SetData> GetSetData(Guid setId, Guid scenarioId)
+        public async Task<SetData> GetSetData(Guid setId, Guid modelId)
         {
             var builder = Builders<SetData>.Filter;
-            var filter = builder.Eq("setId", setId) & builder.Eq("ScenarioId", scenarioId);
+            var filter = builder.Eq("setId", setId) & builder.Eq("modelId", modelId);
             return await _setDataCollection.Find(filter).FirstOrDefaultAsync();
         }
 
         public async Task SaveSetData(SetData setData)
         {
-            await _setDataCollection.ReplaceOneAsync(x => x.SetId == setData.SetId && x.ScenarioId == setData.ScenarioId, setData, new UpdateOptions
+            await _setDataCollection.ReplaceOneAsync(x => x.SetId == setData.SetId && x.ModelId == setData.ModelId, setData, new UpdateOptions
             {
                 IsUpsert = true
             });
         }
 
-        public async Task DeleteSetData(Guid setId, Guid scenarioId)
+        public async Task DeleteSetData(Guid setId, Guid modelId)
         {
-            await _setDataCollection.DeleteOneAsync(x => x.SetId == setId && x.ScenarioId == scenarioId);
+            await _setDataCollection.DeleteOneAsync(x => x.SetId == setId && x.ModelId == modelId);
+        }
+
+        public async Task DeleteModelSetData(Guid modelId)
+        {
+            await _setDataCollection.DeleteManyAsync(x => x.ModelId == modelId);
         }
 
         public async Task<ParameterData> GetParameterData(Guid parameterId, Guid scenarioId)
@@ -95,6 +99,7 @@ namespace MoManI.Api.Services
             {
                 ParameterId = data.ParameterId,
                 ModelId = data.ModelId,
+                ScenarioId = data.ScenarioId,
                 DefaultValue = data.DefaultValue,
                 Sets = data.Sets,
                 Data = items.Select(i => new ParameterDataItem
@@ -141,22 +146,6 @@ namespace MoManI.Api.Services
                 return;
             await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == existingData.Id);
             await _parameterDataCollection.DeleteOneAsync(x => x.Id == existingData.Id);
-        }
-
-        private async Task CloneData(Guid sourceId, Guid scenarioId)
-        {
-            await CloneSetData(sourceId, scenarioId);
-            await CloneParameterData(sourceId, scenarioId);
-        }
-
-        private async Task CloneSetData(Guid sourceId, Guid scenarioId)
-        {
-            var filter = Builders<SetData>.Filter.Eq("scenarioId", sourceId);
-            var setDatas = await _setDataCollection.Find(filter).ToListAsync();
-            foreach (var setData in setDatas.Select(s => s.Clone(scenarioId)))
-            {
-                await SaveSetData(setData);
-            }
         }
 
         private async Task CloneParameterData(Guid sourceId, Guid scenarioId)

@@ -7,6 +7,7 @@ import constraintGroupControllers = require('controllers/constraintGroupControll
 import constraintControllers = require('controllers/constraintControllers');
 import modelListControllers = require('controllers/modelListControllers');
 import modelCompositionControllers = require('controllers/modelCompositionControllers');
+import modelDataController = require('controllers/modelDataControllers');
 import scenarioControllers = require('controllers/scenarioControllers');
 import setDataControllers = require('controllers/setDataControllers');
 import parameterDataControllers = require('controllers/parameterDataControllers');
@@ -83,6 +84,16 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/composition-details.html'
             })
         .when(
+            '/models/:id/setData', {
+                controller: modelDataController.ModelDataController,
+                templateUrl: 'partials/set-data-list.html'
+            })
+        .when(
+            '/models/:modelId/setData/:setId', {
+                controller: setDataControllers.SetDataController,
+                templateUrl: 'partials/set-data.html'
+            })
+        .when(
             '/models/:modelId/scenarios', {
             controller: scenarioControllers.ScenarioListController,
                 templateUrl: 'partials/scenario-list.html'
@@ -91,11 +102,6 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
             '/models/:modelId/:scenarioId/data', {
             controller: scenarioControllers.ScenarioDetailsController,
                 templateUrl: 'partials/scenario-details.html'
-            })
-        .when(
-            '/models/:modelId/:scenarioId/data/set/:setId', {
-                controller: setDataControllers.SetDataController,
-                templateUrl: 'partials/set-data.html'
             })
         .when(
             '/models/:modelId/:scenarioId/data/parameter/:parameterId', {

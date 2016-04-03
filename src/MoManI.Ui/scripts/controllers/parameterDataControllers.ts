@@ -32,12 +32,12 @@ export class ParameterDataController {
             var parameter = <IParameter>res[1];
             var parameterData = <IParameterData>res[2];
             var setDataReqs = _.map(parameter.sets, setId => {
-                return SetDataService.get({ setId: setId, scenarioId: scenarioId }).$promise;
+                return SetDataService.get({ setId: setId, modelId: modelId }).$promise;
             });
             $q.all(setDataReqs).then(setDataRes => {
                 var setDatas = _.map(parameter.sets, (setId, index) => {
                     var actualSet = _.find(sets, 'id', setId);
-                    return new setDataModel.SetData(scenarioId, modelId, actualSet, <ISetData>setDataRes[index]);
+                    return new setDataModel.SetData(modelId, actualSet, <ISetData>setDataRes[index]);
                 });
                 $scope.data = new parameterDataModel.ParameterData(scenarioId, modelId, parameter, setDatas, parameterData);
             });

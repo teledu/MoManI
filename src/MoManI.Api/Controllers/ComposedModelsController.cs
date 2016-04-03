@@ -71,6 +71,7 @@ namespace MoManI.Api.Controllers
             foreach (var scenario in scenarios)
             {
                 await _resultsRepository.DeleteScenarioResults(scenario.Id);
+                await _dataRepository.DeleteModelSetData(id);
                 await _dataRepository.DeleteScenario(scenario.Id);
             }
             await _modelRepository.DeleteComposedModel(id);

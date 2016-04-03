@@ -27,6 +27,7 @@
     <Content Include="images\spinner.gif" />
     <Content Include="index.html" />
     <Content Include="partials\composition-details.html" />
+    <Content Include="partials\set-data-list.html" />
     <Content Include="partials\scenario-details.html" />
     <Content Include="partials\result-scenario-list.html" />
     <Content Include="partials\scenario-list.html" />
@@ -94,7 +95,7 @@
     <TypeScriptCompile Include="scripts\controllers\equationObjectEditSetsController.ts" />
     <TypeScriptCompile Include="scripts\controllers\equationObjectModalControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\constraintControllers.ts" />
-    <TypeScriptCompile Include="scripts\controllers\scenarioDataControllers.ts" />
+    <TypeScriptCompile Include="scripts\controllers\modelDataControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\compareResultsControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\variableResultControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\resultListControllers.ts" />

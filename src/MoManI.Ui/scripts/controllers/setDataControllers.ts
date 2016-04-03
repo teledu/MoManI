@@ -18,13 +18,12 @@ export class SetDataController {
     ) {
         $scope.invalidValuesNotUnique = false;
         var modelId = $routeParams['modelId'];
-        var scenarioId = $routeParams['scenarioId'];
         var setId = $routeParams['setId'];
         var setReq = SetService.get({ id: setId }).$promise;
-        var setDataReq = SetDataService.get({ setId: setId, scenarioId: scenarioId }).$promise;
+        var setDataReq = SetDataService.get({ setId: setId, modelId: modelId }).$promise;
 
         $q.all([setReq, setDataReq]).then(res => {
-            $scope.data = new setDataModel.SetData(scenarioId, modelId, <ISet>res[0], <ISetData>res[1]);
+            $scope.data = new setDataModel.SetData(modelId, <ISet>res[0], <ISetData>res[1]);
         });
 
         $scope.save = () => {
@@ -34,7 +33,7 @@ export class SetDataController {
                 return;
             }
             SetDataService.save($scope.data.serialize(), () => {
-                $window.location.href = `#/models/${modelId}/${scenarioId}/data`;
+                $window.location.href = `#/models/${modelId}/setData`;
             }, () => {
                 alert('An error occured');
             });

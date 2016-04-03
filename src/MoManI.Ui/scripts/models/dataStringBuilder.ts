@@ -37,8 +37,8 @@ export class Builder {
         var deferred = this.$q.defer();
         this.setsLoading = deferred.promise;
         var setDataReqs = _.map(setModels, sm => {
-            return setDataService.get({ setId: sm.id, scenarioId: this.scenarioId }).$promise.then(data => {
-                this.setData.push(new setDataModel.SetData(this.scenarioId, this.modelId, sm.serialize(), data));
+            return setDataService.get({ setId: sm.id, modelId: this.modelId }).$promise.then(data => {
+                this.setData.push(new setDataModel.SetData(this.modelId, sm.serialize(), data));
             });
         });
         $q.all(setDataReqs).then(() => { deferred.resolve(true); }, () => deferred.reject(false));

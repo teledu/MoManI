@@ -24,7 +24,6 @@ export interface IScenarioListScope extends ng.IScope {
 }
 
 export interface IScenarioDetailsScope extends ng.IScope {
-    setOrderProp: string;
     parameterOrderProp: string;
     model: modelModel.Model;
     scenario: scenarioModel.Scenario;
@@ -90,8 +89,7 @@ export class ScenarioDetailsController {
         $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
             $scope.model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
         });
-
-        $scope.setOrderProp = 'data.name';
+        
         $scope.parameterOrderProp = 'data.name';
 
         $scope.save = () => {
