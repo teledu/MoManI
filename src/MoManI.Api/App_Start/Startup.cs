@@ -23,19 +23,19 @@ namespace MoManI.Api
         {
             Bootstrapper.InstallDatabase().Wait();
 
-            var issuer = ConfigurationManager.AppSettings["jwtIssuer"];
-            var audience = ConfigurationManager.AppSettings["jwtClientId"];
-            var jwtKey = TextEncodings.Base64.Decode(ConfigurationManager.AppSettings["jwtVerificationKey"]);
-            var authOptions = new JwtBearerAuthenticationOptions
-            {
-                AuthenticationMode = AuthenticationMode.Active,
-                AllowedAudiences = new[] { audience },
-                IssuerSecurityTokenProviders = new IIssuerSecurityTokenProvider[]
-                {
-                    new X509CertificateSecurityTokenProvider(issuer, new X509Certificate2(jwtKey)), 
-                }
-            };
-            app.UseJwtBearerAuthentication(authOptions);
+            //var issuer = ConfigurationManager.AppSettings["jwtIssuer"];
+            //var audience = ConfigurationManager.AppSettings["jwtClientId"];
+            //var jwtKey = TextEncodings.Base64.Decode(ConfigurationManager.AppSettings["jwtVerificationKey"]);
+            //var authOptions = new JwtBearerAuthenticationOptions
+            //{
+            //    AuthenticationMode = AuthenticationMode.Active,
+            //    AllowedAudiences = new[] { audience },
+            //    IssuerSecurityTokenProviders = new IIssuerSecurityTokenProvider[]
+            //    {
+            //        new X509CertificateSecurityTokenProvider(issuer, new X509Certificate2(jwtKey)), 
+            //    }
+            //};
+            //app.UseJwtBearerAuthentication(authOptions);
 
             var config = new HttpConfiguration();
             Bootstrapper.StartWith(config);
