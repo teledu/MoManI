@@ -21,8 +21,6 @@ namespace MoManI.Api
     {
         public void Configuration(IAppBuilder app)
         {
-            Bootstrapper.InstallDatabase().Wait();
-
             //var issuer = ConfigurationManager.AppSettings["jwtIssuer"];
             //var audience = ConfigurationManager.AppSettings["jwtClientId"];
             //var jwtKey = TextEncodings.Base64.Decode(ConfigurationManager.AppSettings["jwtVerificationKey"]);
@@ -38,6 +36,7 @@ namespace MoManI.Api
             //app.UseJwtBearerAuthentication(authOptions);
 
             var config = new HttpConfiguration();
+            Bootstrapper.InstallDatabase();
             Bootstrapper.StartWith(config);
 
             var allowedOrigin = ConfigurationManager.AppSettings["allowOrigin"];

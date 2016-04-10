@@ -1,13 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Configuration;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.ExceptionHandling;
 using MoManI.Api.Infrastructure;
 using MoManI.Api.Infrastructure.Conventions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Conventions;
+using MoManI.Api.Infrastructure.Persistence;
 
 namespace MoManI.Api
 {
@@ -27,46 +24,12 @@ namespace MoManI.Api
             configuration.Services.Replace(typeof(IHttpControllerActivator), new CompositionRoot());
         }
 
-        public static async Task InstallDatabase()
+        public static void InstallDatabase()
         {
-            var mongoConventions = new ConventionPack();
-            mongoConventions.Add(new CamelCaseElementNameConvention());
-            mongoConventions.Add(new IgnoreExtraElementsConvention(true));
-            mongoConventions.Add(new StringEnumConvention());
-            ConventionRegistry.Register("camel case", mongoConventions, t => true);
-
-            BsonDefaults.GuidRepresentation = GuidRepresentation.Standard;
-            
-            await Task.Delay(0);
+            var connectionString = ConfigurationManager.ConnectionStrings["momani"].ConnectionString;
+            var databaseName = ConfigurationManager.AppSettings["momaniDatabaseName"];
+            var database = new MongoDatabase(connectionString, databaseName);
+            database.InstallDatabase().Wait();
         }
-    }
-
-    public class StringEnumConvention : ConventionBase, IMemberMapConvention
-    {
-        public void Apply(BsonMemberMap memberMap)
-        {
-            if (!memberMap.MemberType.IsEnum) return;
-            memberMap.SetSerializer(new StringEnumBsonSerializer(memberMap.MemberType));
-        }
-    }
-
-    public class StringEnumBsonSerializer : IBsonSerializer
-    {
-        public StringEnumBsonSerializer(Type valueType)
-        {
-            ValueType = valueType;
-        }
-
-        public object Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-        {
-            return Enum.Parse(ValueType, context.Reader.ReadString());
-        }
-
-        public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
-        {
-            context.Writer.WriteString(value.ToString());
-        }
-
-        public Type ValueType { get; }
     }
 }

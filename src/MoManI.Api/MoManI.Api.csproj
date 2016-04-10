@@ -160,7 +160,11 @@
     <Compile Include="Infrastructure\LimitedWriteAttribute.cs" />
     <Compile Include="Controllers\ParameterDataController.cs" />
     <Compile Include="Controllers\SetDataController.cs" />
+    <Compile Include="Infrastructure\Persistence\Migration.cs" />
+    <Compile Include="Infrastructure\Persistence\Migrations\VariableResultItemIndex.cs" />
+    <Compile Include="Infrastructure\Persistence\MongoDatabase.cs" />
     <Compile Include="Models\ConstraintGroup.cs" />
+    <Compile Include="Models\DbVersion.cs" />
     <Compile Include="Models\ModelResult.cs" />
     <Compile Include="Models\Scenario.cs" />
     <Compile Include="Models\VariableResult.cs" />
@@ -182,6 +186,8 @@
     <Compile Include="Models\SetData.cs" />
     <Compile Include="Models\Variable.cs" />
     <Compile Include="Models\Parameter.cs" />
+    <Compile Include="Models\VariableResultItemStorageModel.cs" />
+    <Compile Include="Models\VariableResultStorageModel.cs" />
     <Compile Include="Services\IResultsRepository.cs" />
     <Compile Include="Services\IDataRepository.cs" />
     <Compile Include="Services\IModelRepository.cs" />
@@ -200,6 +206,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\MoManI.WinExecApp.exe" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -105,21 +105,5 @@ namespace MoManI.Api.Services
         {
             return await _variableResultItemsCollection.Find(vri => vri.VariableResultId == variableResultId).ToListAsync();
         }
-
-        private class VariableResultStorageModel
-        {
-            public Guid Id { get; set; }
-            public Guid VariableId { get; set; }
-            public Guid ScenarioId { get; set; }
-            public Guid ModelId { get; set; }
-            public IEnumerable<VariableSet> Sets { get; set; }
-        }
-
-        private class VariableResultItemStorageModel
-        {
-            public Guid VariableResultId { get; set; }
-            public IEnumerable<string> Coordinates { get; set; }
-            public decimal Value { get; set; }
-        }
     }
 }
