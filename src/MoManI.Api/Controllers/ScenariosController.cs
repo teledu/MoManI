@@ -70,6 +70,7 @@ namespace MoManI.Api.Controllers
         public ScenarioViewModel(Scenario scenario, bool hasResults)
         {
             Id = scenario.Id;
+            ParentScenarioId = scenario.ParentScenarioId;
             ModelId = scenario.ModelId;
             Name = scenario.Name;
             Description = scenario.Description;
@@ -78,6 +79,7 @@ namespace MoManI.Api.Controllers
         }
 
         public Guid Id { get; set; }
+        public Guid? ParentScenarioId { get; set; }
         public Guid ModelId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

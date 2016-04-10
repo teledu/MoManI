@@ -19,6 +19,7 @@ export class Scenario {
         return {
             id: this.id,
             modelId: this.modelId,
+            parentScenarioId: null,
             name: this.name,
             description: this.description,
             revision: this.revision,

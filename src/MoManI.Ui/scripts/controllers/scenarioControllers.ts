@@ -12,11 +12,13 @@ import constraintGroupService = require('services/constraintGroupService');
 import constraintService = require('services/constraintService');
 import modelService = require('services/modelService');
 import scenarioService = require('services/scenarioService');
+import tree = require('models/tree');
 
 var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintGroupService, constraintService, modelService, scenarioService];
 
 export interface IScenarioListScope extends ng.IScope {
     orderProp: string;
+    scenarioTrees: tree.Node<IScenario>[];
     scenarios: angular.resource.IResourceArray<IScenario>;
     downloadExec: (scenario: IScenario) => void;
     clone: (scenario: IScenario) => void;
@@ -35,7 +37,14 @@ export class ScenarioListController {
         $scope: IScenarioListScope, $q: angular.IQService, $http: angular.IHttpService, $routeParams: angular.route.IRouteParamsService, $modal: angular.ui.bootstrap.IModalService,
         ScenarioService: angular.resource.IResourceClass<IScenarioResource>
     ) {
-        $scope.scenarios = ScenarioService.query({ modelId: $routeParams['modelId'] });
+        var scenarioPromise = ScenarioService.query({ modelId: $routeParams['modelId'] }).$promise;
+
+        $q.when(scenarioPromise).then(scenarios => {
+            var scenarioTrees = new tree.Tree(scenarios, 'id', 'parentScenarioId');
+            $scope.scenarioTrees = scenarioTrees.getRoots();
+            $scope.scenarios = scenarios;
+        });
+
         $scope.orderProp = 'revision';
 
         $scope.downloadExec = (scenario: IScenario) => {

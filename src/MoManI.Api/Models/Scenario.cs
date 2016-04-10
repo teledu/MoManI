@@ -6,6 +6,7 @@ namespace MoManI.Api.Models
     {
         public Guid Id { get; set; }
         public Guid ModelId { get; set; }
+        public Guid? ParentScenarioId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public int Revision { get; set; }
@@ -16,6 +17,7 @@ namespace MoManI.Api.Models
             {
                 Id = Guid.NewGuid(),
                 ModelId = ModelId,
+                ParentScenarioId = Id,
                 Name = Name,
                 Description = Description,
                 Revision = revision,
