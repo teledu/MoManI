@@ -87,7 +87,7 @@ export class ScenarioListController {
             {
                 field: 'id',
                 displayName: '',
-                cellTemplate: `<a ng-if="row.branch.revision != 1" ng-click="cellTemplateScope.delete(row.branch[col.field])" confirm="Are you sure you want to delete the scenario {{row.branch.name}}? This will remove all of its associated data and results">Delete</a>`,
+                cellTemplate: `<a ng-if="row.branch.revision != 1" ng-click="cellTemplateScope.delete(row.branch[col.field])" confirm="Are you sure you want to delete the scenario {{row.branch.name}}? This will remove all the associated data and results of this and any daughter scenarios">Delete</a>`,
                 cellTemplateScope: {
                     delete: (scenarioId: string) => this.$scope.delete(scenarioId)
                 },

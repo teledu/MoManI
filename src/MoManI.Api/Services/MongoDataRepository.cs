@@ -45,6 +45,11 @@ namespace MoManI.Api.Services
 
         public async Task DeleteScenario(Guid scenarioId)
         {
+            var childScenarios = await _scenariosCollection.Find(s => s.ParentScenarioId == scenarioId).ToListAsync();
+            foreach (var childScenario in childScenarios)
+            {
+                await DeleteScenario(childScenario.Id);
+            }
             var parameters = await _parameterDataCollection.Find(x => x.ScenarioId == scenarioId).ToListAsync();
             foreach (var parameter in parameters)
             {
