@@ -17,12 +17,13 @@ import tree = require('models/tree');
 var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintGroupService, constraintService, modelService, scenarioService];
 
 export interface IScenarioListScope extends ng.IScope {
-    orderProp: string;
-    scenarioTrees: tree.Node<IScenario>[];
     scenarios: angular.resource.IResourceArray<IScenario>;
-    downloadExec: (scenario: IScenario) => void;
-    clone: (scenario: IScenario) => void;
-    delete: (scenario: IScenario) => void;
+    scenarioTrees: any[];
+    expandableProperty: any;
+    treeCols: any[];
+    downloadExec: (scenarioId: string) => void;
+    clone: (scenarioId: string) => void;
+    delete: (scenarioId: string) => void;
 }
 
 export interface IScenarioDetailsScope extends ng.IScope {
@@ -33,21 +34,68 @@ export interface IScenarioDetailsScope extends ng.IScope {
 }
 
 export class ScenarioListController {
+    modelId: string;
+    $scope: IScenarioListScope;
+    $q: angular.IQService;
+    ScenarioService: angular.resource.IResourceClass<IScenarioResource>
+
     constructor(
         $scope: IScenarioListScope, $q: angular.IQService, $http: angular.IHttpService, $routeParams: angular.route.IRouteParamsService, $modal: angular.ui.bootstrap.IModalService,
         ScenarioService: angular.resource.IResourceClass<IScenarioResource>
     ) {
-        var scenarioPromise = ScenarioService.query({ modelId: $routeParams['modelId'] }).$promise;
+        this.modelId = $routeParams['modelId'];
+        this.$scope = $scope;
+        this.$q = $q;
+        this.ScenarioService = ScenarioService;
 
-        $q.when(scenarioPromise).then(scenarios => {
-            var scenarioTrees = new tree.Tree(scenarios, 'id', 'parentScenarioId');
-            $scope.scenarioTrees = scenarioTrees.getRoots();
-            $scope.scenarios = scenarios;
-        });
+        this.loadScenarios();
 
-        $scope.orderProp = 'revision';
+        $scope.expandableProperty = {
+            field: 'name',
+            displayName: 'Name',
+        };
+        $scope.treeCols = [
+            {
+                field: 'description',
+                displayName: 'Description',
+            },
+            {
+                field: 'revision',
+                displayName: 'Revision',
+            },
+            {
+                field: 'id',
+                displayName: '',
+                cellTemplate: `<a href="#/models/${this.modelId}/{{row.branch[col.field]}}/data">Enter data</a>`,
+            },
+            {
+                field: 'id',
+                displayName: '',
+                cellTemplate: `<a ng-click="cellTemplateScope.downloadExecutable(row.branch[col.field])">Download executable</a>`,
+                cellTemplateScope: {
+                    downloadExecutable: (scenarioId: string) => this.$scope.downloadExec(scenarioId)
+                },
+            },
+            {
+                field: 'id',
+                displayName: '',
+                cellTemplate: `<a ng-click="cellTemplateScope.clone(row.branch[col.field])">Clone revision</a>`,
+                cellTemplateScope: {
+                    clone: (scenarioId: string) => this.$scope.clone(scenarioId)
+                },
+            },
+            {
+                field: 'id',
+                displayName: '',
+                cellTemplate: `<a ng-if="row.branch.revision != 1" ng-click="cellTemplateScope.delete(row.branch[col.field])" confirm="Are you sure you want to delete the scenario {{row.branch.name}}? This will remove all of its associated data and results">Delete</a>`,
+                cellTemplateScope: {
+                    delete: (scenarioId: string) => this.$scope.delete(scenarioId)
+                },
+            },
+        ];
 
-        $scope.downloadExec = (scenario: IScenario) => {
+        $scope.downloadExec = (scenarioId: string) => {
+            var scenario = _.find($scope.scenarios, 'id', scenarioId);
             $modal.open({
                 templateUrl: 'partials/render-executable.html',
                 controller: executableRenderingControllers.ExecutableRenderingController,
@@ -57,22 +105,31 @@ export class ScenarioListController {
             });
         }
 
-        $scope.clone = (scenario: IScenario) => {
+        $scope.clone = (scenarioId: string) => {
             var cloneReq = $http({
                 url: urls.scenarioCloning,
                 method: 'POST',
-                params: {id: scenario.id},
+                params: { id: scenarioId },
             });
             $q.when(cloneReq).then(() => {
-                $scope.scenarios = ScenarioService.query({ modelId: $routeParams['modelId'] });
+                this.loadScenarios();
             });
         }
 
-        $scope.delete = (scenario: IScenario) => {
-            ScenarioService.delete({ id: scenario.id }).$promise.then(() => {
-                $scope.scenarios = ScenarioService.query({ modelId: $routeParams['modelId'] });
+        $scope.delete = (scenarioId: string) => {
+            ScenarioService.delete({ id: scenarioId }).$promise.then(() => {
+                this.loadScenarios();
             });
         }
+    }
+
+    loadScenarios = () => {
+        this.$scope.scenarioTrees = null;
+        var scenarioPromise = this.ScenarioService.query({ modelId: this.modelId }).$promise;
+        this.$q.when(scenarioPromise).then(scenarios => {
+            this.$scope.scenarios = scenarios;
+            this.$scope.scenarioTrees = tree.getTree(scenarios, 'id', 'parentScenarioId');
+        });
     }
 }
 

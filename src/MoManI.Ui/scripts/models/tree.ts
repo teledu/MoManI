@@ -1,36 +1,57 @@
-﻿import dictionary = require('models/dictionary');
+﻿export var getTree: (data: any, primaryIdName: string, parentIdName: string) => any[] = (data: any, primaryIdName: string, parentIdName: string) => {
+    if (!data || data.length == 0 || !primaryIdName || !parentIdName)
+        return [];
 
-export class Node<T> {
-    children: Node<T>[] = [];
-    parent: Node<T>;
-    object: T;
+    var tree = [],
+        rootIds = [],
+        item = data[0],
+        primaryKey = item[primaryIdName],
+        treeObjs = {},
+        tempChildren = {},
+        parentId,
+        parent,
+        len = data.length,
+        i = 0;
 
-    constructor(object: T) {
-        this.object = object;
-    }
-}
+    while (i < len) {
+        item = data[i++];
+        primaryKey = item[primaryIdName];
 
-export class Tree<T> {
-    private lookup: dictionary<Node<T>>;
+        if (tempChildren[primaryKey]) {
+            item.children = tempChildren[primaryKey];
+            delete tempChildren[primaryKey];
+        }
 
-    constructor(items: T[], keyName: string, parentName: string) {
-        this.lookup = new dictionary(_.map(items, i => {
-            var node = new Node<T>(i);
-            return {
-                key: i[keyName],
-                value: node,
+        treeObjs[primaryKey] = item;
+        parentId = item[parentIdName];
+
+        if (parentId) {
+            parent = treeObjs[parentId];
+
+            if (!parent) {
+                var siblings = tempChildren[parentId];
+                if (siblings) {
+                    siblings.push(item);
+                }
+                else {
+                    tempChildren[parentId] = [item];
+                }
             }
-        }));
-        _.forEach(this.lookup.values(), n => {
-            var proposedParent = <Node<T>>this.lookup[n.object[parentName]];
-            if (proposedParent) {
-                n.parent = proposedParent;
-                proposedParent.children.push(n);
+            else if (parent.children) {
+                parent.children.push(item);
             }
-        });
+            else {
+                parent.children = [item];
+            }
+        }
+        else {
+            rootIds.push(primaryKey);
+        }
     }
 
-    getRoots: () => Node<T>[] = () => {
-        return _.filter(this.lookup.values(), n => n.parent == null);
-    }
+    for (var i = 0; i < rootIds.length; i++) {
+        tree.push(treeObjs[rootIds[i]]);
+    };
+
+    return tree;
 }

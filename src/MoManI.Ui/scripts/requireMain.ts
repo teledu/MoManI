@@ -11,6 +11,7 @@ require.config({
         'angular-strap-navbar': 'lib/angular-strap-navbar',
         'angular-confirm': 'lib/angular-confirm',
         'checklist-model': 'lib/checklist-model',
+        'treeGrid': 'lib/tree-grid-directive',
         'handsontable': 'lib/handsontable.full',
         'ngHandsontable': 'lib/ngHandsontable',
         'node-uuid': 'lib/uuid',
@@ -33,7 +34,8 @@ require.config({
         'ngHandsontable': { exports: 'ngHandsontable', deps: ['angular', 'handsontable'] },
         'nvd3': { exports: 'nvd3', deps: ['d3'] },
         'angular-nvd3': { exports: 'angular-nvd3', deps: ['angular', 'd3', 'nvd3'] },
-        'angular-confirm': {exports: 'angular-confirm', deps: ['angular', 'angular-ui-bootstrap']},
+        'angular-confirm': { exports: 'angular-confirm', deps: ['angular', 'angular-ui-bootstrap'] },
+        'treeGrid': { exports: 'treeGrid', deps: ['angular']},
     },
 });
 
@@ -51,8 +53,10 @@ declare module 'angular-nvd3' {
 }
 declare module 'angular-confirm' {
 }
+declare module 'treeGrid' {
+}
 
-require(['jquery', 'angular', 'angular-route', 'angular-resource', 'angular-ui-bootstrap', 'angular-strap-navbar', 'angular-nvd3', 'angular-confirm', 'checklist-model', 'ngHandsontable', 'application', 'routes'],
-    ($, angular, angularRoute, angularResource, angularUiBootstrap, angularStrapNavbar, angularNvd3, angularConfirm, checklistModel, ngHandsontable, application, routes) => {
+require(['jquery', 'angular', 'angular-route', 'angular-resource', 'angular-ui-bootstrap', 'angular-strap-navbar', 'angular-nvd3', 'angular-confirm', 'checklist-model', 'treeGrid', 'ngHandsontable', 'application', 'routes'],
+    ($, angular, angularRoute, angularResource, angularUiBootstrap, angularStrapNavbar, angularNvd3, angularConfirm, checklistModel, treeGrid, ngHandsontable, application, routes) => {
         $(() => { angular.bootstrap(document, ['application']); });
     });
