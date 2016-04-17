@@ -81,3 +81,7 @@ tbody tr.constraint-group-row td {
 span.bold {
     font-weight: bold;
 }
+
+.tree-grid td:nth-child(1) {
+    min-width: 250px;
+}
