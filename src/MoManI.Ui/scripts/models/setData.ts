@@ -1,14 +1,15 @@
 ﻿import uuid = require('node-uuid');
 
-interface IValue {
+interface ISetDataValue {
     id: string;
-    value: string|number;
+    value: string | number;
+    name: string;
 }
 
 export class SetData {
     setId: string;
     modelId: string;
-    private values: IValue[];
+    private values: ISetDataValue[];
     setName: string;
     description: string;
     numeric: boolean;
@@ -19,10 +20,11 @@ export class SetData {
         this.setName = set.name;
         this.description = set.description;
         this.numeric = set.numeric;
-        this.values = setData && setData.values ? _.map(setData.values, val => {
+        this.values = setData && setData.items ? _.map(setData.items, i => {
              return {
                  id: uuid.v4(),
-                 value: this.numeric ? +val : val,
+                 value: this.numeric ? +i.value : i.value,
+                 name: i.name,
              }
         }) : [];
     }
@@ -31,7 +33,13 @@ export class SetData {
         return {
             setId: this.setId,
             modelId: this.modelId,
-            values: _.map(this.values, val => val.value.toString()),
+            //values: _.map(this.values, val => val.value.toString()),
+            items: _.map(this.values, val => {
+                return {
+                    name: val.name,
+                    value: val.value.toString(),
+                }
+            }), 
         };
     }
 
@@ -40,9 +48,10 @@ export class SetData {
     }
 
     addValue = () => {
-        var value: IValue = {
+        var value: ISetDataValue = {
             id: uuid.v4(),
             value: null,
+            name: null,
         }
         if (this.numeric) {
             value.value = this.values.length > 0 ? (+_.last(this.values).value + 1) : 0;
@@ -52,7 +61,7 @@ export class SetData {
         this.values.push(value);
     }
 
-    removeValue = (value: IValue) => {
+    removeValue = (value: ISetDataValue) => {
         _.remove(this.values, value);
     }
 

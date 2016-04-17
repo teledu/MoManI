@@ -7,6 +7,12 @@ namespace MoManI.Api.Models
     {
         public Guid SetId { get; set; }
         public Guid ModelId { get; set; }
-        public IEnumerable<string> Values { get; set; }
+        public IEnumerable<SetDataItem> Items { get; set; }
+    }
+
+    public class SetDataItem
+    {
+        public string Value { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -1,15 +1,29 @@
 ﻿<h3>Data entry for set {{data.setName}}</h3>
 
-<div ng-repeat="value in data.values" class="clearfix">
-    <div class="col-sm-6">
-        <input class="form-control" type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value" />
-    </div>
-    <div class="col-sm-1">
-        <button type="button" class="btn btn-default" ng-click="data.removeValue(value)">
-            <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
-        </button>
-    </div>
-</div>
+<table>
+    <thead>
+    <tr>
+        <th>Value</th>
+        <th>Name</th>
+        <th>Remove</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="value in data.values">
+        <td>
+            <input class="form-control" type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value"/>
+        </td>
+        <td class="set-data-name">
+            <input class="form-control" type="text" ng-model="value.name" />
+        </td>
+        <td>
+            <button type="button" class="btn btn-default" ng-click="data.removeValue(value)">
+                <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+            </button>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
 <div>
     <button type="button" class="btn btn-default" ng-click="data.addValue()">

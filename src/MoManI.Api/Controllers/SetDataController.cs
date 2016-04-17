@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -30,7 +31,11 @@ namespace MoManI.Api.Controllers
             {
                 SetId = setData.SetId,
                 ModelId = setData.ModelId,
-                Values = setData.Values ?? new List<string>(),
+                Items = setData?.Items.Select(i => new SetDataItem
+                {
+                    Value = i.Value,
+                    Name = i.Name,
+                })
             });
             return Request.CreateResponse(HttpStatusCode.OK);
         }
@@ -46,6 +51,12 @@ namespace MoManI.Api.Controllers
     {
         public Guid SetId { get; set; }
         public Guid ModelId { get; set; }
-        public IEnumerable<string> Values { get; set; } 
+        public IEnumerable<SetDataItemSaveRequest> Items { get; set; }
+    }
+
+    public class SetDataItemSaveRequest
+    {
+        public string Value { get; set; }
+        public string Name { get; set; }
     }
 }

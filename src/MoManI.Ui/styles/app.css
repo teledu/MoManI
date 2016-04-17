@@ -85,3 +85,7 @@ span.bold {
 .tree-grid td:nth-child(1) {
     min-width: 250px;
 }
+
+td.set-data-name {
+    min-width: 350px;
+}
