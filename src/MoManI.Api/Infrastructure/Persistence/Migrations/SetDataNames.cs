@@ -20,6 +20,8 @@ namespace MoManI.Api.Infrastructure.Persistence.Migrations
         {
             var oldCollection = Database.GetCollection<OldSetData>("SetData");
             var oldSetDatas = await oldCollection.Find(x => true).ToListAsync();
+            if (!oldSetDatas.Any())
+                return;
             var newSetDatas = oldSetDatas.Select(s => new NewSetData
             {
                 ModelId = s.ModelId,
