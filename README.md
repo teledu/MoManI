@@ -25,8 +25,10 @@ Internet Information Services
 Install MongoDB and configure it as a service:
 https://docs.mongodb.org/v3.0/tutorial/install-mongodb-on-windows/#configure-a-windows-service-for-mongodb
 
-Install GLPK (https://www.gnu.org/software/glpk/)
-Add path to path variable "C:\glpk-4.57\w64" or similar, depending on where GLPK was installed, 
+Install GLPK:
+Download GLPK (https://www.gnu.org/software/glpk/)
+(If required: Build it by running one of bat file in "C:\glpk-4.57\w64" or or similar, depending on where GLPK was downloaded.)
+Add path to path variable "C:\glpk-4.57\w64" or similar, depending on where GLPK was downloaded (built), 
 this folder should contain the file "glpsol.exe"
 
 Advisable: disable caching on you web dev tools for easier troubleshooting.
