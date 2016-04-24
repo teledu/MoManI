@@ -1,27 +1,29 @@
 ﻿<h3>Data entry for set {{data.setName}}</h3>
 
+<form name="valuesForm">
 <table>
     <thead>
-    <tr>
-        <th>Value</th>
-        <th>Name</th>
-        <th>Remove</th>
-    </tr>
+        <tr>
+            <th>Value</th>
+            <th>Name</th>
+            <th>Remove</th>
+        </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="value in data.values">
-        <td>
-            <input class="form-control" type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value"/>
-        </td>
-        <td class="set-data-name">
-            <input class="form-control" type="text" ng-model="value.name" />
-        </td>
-        <td>
-            <button type="button" class="btn btn-default" ng-click="data.removeValue(value)" tabindex="-1">
-                <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
-            </button>
-        </td>
-    </tr>
+        <tr ng-repeat="value in data.values">
+            <td>
+                <input class="form-control" required pattern="^[^\x22]*$" title="Quotation marks are disallowed."
+                       type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value" />
+            </td>
+            <td class="set-data-name">
+                <input class="form-control" type="text" ng-model="value.name" />
+            </td>
+            <td>
+                <button type="button" class="btn btn-default" ng-click="data.removeValue(value)" tabindex="-1">
+                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
     </tbody>
 </table>
 
@@ -39,3 +41,4 @@
     <button class="btn btn-default" ng-click="save()">Save</button>
     <a href="#/models/{{data.modelId}}/{{data.scenarioId}}/data" class="btn btn-default">Cancel</a>
 </div>
+</form>
