@@ -4,7 +4,9 @@
             <div class="form-group">
                 <label for="setName" class="col-sm-2 control-label">Name</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="setName" ng-model="set.name" required>
+                    <input type="text" class="form-control" id="setName" ng-model="set.name"
+                           required pattern="^[a-zA-Z0-9_]*$"
+                           title="Only alphanumeric characters and underscore are allowed">
                 </div>
             </div>
             <div class="form-group">
