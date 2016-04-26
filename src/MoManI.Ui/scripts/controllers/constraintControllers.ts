@@ -77,7 +77,8 @@ export class ConstraintDetailsController {
         });
 
         $scope.save = () => {
-            if ($scope.detailsForm.$invalid) return;
+            if ($scope.detailsForm.$invalid)
+                return;
             ConstraintService.save($scope.constraint.serialize(), () => {
                 $window.location.href = '#/constraints';
             }, () => {

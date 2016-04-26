@@ -29,7 +29,8 @@ export class ConstraintGroupDetailsController {
         });
 
         $scope.save = () => {
-            if ($scope.detailsForm.$invalid) return;
+            if ($scope.detailsForm.$invalid)
+                return;
             ConstraintGroupService.save($scope.constraintGroup.serialize(), () => {
                 $window.location.href = '#/constraints';
             }, () => {

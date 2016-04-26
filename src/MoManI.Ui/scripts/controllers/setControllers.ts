@@ -42,7 +42,8 @@ export class SetDetailsController {
         });
 
         $scope.save = () => {
-            if ($scope.detailsForm.$invalid) return;
+            if ($scope.detailsForm.$invalid)
+                return;
             SetService.save($scope.set.serialize(), () => {
                 $window.location.href = '#/sets';
             }, () => {

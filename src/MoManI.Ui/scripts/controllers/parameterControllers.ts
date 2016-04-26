@@ -43,7 +43,8 @@ export class ParameterDetailsController {
         });
 
         $scope.save = () => {
-            if ($scope.detailsForm.$invalid) return;
+            if ($scope.detailsForm.$invalid)
+                return;
             ParameterService.save($scope.parameter.serialize(), () => {
                 $window.location.href = '#/parameters';
             }, () => {

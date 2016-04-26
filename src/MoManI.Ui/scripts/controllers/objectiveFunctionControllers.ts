@@ -53,7 +53,8 @@ export class ObjectiveFunctionDetailsController {
         });
 
         $scope.save = () => {
-            if ($scope.detailsForm.$invalid) return;
+            if ($scope.detailsForm.$invalid)
+                return;
             ObjectiveFunctionService.save($scope.objectiveFunction.serialize(), () => {
                 $window.location.href = '#/functions';
             }, () => {

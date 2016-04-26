@@ -51,7 +51,8 @@ export class VariableDetailsController {
         }
 
         $scope.save = () => {
-            if ($scope.detailsForm.$invalid) return;
+            if ($scope.detailsForm.$invalid)
+                return;
             VariableService.save($scope.variable.serialize(), () => {
                 $window.location.href = '#/variables';
             }, () => {
