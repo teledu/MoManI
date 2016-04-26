@@ -76,7 +76,7 @@ export class SetData {
     }
 
     public static  glpkReady: (value: string) => string = (value) => {
-        var regExp = new RegExp("^[a-zA-Z0-9_]*$");
+        var regExp = new RegExp("^[a-zA-Z0-9_.]*$");
         if (value.match(regExp)) {
             return value;
         }
