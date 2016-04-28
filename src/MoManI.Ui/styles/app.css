@@ -1,3 +1,8 @@
+.view-container {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 .equation-composite {
     border-style: dashed;
     border-color: lightsteelblue;

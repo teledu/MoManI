@@ -33,7 +33,6 @@ export class SetData {
         return {
             setId: this.setId,
             modelId: this.modelId,
-            //values: _.map(this.values, val => val.value.toString()),
             items: _.map(this.values, val => {
                 return {
                     name: val.name,
