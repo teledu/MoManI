@@ -61,7 +61,7 @@ export class VariableResult {
                     return v.c[this.xSetIndex()];
                 }).map((g: IVariableResultItem[], k: string) => {
                     return {
-                        x: this.xSet.numeric ? +k : this.resolveSetDataDescription(this.xSet, k),
+                        x: this.resolveSetDataDescription(this.xSet, k),
                         y: _.reduce(g, (total: number, val: IVariableResultItem) => {
                             return total + val.v;
                         }, 0),
@@ -76,7 +76,7 @@ export class VariableResult {
             return this.name;
         var actualSetData = _.find(this.setData, 'setId', set.id);
         var actualSetDataEntry = _.find(actualSetData.items, 'value', value);
-        return actualSetDataEntry.name;
+        return set.numeric ? +actualSetDataEntry.value : actualSetDataEntry.name;
     }
 
     toggleLegend = (visible: boolean) => {

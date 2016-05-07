@@ -21,7 +21,7 @@ interface IVariableResultResource extends IVariableResult, ng.resource.IResource
 
 
 interface IChartGroup {
-    key: string;
+    key: string|number;
     values: IChartValue[];
 }
 

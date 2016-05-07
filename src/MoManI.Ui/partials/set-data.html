@@ -3,8 +3,8 @@
 <table>
     <thead>
     <tr>
-        <th>Name</th>
-        <th>Description</th>
+        <th>Value</th>
+        <th ng-if="!data.numeric">Description</th>
         <th>Remove</th>
     </tr>
     </thead>
@@ -13,7 +13,7 @@
         <td>
             <input class="form-control" type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value"/>
         </td>
-        <td class="set-data-name">
+        <td ng-if="!data.numeric" class="set-data-name">
             <input class="form-control" type="text" ng-model="value.name" />
         </td>
         <td>
