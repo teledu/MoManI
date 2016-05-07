@@ -10,9 +10,10 @@ import modelService = require('services/modelService');
 import scenarioService = require('services/scenarioService');
 import variableService = require('services/variableService');
 import setService = require('services/setService');
+import setDataService = require('services/setDataService');
 import variableResultService = require('services/variableResultService');
 
-var forceLoad = [modelService, scenarioService, variableService, setService, variableResultService];
+var forceLoad = [modelService, scenarioService, variableService, setService, setDataService, variableResultService];
 
 export interface ICompareResultsScope extends ng.IScope {
     model: IModel;
@@ -22,6 +23,7 @@ export interface ICompareResultsScope extends ng.IScope {
     variables: IVariable[];
     variable: IVariable;
     sets: ISet[];
+    setData: ISetData[];
     scenario1VariableResult: variableResultModel.VariableResult;
     scenario2VariableResult: variableResultModel.VariableResult;
     updateComparison: () => void;
@@ -36,7 +38,7 @@ export class CompareResultsController {
     constructor($scope: ICompareResultsScope, $q: angular.IQService, $http: angular.IHttpService, $routeParams: angular.route.IRouteParamsService,
         ModelService: ng.resource.IResourceClass<IModelResource>, ScenarioService: ng.resource.IResourceClass<IScenarioResource>,
         VariableService: ng.resource.IResourceClass<IVariableResource>, SetService: ng.resource.IResourceClass<ISetResource>,
-        VariableResultService: ng.resource.IResourceClass<IVariableResultResource>
+        SetDataService: ng.resource.IResourceClass<ISetDataResource>, VariableResultService: ng.resource.IResourceClass<IVariableResultResource>
     ) {
         $scope.loading = true;
         var modelId = $routeParams['modelId'];
@@ -45,8 +47,9 @@ export class CompareResultsController {
         var scenarioReq = ScenarioService.query({ modelId: modelId }).$promise;
         var variableReq = VariableService.query().$promise;
         var setReq = SetService.query().$promise;
+        var setDataReq = SetDataService.query({ modelId: modelId }).$promise;
 
-        $q.all([modelReq, scenarioReq, variableReq, setReq]).then(res => {
+        $q.all([modelReq, scenarioReq, variableReq, setReq, setDataReq]).then(res => {
             $scope.model = <IModel>res[0];
             $scope.scenarios = <IScenario[]>res[1];
             $scope.scenario1 = _.first($scope.scenarios);
@@ -60,6 +63,7 @@ export class CompareResultsController {
             });
             $scope.variable = _.first($scope.variables);
             $scope.sets = <ISet[]>res[3];
+            $scope.setData = <ISetData[]>res[4];
             $scope.loading = false;
         });
 
@@ -74,9 +78,9 @@ export class CompareResultsController {
             $q.all(scenarioResultPromises).then((res: IVariableResultResource[]) => {
                 var scenario1Result = res[0];
                 var scenario2Result = res[1];
-                $scope.scenario1VariableResult = new variableResultModel.VariableResult(variable, scenario1Result, $scope.sets);
+                $scope.scenario1VariableResult = new variableResultModel.VariableResult(variable, scenario1Result, $scope.sets, $scope.setData);
                 $scope.scenario1VariableResult.toggleLegend($scope.legendVisible);
-                $scope.scenario2VariableResult = new variableResultModel.VariableResult(variable, scenario2Result, $scope.sets);
+                $scope.scenario2VariableResult = new variableResultModel.VariableResult(variable, scenario2Result, $scope.sets, $scope.setData);
                 $scope.scenario2VariableResult.toggleLegend($scope.legendVisible);
                 $scope.loading = false;
             });

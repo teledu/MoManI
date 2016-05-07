@@ -74,6 +74,13 @@ namespace MoManI.Api.Services
             return await _setDataCollection.Find(filter).FirstOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<SetData>> GetAllModelSetData(Guid modelId)
+        {
+            var builder = Builders<SetData>.Filter;
+            var filter = builder.Eq("modelId", modelId);
+            return await _setDataCollection.Find(filter).ToListAsync();
+        }
+
         public async Task SaveSetData(SetData setData)
         {
             await _setDataCollection.ReplaceOneAsync(x => x.SetId == setData.SetId && x.ModelId == setData.ModelId, setData, new UpdateOptions

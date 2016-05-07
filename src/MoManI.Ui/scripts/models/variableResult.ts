@@ -12,12 +12,13 @@ export class VariableResult {
     xSet: ISet;
     groupOptions: ISet[];
     groupSet: ISet;
+    setData: ISetData[];
 
     private chartOptions: any;
     private chartData: IChartGroup[];
     private legendVisible: boolean;
 
-    constructor(variable: variableModel.Variable, variableResult: IVariableResult, sets: ISet[]) {
+    constructor(variable: variableModel.Variable, variableResult: IVariableResult, sets: ISet[], setData: ISetData[]) {
         this.variableId = variableResult.variableId;
         this.scenarioId = variableResult.scenarioId;
         this.modelId = variableResult.modelId;
@@ -25,6 +26,7 @@ export class VariableResult {
         this.description = variable.description;
         this.data = variableResult.data;
         this.sets = _.map(variable.sets, s => _.find(sets, 'id', s.value));
+        this.setData = setData;
         this.xSet = _(this.sets).filter(s => s.numeric).first() || _.first(this.sets);
         this.updateGroupOptions();
     }
@@ -54,12 +56,12 @@ export class VariableResult {
             return this.groupSet != null ? d.c[this.groupSetIndex()] : this.name;
         }).map((group: IVariableResultItem[], key: string) => {
             return {
-                key: key,
+                key: this.resolveSetDataDescription(this.groupSet, key),
                 values: _(group).groupBy(v => {
                     return v.c[this.xSetIndex()];
                 }).map((g: IVariableResultItem[], k: string) => {
                     return {
-                        x: this.xSet.numeric ? +k : k,
+                        x: this.xSet.numeric ? +k : this.resolveSetDataDescription(this.xSet, k),
                         y: _.reduce(g, (total: number, val: IVariableResultItem) => {
                             return total + val.v;
                         }, 0),
@@ -67,6 +69,14 @@ export class VariableResult {
                 }).value(),
             };
         }).value();
+    }
+
+    resolveSetDataDescription = (set: ISet, value: string) => {
+        if (set == null)
+            return this.name;
+        var actualSetData = _.find(this.setData, 'setId', set.id);
+        var actualSetDataEntry = _.find(actualSetData.items, 'value', value);
+        return actualSetDataEntry.name;
     }
 
     toggleLegend = (visible: boolean) => {

@@ -5,9 +5,10 @@ import variableResultModel = require('models/variableResult')
 import setService = require('services/setService');
 import variableService = require('services/variableService');
 import scenarioService = require('services/scenarioService');
+import setDataService = require('services/setDataService');
 import variableResultService = require('services/variableResultService');
 
-var forceLoad = [setService, variableService, scenarioService, variableResultService];
+var forceLoad = [setService, variableService, scenarioService, setDataService, variableResultService];
 
 export interface IVariableResultListScope extends ng.IScope {
     scenario: IScenario;
@@ -27,7 +28,8 @@ export interface IVariableResultChartsScope extends ng.IScope {
 export class VariableResultListController {
     constructor($scope: IVariableResultListScope, $q: angular.IQService, $http: angular.IHttpService, $routeParams: angular.route.IRouteParamsService,
         SetService: ng.resource.IResourceClass<ISetResource>, VariableService: angular.resource.IResourceClass<IVariableResource>,
-        ScenarioService: angular.resource.IResourceClass<IScenarioResource>, VariableResultService: ng.resource.IResourceClass<IVariableResultResource>
+        ScenarioService: angular.resource.IResourceClass<IScenarioResource>, SetDataService: ng.resource.IResourceClass<ISetDataResource>,
+        VariableResultService: ng.resource.IResourceClass<IVariableResultResource>
     ) {
         $scope.loading = true;
         var modelId = $routeParams['modelId'];
@@ -45,7 +47,7 @@ export class VariableResultListController {
             var sets = <ISet[]>res[3];
             $scope.variableResults = _.map(variableResults, variableResult => {
                 var variable = new variableModel.Variable(sets, _.find(variables, 'id', variableResult.variableId));
-                return new variableResultModel.VariableResult(variable, variableResult, sets);
+                return new variableResultModel.VariableResult(variable, variableResult, sets, []);
             });
             $scope.loading = false;
         });
@@ -64,18 +66,22 @@ export class VariableResultChartsController {
         var variableId = $routeParams['variableId'];
 
         var variableReq = VariableService.get({ id: variableId }).$promise;
+        var setsReq = SetService.query().$promise;
+        var variableResultReq = VariableResultService.get({ id: variableId, scenarioId: scenarioId }).$promise;
 
-        $q.when(variableReq).then((variableRes: IVariable) => {
+        $q.all([variableReq, setsReq, variableResultReq]).then(res => {
+            var variableRes = <IVariable>res[0];
+            var sets = <ISet[]>res[1];
+            var variableResult = <IVariableResult>res[2];
 
-            var setsReq = SetService.query().$promise;
-            var variableResultReq = VariableResultService.get({ id: variableId, scenarioId: scenarioId }).$promise;
+            var setDataReqs = _.map(variableRes.sets, setId => {
+                return SetDataService.get({ setId: setId, modelId: modelId }).$promise;
+            });
 
-            $q.all([setsReq, variableResultReq]).then(res => {
-                var sets = <ISet[]>res[0];
-                var variableResult = <IVariableResult>res[1];
+            $q.all(setDataReqs).then((setDatas: ISetData[]) => {
                 var variable = new variableModel.Variable(sets, variableRes);
 
-                $scope.variableResult = new variableResultModel.VariableResult(variable, variableResult, sets);
+                $scope.variableResult = new variableResultModel.VariableResult(variable, variableResult, sets, setDatas);
                 $scope.loading = false;
             });
 

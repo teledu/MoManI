@@ -25,6 +25,12 @@ namespace MoManI.Api.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
+        public async Task<HttpResponseMessage> GetSetData(Guid modelId)
+        {
+            var result = await _dataRepository.GetAllModelSetData(modelId);
+            return Request.CreateResponse(HttpStatusCode.OK, result);
+        }
+
         public async Task<HttpResponseMessage> PostSetData(SetDataSaveRequest setData)
         {
             await _dataRepository.SaveSetData(new SetData
