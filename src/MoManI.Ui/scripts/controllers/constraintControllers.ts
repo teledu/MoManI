@@ -14,6 +14,7 @@ export interface IConstraintListScope extends ng.IScope {
     constraintList: constraintListModel.ConstraintList;
     query: string;
     constraintFilter: (constraint: constraintListModel.ITableRow) => boolean;
+    loading: boolean;
 }
 
 export interface IConstraintDetailsScope extends ng.IScope {
@@ -21,6 +22,7 @@ export interface IConstraintDetailsScope extends ng.IScope {
     enumerators: IEquationObjectSet[];
     detailsForm: angular.IFormController;
     save: () => void;
+    loading: boolean;
 }
 
 export class ConstraintListController {
@@ -28,12 +30,14 @@ export class ConstraintListController {
         $scope: IConstraintListScope, $q: angular.IQService,
         ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: ng.resource.IResourceClass<IConstraintResource>
     ) {
+        $scope.loading = true;
         var constraintGroupReq = ConstraintGroupService.query().$promise;
         var constraintReq = ConstraintService.query().$promise;
         $q.all([constraintGroupReq, constraintReq]).then(res => {
             var constraintGroups = <IConstraintGroup[]>res[0];
             var constraints = <IConstraint[]>res[1];
             $scope.constraintList = new constraintListModel.ConstraintList(constraintGroups, constraints);
+            $scope.loading = false;
         });
         $scope.query = '';
         $scope.constraintFilter = (constraint) => {
@@ -54,6 +58,7 @@ export class ConstraintDetailsController {
         VariableService: angular.resource.IResourceClass<IVariableResource>, ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>,
         ConstraintService: angular.resource.IResourceClass<IConstraintResource>
     ) {
+        $scope.loading = true;
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var variableReq = VariableService.query().$promise;
@@ -74,15 +79,18 @@ export class ConstraintDetailsController {
                 variables: <IVariable[]>res[2],
             };
             $scope.constraint = new constraintModel.Constraint(data, $modal, <IConstraintGroup[]>res[3], <IConstraint>res[4]);
+            $scope.loading = false;
         });
 
         $scope.save = () => {
             if ($scope.detailsForm.$invalid)
                 return;
+            $scope.loading = true;
             ConstraintService.save($scope.constraint.serialize(), () => {
                 $window.location.href = '#/constraints';
             }, () => {
                 alert('An error occured');
+                $scope.loading = false;
             });
         };
 

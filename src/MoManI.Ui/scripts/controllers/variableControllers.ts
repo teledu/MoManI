@@ -8,6 +8,7 @@ var forceLoad = [setService, variableService];
 export interface IVariableListScope extends ng.IScope {
     orderProp: string;
     variables: angular.resource.IResourceArray<IVariable>;
+    loading: boolean;
 }
 
 export interface IVariableDetailsScope extends ng.IScope {
@@ -16,11 +17,16 @@ export interface IVariableDetailsScope extends ng.IScope {
     toggleConstraint: (any) => void;
     detailsForm: angular.IFormController;
     save: () => void;
+    loading: boolean;
 }
 
 export class VariableListController {
     constructor($scope: IVariableListScope, VariableService: ng.resource.IResourceClass<IVariableResource>) {
+        $scope.loading = true;
         $scope.variables = VariableService.query();
+        $scope.variables.$promise.finally(() => {
+            $scope.loading = false;
+        });
         $scope.orderProp = 'name';
     }
 }
@@ -29,6 +35,7 @@ export class VariableDetailsController {
     constructor($scope: IVariableDetailsScope, $routeParams: angular.route.IRouteParamsService, $window: angular.IWindowService, $q: angular.IQService,
         SetService: ng.resource.IResourceClass<ISetResource>, VariableService: angular.resource.IResourceClass<IVariableResource>
     ) {
+        $scope.loading = true;
         var setReq = SetService.query().$promise;
         var variableReq;
         if ($routeParams['id'] === 'new') {
@@ -41,6 +48,7 @@ export class VariableDetailsController {
 
         $q.all([setReq, variableReq]).then(res => {
             $scope.variable = new variableModel.Variable(<ISet[]>res[0], <IVariable>res[1]);
+            $scope.loading = false;
         });
 
         $scope.operators = variableModel.variableOperators;
@@ -53,10 +61,12 @@ export class VariableDetailsController {
         $scope.save = () => {
             if ($scope.detailsForm.$invalid)
                 return;
+            $scope.loading = true;
             VariableService.save($scope.variable.serialize(), () => {
                 $window.location.href = '#/variables';
             }, () => {
                 alert('An error occured');
+                $scope.loading = false;
             });
         }
     }

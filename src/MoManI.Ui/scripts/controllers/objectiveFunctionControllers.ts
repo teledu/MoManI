@@ -11,17 +11,23 @@ var forceLoad = [setService, parameterService, variableService, objectiveFunctio
 export interface IObjectiveFunctionListScope extends ng.IScope {
     orderProp: string;
     objectiveFunctions: angular.resource.IResourceArray<IObjectiveFunction>;
+    loading: boolean;
 }
 
 export interface IObjectiveFunctionDetailsScope extends ng.IScope {
     objectiveFunction: objectiveFunctionModel.ObjectiveFunction;
     detailsForm: angular.IFormController;
     save: () => void;
+    loading: boolean;
 }
 
 export class ObjectiveFunctionListController {
     constructor($scope: IObjectiveFunctionListScope, ObjectiveFunctionService: ng.resource.IResourceClass<IObjectiveFunctionResource>) {
+        $scope.loading = true;
         $scope.objectiveFunctions = ObjectiveFunctionService.query();
+        $scope.objectiveFunctions.$promise.finally(() => {
+            $scope.loading = false;
+        });
         $scope.orderProp = 'name';
     }
 }
@@ -31,6 +37,7 @@ export class ObjectiveFunctionDetailsController {
         SetService: ng.resource.IResourceClass<ISetResource>, ParameterService: angular.resource.IResourceClass<IParameterResource>,
         VariableService: angular.resource.IResourceClass<IVariableResource>, ObjectiveFunctionService: angular.resource.IResourceClass<IObjectiveFunctionResource>
     ) {
+        $scope.loading = true;
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var variableReq = VariableService.query().$promise;
@@ -50,15 +57,18 @@ export class ObjectiveFunctionDetailsController {
                 variables: <IVariable[]>res[2],
             };
             $scope.objectiveFunction = new objectiveFunctionModel.ObjectiveFunction(data, $modal, <IObjectiveFunction>res[3]);
+            $scope.loading = false;
         });
 
         $scope.save = () => {
             if ($scope.detailsForm.$invalid)
                 return;
+            $scope.loading = true;
             ObjectiveFunctionService.save($scope.objectiveFunction.serialize(), () => {
                 $window.location.href = '#/functions';
             }, () => {
                 alert('An error occured');
+                $scope.loading = false;
             });
         };
 

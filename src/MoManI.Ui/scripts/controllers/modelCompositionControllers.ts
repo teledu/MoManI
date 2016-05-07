@@ -15,6 +15,7 @@ export interface IModelDetailsScope extends ng.IScope {
     model: modelModel.Model;
     detailsForm: angular.IFormController;
     save: () => void;
+    loading: boolean;
 }
 
 export class ModelCompositionController {
@@ -24,6 +25,7 @@ export class ModelCompositionController {
         ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: angular.resource.IResourceClass<IConstraintResource>,
         ModelService: angular.resource.IResourceClass<IModelResource>
     ) {
+        $scope.loading = true;
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var variableReq = VariableService.query().$promise;
@@ -41,16 +43,21 @@ export class ModelCompositionController {
 
         $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
             $scope.model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
+        }).finally(() => {
+            $scope.loading = false;
         });
 
         $scope.save = () => {
             if ($scope.detailsForm.$invalid)
                 return;
-            ModelService.save($scope.model.serialize(), () => {
+            $scope.loading = true;
+            ModelService.save($scope.model.serialize()).$promise.then(() => {
                 $window.location.href = '#/models';
-            }, () => {
+            }).catch(() => {
                 alert('An error occured');
+            }).finally(() => {
+                $scope.loading = false;
             });
-        };
+        }
     }
 }

@@ -13,6 +13,7 @@ export interface IVariableResultListScope extends ng.IScope {
     scenario: IScenario;
     orderProp: string;
     variableResults: variableResultModel.VariableResult[];
+    loading: boolean;
 }
 
 export interface IVariableResultChartsScope extends ng.IScope {
@@ -20,6 +21,7 @@ export interface IVariableResultChartsScope extends ng.IScope {
     variableResult: variableResultModel.VariableResult;
     options: any;
     data: any[];
+    loading: boolean;
 }
 
 export class VariableResultListController {
@@ -27,6 +29,7 @@ export class VariableResultListController {
         SetService: ng.resource.IResourceClass<ISetResource>, VariableService: angular.resource.IResourceClass<IVariableResource>,
         ScenarioService: angular.resource.IResourceClass<IScenarioResource>, VariableResultService: ng.resource.IResourceClass<IVariableResultResource>
     ) {
+        $scope.loading = true;
         var modelId = $routeParams['modelId'];
         var scenarioId = $routeParams['scenarioId'];
 
@@ -44,6 +47,7 @@ export class VariableResultListController {
                 var variable = new variableModel.Variable(sets, _.find(variables, 'id', variableResult.variableId));
                 return new variableResultModel.VariableResult(variable, variableResult, sets);
             });
+            $scope.loading = false;
         });
         $scope.orderProp = 'name';
     }
@@ -54,6 +58,7 @@ export class VariableResultChartsController {
         SetService: ng.resource.IResourceClass<ISetResource>, VariableService: ng.resource.IResourceClass<IVariableResource>,
         SetDataService: angular.resource.IResourceClass<ISetDataResource>, VariableResultService: ng.resource.IResourceClass<IVariableResultResource>
     ) {
+        $scope.loading = true;
         var modelId = $routeParams['modelId'];
         var scenarioId = $routeParams['scenarioId'];
         var variableId = $routeParams['variableId'];
@@ -71,6 +76,7 @@ export class VariableResultChartsController {
                 var variable = new variableModel.Variable(sets, variableRes);
 
                 $scope.variableResult = new variableResultModel.VariableResult(variable, variableResult, sets);
+                $scope.loading = false;
             });
 
         });

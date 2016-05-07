@@ -14,6 +14,7 @@ var forceLoad = [setService, parameterService, variableService, objectiveFunctio
 export interface IModelDataScope extends ng.IScope {
     setOrderProp: string;
     model: modelModel.Model;
+    loading: boolean;
 }
 
 export class ModelDataController {
@@ -23,6 +24,7 @@ export class ModelDataController {
         ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: angular.resource.IResourceClass<IConstraintResource>,
         ModelService: angular.resource.IResourceClass<IModelResource>
     ) {
+        $scope.loading = true;
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var variableReq = VariableService.query().$promise;
@@ -33,6 +35,7 @@ export class ModelDataController {
 
         $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
             $scope.model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
+            $scope.loading = false;
         });
 
         $scope.setOrderProp = 'data.name';

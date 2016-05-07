@@ -29,10 +29,7 @@ export interface ICompareResultsScope extends ng.IScope {
     updateChart: () => void;
     legendVisible: boolean;
     toggleLegend: (any) => void;
-    //unsupportedDimensions: boolean;
-    //variableResult: variableResultModel.VariableResult;
-    //options: any;
-    //data: any[];
+    loading: boolean;
 }
 
 export class CompareResultsController {
@@ -40,8 +37,8 @@ export class CompareResultsController {
         ModelService: ng.resource.IResourceClass<IModelResource>, ScenarioService: ng.resource.IResourceClass<IScenarioResource>,
         VariableService: ng.resource.IResourceClass<IVariableResource>, SetService: ng.resource.IResourceClass<ISetResource>,
         VariableResultService: ng.resource.IResourceClass<IVariableResultResource>
-        //SetDataService: angular.resource.IResourceClass<ISetDataResource>, 
     ) {
+        $scope.loading = true;
         var modelId = $routeParams['modelId'];
         
         var modelReq = ModelService.get({ id: modelId }).$promise;
@@ -63,17 +60,16 @@ export class CompareResultsController {
             });
             $scope.variable = _.first($scope.variables);
             $scope.sets = <ISet[]>res[3];
+            $scope.loading = false;
         });
 
         $scope.updateComparison = () => {
+            $scope.loading = true;
             if ($scope.variable.id == null)
                 return;
             var variable = new variableModel.Variable($scope.sets, $scope.variable);
             var leftScenarioVariableResultPromise = VariableResultService.get({ id: $scope.variable.id, scenarioId: $scope.scenario1.id }).$promise;
             var rightScenarioVariableResultPromise = VariableResultService.get({ id: $scope.variable.id, scenarioId: $scope.scenario2.id }).$promise;
-            //var setPromises = _.map($scope.variable.sets, setId => {
-            //    return SetService.get({ id: setId }).$promise;
-            //});
             var scenarioResultPromises = [leftScenarioVariableResultPromise, rightScenarioVariableResultPromise];
             $q.all(scenarioResultPromises).then((res: IVariableResultResource[]) => {
                 var scenario1Result = res[0];
@@ -82,6 +78,7 @@ export class CompareResultsController {
                 $scope.scenario1VariableResult.toggleLegend($scope.legendVisible);
                 $scope.scenario2VariableResult = new variableResultModel.VariableResult(variable, scenario2Result, $scope.sets);
                 $scope.scenario2VariableResult.toggleLegend($scope.legendVisible);
+                $scope.loading = false;
             });
         }
 

@@ -57,6 +57,7 @@
     <Content Include="scripts\lib\angular-nvd3.js" />
     <Content Include="scripts\lib\angular-resource.js" />
     <Content Include="scripts\lib\angular-route.js" />
+    <Content Include="scripts\lib\angular-spinner.js" />
     <Content Include="scripts\lib\angular-strap-navbar.js" />
     <Content Include="scripts\lib\angular.js" />
     <Content Include="scripts\lib\checklist-model.js" />
@@ -70,6 +71,7 @@
     <Content Include="scripts\lib\ngHandsontable.js" />
     <Content Include="scripts\lib\nv.d3.js" />
     <Content Include="scripts\lib\require.js" />
+    <Content Include="scripts\lib\spin.js" />
     <Content Include="scripts\lib\tree-grid-directive.js" />
     <Content Include="scripts\lib\ui-bootstrap-tpls.js" />
     <Content Include="scripts\lib\uuid.js" />

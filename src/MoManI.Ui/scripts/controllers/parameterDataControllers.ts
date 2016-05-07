@@ -12,6 +12,7 @@ var forceLoad = [setService, parameterService, setDataService, parameterDataServ
 export interface IParameterDataScope extends ng.IScope {
     data: parameterDataModel.ParameterData;
     save: () => void;
+    loading: boolean;
 }
 
 export class ParameterDataController {
@@ -19,6 +20,7 @@ export class ParameterDataController {
         ParameterService: ng.resource.IResourceClass<IParameterResource>, SetService: ng.resource.IResourceClass<ISetResource>,
         ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>
     ) {
+        $scope.loading = true;
         var modelId = $routeParams['modelId'];
         var scenarioId = $routeParams['scenarioId'];
         var parameterId = $routeParams['parameterId'];
@@ -40,14 +42,17 @@ export class ParameterDataController {
                     return new setDataModel.SetData(modelId, actualSet, <ISetData>setDataRes[index]);
                 });
                 $scope.data = new parameterDataModel.ParameterData(scenarioId, modelId, parameter, setDatas, parameterData);
+                $scope.loading = false;
             });
         });
 
         $scope.save = () => {
+            $scope.loading = true;
             ParameterDataService.save($scope.data.serialize(), () => {
                 $window.location.href = `#/models/${modelId}/${scenarioId}/data`;
             }, () => {
                 alert('An error occured');
+                $scope.loading = false;
             });
         }
     }

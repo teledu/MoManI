@@ -10,12 +10,14 @@ export interface ISetDataScope extends ng.IScope {
     data: setDataModel.SetData;
     save: () => void;
     invalidValuesNotUnique: boolean;
+    loading: boolean;
 }
 
 export class SetDataController {
     constructor($scope: ISetDataScope, $routeParams: angular.route.IRouteParamsService, $window: angular.IWindowService, $q: angular.IQService,
         SetService: ng.resource.IResourceClass<ISetResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>
     ) {
+        $scope.loading = true;
         $scope.invalidValuesNotUnique = false;
         var modelId = $routeParams['modelId'];
         var setId = $routeParams['setId'];
@@ -24,6 +26,7 @@ export class SetDataController {
 
         $q.all([setReq, setDataReq]).then(res => {
             $scope.data = new setDataModel.SetData(modelId, <ISet>res[0], <ISetData>res[1]);
+            $scope.loading = false;
         });
 
         $scope.save = () => {
@@ -32,10 +35,12 @@ export class SetDataController {
                 $scope.invalidValuesNotUnique = true;
                 return;
             }
+            $scope.loading = true;
             SetDataService.save($scope.data.serialize(), () => {
                 $window.location.href = `#/models/${modelId}/setData`;
             }, () => {
                 alert('An error occured');
+                $scope.loading = false;
             });
         }
     }

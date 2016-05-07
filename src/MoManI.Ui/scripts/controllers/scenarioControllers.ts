@@ -24,6 +24,7 @@ export interface IScenarioListScope extends ng.IScope {
     downloadExec: (scenarioId: string) => void;
     clone: (scenarioId: string) => void;
     delete: (scenarioId: string) => void;
+    loading: boolean;
 }
 
 export interface IScenarioDetailsScope extends ng.IScope {
@@ -31,6 +32,7 @@ export interface IScenarioDetailsScope extends ng.IScope {
     model: modelModel.Model;
     scenario: scenarioModel.Scenario;
     save: () => void;
+    loading: boolean;
 }
 
 export class ScenarioListController {
@@ -43,6 +45,7 @@ export class ScenarioListController {
         $scope: IScenarioListScope, $q: angular.IQService, $http: angular.IHttpService, $routeParams: angular.route.IRouteParamsService, $modal: angular.ui.bootstrap.IModalService,
         ScenarioService: angular.resource.IResourceClass<IScenarioResource>
     ) {
+        $scope.loading = true;
         this.modelId = $routeParams['modelId'];
         this.$scope = $scope;
         this.$q = $q;
@@ -106,6 +109,7 @@ export class ScenarioListController {
         }
 
         $scope.clone = (scenarioId: string) => {
+            $scope.loading = true;
             var cloneReq = $http({
                 url: urls.scenarioCloning,
                 method: 'POST',
@@ -117,6 +121,7 @@ export class ScenarioListController {
         }
 
         $scope.delete = (scenarioId: string) => {
+            $scope.loading = true;
             ScenarioService.delete({ id: scenarioId }).$promise.then(() => {
                 this.loadScenarios();
             });
@@ -124,11 +129,13 @@ export class ScenarioListController {
     }
 
     loadScenarios = () => {
+        this.$scope.loading = true;
         this.$scope.scenarioTrees = null;
         var scenarioPromise = this.ScenarioService.query({ modelId: this.modelId }).$promise;
         this.$q.when(scenarioPromise).then(scenarios => {
             this.$scope.scenarios = scenarios;
             this.$scope.scenarioTrees = tree.getTree(scenarios, 'id', 'parentScenarioId');
+            this.$scope.loading = false;
         });
     }
 }
@@ -140,6 +147,7 @@ export class ScenarioDetailsController {
         ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: angular.resource.IResourceClass<IConstraintResource>,
         ModelService: angular.resource.IResourceClass<IModelResource>, ScenarioService: angular.resource.IResourceClass<IScenarioResource>
     ) {
+        $scope.loading = true;
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var variableReq = VariableService.query().$promise;
@@ -154,12 +162,16 @@ export class ScenarioDetailsController {
         });
         $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
             $scope.model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
+            $scope.loading = false;
         });
         
         $scope.parameterOrderProp = 'data.name';
 
         $scope.save = () => {
-            ScenarioService.save($scope.scenario.serialize());
+            $scope.loading = true;
+            ScenarioService.save($scope.scenario.serialize()).$promise.finally(() => {
+                $scope.loading = false;
+            });
         }
     }
 }
