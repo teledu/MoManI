@@ -82,7 +82,7 @@ export class ParameterData {
         if (this.setCount == 1) {
             _.forEach(this.setDatas[0], (val, index) => {
                 if (this.data[index] != this.defaultValue) {
-                    res.push(`${val} ${this.data[index]}`);
+                    res.push(`${setDataModel.SetData.glpkReady(val)} ${this.data[index]}`);
                 }
             });
         } else {
@@ -111,7 +111,7 @@ export class ParameterData {
         var res = [];
         _.forEach(this.setDatas[this.setCount - 2], (val, valIndex) => {
             if (_.some(data[valIndex], d => d != this.defaultValue)) {
-                res.push(`${val} ${data[valIndex].join(' ') }`);
+                res.push(`${setDataModel.SetData.glpkReady(val)} ${data[valIndex].join(' ') }`);
             }
         });
         if (res.length > 0) {

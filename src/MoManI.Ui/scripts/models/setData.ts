@@ -67,4 +67,18 @@ export class SetData {
     getValues = () => {
         return _.map(this.values, val => val.value.toString());
     }
+    getGlpkReadyValues = () => {
+        return _.map(this.values, val => {
+            var stringValue = val.value.toString();
+            return SetData.glpkReady(stringValue);
+        });
+    }
+
+    public static  glpkReady: (value: string) => string = (value) => {
+        var regExp = new RegExp("^[a-zA-Z0-9_.]*$");
+        if (value.match(regExp)) {
+            return value;
+        }
+        return (`"${value}"`);
+    }
 }

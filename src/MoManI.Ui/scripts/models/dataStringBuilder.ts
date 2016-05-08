@@ -68,7 +68,7 @@ export class Builder {
             res.push('###############');
             res.push('#');
             _.forEach(this.setData, s => {
-                res.push(`set ${s.setName} := ${s.getValues().join(' ') } ;`);
+                res.push(`set ${s.setName} := ${s.getGlpkReadyValues().join(' ') } ;`);
             });
             res.push('');
             res.push('');
