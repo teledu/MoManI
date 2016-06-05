@@ -4,6 +4,7 @@ interface ISetDataValue {
     id: string;
     value: string | number;
     name: string;
+    editable: boolean;
 }
 
 export class SetData {
@@ -25,6 +26,7 @@ export class SetData {
                  id: uuid.v4(),
                  value: this.numeric ? +i.value : i.value,
                  name: i.name,
+                 editable: false,
              }
         }) : [];
     }
@@ -51,6 +53,7 @@ export class SetData {
             id: uuid.v4(),
             value: null,
             name: null,
+            editable: true,
         }
         if (this.numeric) {
             value.value = this.values.length > 0 ? (+_.last(this.values).value + 1) : 0;
@@ -66,6 +69,14 @@ export class SetData {
 
     getValues = () => {
         return _.map(this.values, val => val.value.toString());
+    }
+    getValueNamePairs = () => {
+        return _.map(this.values, val => {
+            return {
+                value: val.value.toString(),
+                name: val.name,
+            }
+        });
     }
     getGlpkReadyValues = () => {
         return _.map(this.values, val => {

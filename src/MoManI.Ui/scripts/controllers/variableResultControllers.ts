@@ -23,6 +23,8 @@ export interface IVariableResultChartsScope extends ng.IScope {
     options: any;
     data: any[];
     loading: boolean;
+    updateGroupOptions: () => void;
+    updateChart: () => void;
 }
 
 export class VariableResultListController {
@@ -68,7 +70,6 @@ export class VariableResultChartsController {
         var variableReq = VariableService.get({ id: variableId }).$promise;
         var setsReq = SetService.query().$promise;
         var variableResultReq = VariableResultService.get({ id: variableId, scenarioId: scenarioId }).$promise;
-
         $q.all([variableReq, setsReq, variableResultReq]).then(res => {
             var variableRes = <IVariable>res[0];
             var sets = <ISet[]>res[1];
@@ -81,12 +82,27 @@ export class VariableResultChartsController {
             $q.all(setDataReqs).then((setDatas: ISetData[]) => {
                 var variable = new variableModel.Variable(sets, variableRes);
 
-                $scope.variableResult = new variableResultModel.VariableResult(variable, variableResult, sets, setDatas);
+                $scope.variableResult = new variableResultModel.VariableResult(variable, variableResult, sets, setDatas, true);
+                setRangeAndDraw();
                 $scope.loading = false;
             });
-
         });
 
+        $scope.updateGroupOptions = () => {
+            $scope.variableResult.updateGroupOptions();
+            setRangeAndDraw();
+        }
 
+        $scope.updateChart = () => {
+            $scope.variableResult.updateChart();
+            setRangeAndDraw();
+        }
+
+        var setRangeAndDraw = () => {
+            var min = $scope.variableResult.getMinY();
+            var max = $scope.variableResult.getMaxY();
+            $scope.variableResult.setYRange(min, max);
+            $scope.variableResult.draw();
+        };
     }
 }

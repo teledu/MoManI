@@ -9,7 +9,7 @@
                 <select class="form-control" id="xAxisSelector"
                         ng-options="set.name for set in variableResult.sets track by set.id"
                         ng-model="variableResult.xSet"
-                        ng-change="variableResult.updateGroupOptions()">
+                        ng-change="updateGroupOptions()">
                 </select>
             </div>
             <div class="form-group" ng-if="variableResult.sets.length > 2">
@@ -17,7 +17,7 @@
                 <select class="form-control" id="groupSelector"
                         ng-options="set.name for set in variableResult.groupOptions track by set.id"
                         ng-model="variableResult.groupSet"
-                        ng-change="variableResult.updateChart()">
+                        ng-change="updateChart()">
                 </select>
             </div>
             <div class="form-group">

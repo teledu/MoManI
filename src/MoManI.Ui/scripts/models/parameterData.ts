@@ -1,12 +1,17 @@
 ﻿import uuid = require('node-uuid');
 import setDataModel = require('models/setData')
 
+interface IDimensionItem {
+    value: string;
+    displayName: string;
+}
+
 interface IDimension {
     id: string;
     setId: string;
     index: number;
     name: string;
-    values: string[];
+    values: IDimensionItem[];
 }
 
 interface IDataItem {
@@ -66,7 +71,12 @@ export class ParameterData {
                 setId: setData.setId,
                 name: setData.setName,
                 index: instanceIndex,
-                values: setData.getValues()
+                values: _.map(setData.getValueNamePairs(), valueName => {
+                    return {
+                        value: valueName.value,
+                        displayName: valueName.value == valueName.name ? valueName.value : `${valueName.value} (${valueName.name})`,
+                    }
+                }),
             }
         });
         if (parameterData.defaultValue != null) {
@@ -99,7 +109,7 @@ export class ParameterData {
         var changed = _.last(this.dimensionSelectors);
         if (changed.selected) {
             changed.selectedDimension = _.find(changed.dimensions, 'id', changed.selected);
-            changed.dimensionValue = _.first(changed.selectedDimension.values);
+            changed.dimensionValue = _.first(changed.selectedDimension.values).value;
             var availableDimensions = _.filter(this.dimensions, dimension => !_.some(this.dimensionSelectors, ds => ds.selected == dimension.id));
             if (availableDimensions.length > 2) {
                 this.hideSpreadsheet();

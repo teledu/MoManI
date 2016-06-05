@@ -4,7 +4,7 @@
     <table>
         <thead>
             <tr>
-                <th>Value</th>
+                <th>Name</th>
                 <th ng-if="!data.numeric">Description</th>
                 <th>Remove</th>
             </tr>
@@ -13,7 +13,7 @@
             <tr ng-repeat="value in data.values">
                 <td>
                     <input class="form-control" required pattern="^[^\x22]*$" title="Quotation marks are disallowed."
-                           type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value" />
+                           type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value" ng-disabled="!value.editable" />
                 </td>
                 <td ng-if="!data.numeric" class="set-data-name">
                     <input class="form-control" type="text" ng-model="value.name" />
@@ -39,7 +39,7 @@
 
     <div>
         <button class="btn btn-default" ng-click="save()">Save</button>
-        <a href="#/models/{{data.modelId}}/{{data.scenarioId}}/data" class="btn btn-default">Cancel</a>
+        <a href="#/models/{{data.modelId}}/setData/{{data.scenarioId}}" class="btn btn-default">Cancel</a>
     </div>
 </form>
 

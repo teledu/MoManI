@@ -22,7 +22,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <select class="form-control" ng-if="selector.selected" ng-model="selector.dimensionValue" ng-change="data.changeDimensionValue()">
-                                    <option ng-repeat="value in selector.selectedDimension.values" value="{{value}}">{{value}}</option>
+                                    <option ng-repeat="value in selector.selectedDimension.values" value="{{value.value}}">{{value.displayName}}</option>
                                 </select>
                             </div>
                         </div>

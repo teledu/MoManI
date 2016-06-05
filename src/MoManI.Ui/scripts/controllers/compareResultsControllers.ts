@@ -68,9 +68,10 @@ export class CompareResultsController {
         });
 
         $scope.updateComparison = () => {
-            $scope.loading = true;
-            if ($scope.variable.id == null)
+            if ($scope.variable.id == null) {
                 return;
+            }
+            $scope.loading = true;
             var variable = new variableModel.Variable($scope.sets, $scope.variable);
             var leftScenarioVariableResultPromise = VariableResultService.get({ id: $scope.variable.id, scenarioId: $scope.scenario1.id }).$promise;
             var rightScenarioVariableResultPromise = VariableResultService.get({ id: $scope.variable.id, scenarioId: $scope.scenario2.id }).$promise;
@@ -78,10 +79,11 @@ export class CompareResultsController {
             $q.all(scenarioResultPromises).then((res: IVariableResultResource[]) => {
                 var scenario1Result = res[0];
                 var scenario2Result = res[1];
-                $scope.scenario1VariableResult = new variableResultModel.VariableResult(variable, scenario1Result, $scope.sets, $scope.setData);
+                $scope.scenario1VariableResult = new variableResultModel.VariableResult(variable, scenario1Result, $scope.sets, $scope.setData, true);
+                $scope.scenario2VariableResult = new variableResultModel.VariableResult(variable, scenario2Result, $scope.sets, $scope.setData, true);
                 $scope.scenario1VariableResult.toggleLegend($scope.legendVisible);
-                $scope.scenario2VariableResult = new variableResultModel.VariableResult(variable, scenario2Result, $scope.sets, $scope.setData);
                 $scope.scenario2VariableResult.toggleLegend($scope.legendVisible);
+                setRangeAndDraw();
                 $scope.loading = false;
             });
         }
@@ -90,12 +92,14 @@ export class CompareResultsController {
             $scope.scenario2VariableResult.xSet = $scope.scenario1VariableResult.xSet;
             $scope.scenario1VariableResult.updateGroupOptions();
             $scope.scenario2VariableResult.updateGroupOptions();
+            setRangeAndDraw();
         }
 
         $scope.updateChart = () => {
             $scope.scenario2VariableResult.groupSet = $scope.scenario1VariableResult.groupSet;
             $scope.scenario1VariableResult.updateChart();
             $scope.scenario2VariableResult.updateChart();
+            setRangeAndDraw();
         }
 
         $scope.legendVisible = true;
@@ -105,6 +109,19 @@ export class CompareResultsController {
             $scope.scenario1VariableResult.toggleLegend($scope.legendVisible);
             $scope.scenario2VariableResult.toggleLegend($scope.legendVisible);
         }
+
+        var setRangeAndDraw = () => {
+            var min1 = $scope.scenario1VariableResult.getMinY();
+            var min2 = $scope.scenario2VariableResult.getMinY();
+            var max1 = $scope.scenario1VariableResult.getMaxY();
+            var max2 = $scope.scenario2VariableResult.getMaxY();
+            var minY = _.min([min1, min2]);
+            var maxY = _.max([max1, max2]);
+            $scope.scenario1VariableResult.setYRange(minY, maxY);
+            $scope.scenario2VariableResult.setYRange(minY, maxY);
+            $scope.scenario1VariableResult.draw();
+            $scope.scenario2VariableResult.draw();
+        };
     }
 }
 

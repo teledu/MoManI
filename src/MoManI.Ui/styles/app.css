@@ -94,3 +94,7 @@ span.bold {
 td.set-data-name {
     min-width: 350px;
 }
+
+.nvd3-svg {
+    padding-left: 10px;
+}
