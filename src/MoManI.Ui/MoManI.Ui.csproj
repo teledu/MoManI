@@ -34,6 +34,7 @@
     <Content Include="partials\render-executable.html" />
     <Content Include="partials\compare-results.html" />
     <Content Include="partials\constraint-group-detail.html" />
+    <Content Include="partials\variable-result-settings.html" />
     <Content Include="partials\variable-result-list.html" />
     <Content Include="partials\result-model-list.html" />
     <Content Include="partials\model-list.html" />
@@ -131,6 +132,7 @@
     <TypeScriptCompile Include="scripts\models\scenario.d.ts" />
     <TypeScriptCompile Include="scripts\models\constraintGroup.ts" />
     <TypeScriptCompile Include="scripts\models\tree.ts" />
+    <TypeScriptCompile Include="scripts\models\variableResultSettings.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.d.ts" />
     <TypeScriptCompile Include="scripts\models\model.ts" />

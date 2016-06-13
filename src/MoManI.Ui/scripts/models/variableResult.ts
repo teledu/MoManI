@@ -1,5 +1,6 @@
 ﻿import _ = require('lodash');
 import variableModel = require('models/variable')
+import settingsModel = require('models/variableResultSettings');
 
 export class VariableResult {
     variableId: string;
@@ -19,8 +20,10 @@ export class VariableResult {
     private chartData: IChartGroup[];
     private legendVisible: boolean;
     private useSetValues: boolean;
+    private groupDataHandler: (setData: ISetData) => void;
+    private setDataFilters: string[];
 
-    constructor(variable: variableModel.Variable, variableResult: IVariableResult, sets: ISet[], setData: ISetData[], withChart?: boolean) {
+    constructor(variable: variableModel.Variable, variableResult: IVariableResult, sets: ISet[], setData: ISetData[], withChart?: boolean, settings?: settingsModel.VariableResultSettings) {
         this.variableId = variableResult.variableId;
         this.scenarioId = variableResult.scenarioId;
         this.modelId = variableResult.modelId;
@@ -34,6 +37,11 @@ export class VariableResult {
             this.xSet = _(this.sets).filter(s => s.numeric).first() || _.first(this.sets);
             this.updateGroupOptions();
             this.useSetValues = false;
+        }
+        if (settings) {
+            settings.addLegendSubscriber(this.toggleLegend);
+            settings.addUseSetDataDescriptionSubscriber(this.toggleUseSetDataDescriptions);
+            settings.addSetDataFilterSubscriber(this.changeSetDataFilters);
         }
     }
 
@@ -50,6 +58,27 @@ export class VariableResult {
         if (this.groupSet == null || !_.some(this.groupOptions, { id: this.groupSet.id })) {
             this.groupSet = _.first(this.groupOptions);
         }
+        this.selectGrouping();
+    }
+
+    addGroupDataHandler = (handler: (setData: ISetData) => void) => {
+        this.groupDataHandler = handler;
+        if (this.groupSet) {
+            var groupSetData = _.find(this.setData, 'setId', this.groupSet.id);
+            this.groupDataHandler(groupSetData);
+        }
+    }
+
+    changeSetDataFilters = (setDataValues: string[]) => {
+        this.setDataFilters = setDataValues;
+        this.updateChart();
+    }
+
+    selectGrouping = () => {
+        if (this.groupDataHandler) {
+            var groupSetData = _.find(this.setData, 'setId', this.groupSet.id);
+            this.groupDataHandler(groupSetData);
+        }
         this.updateChart();
     }
 
@@ -58,23 +87,29 @@ export class VariableResult {
             chart: _.assign({}, defaultChartOptions),
         }
         this.pending.chartOptions.chart.type = this.xSet.numeric ? 'stackedAreaChart' : 'multiBarChart';
-        this.pending.chartData = _(this.data).groupBy(d => {
+        var unfilteredChartData = _(this.data).groupBy(d => {
             return this.groupSet != null ? d.c[this.groupSetIndex()] : this.name;
         }).map((group: IVariableResultItem[], key: string) => {
             return {
-                key: this.resolveSetDataDescription(this.groupSet, key),
+                key: this.resolveSetDataText(this.groupSet, key),
                 values: _(group).groupBy(v => {
                     return v.c[this.xSetIndex()];
                 }).map((g: IVariableResultItem[], k: string) => {
                     return {
-                        x: this.resolveSetDataDescription(this.xSet, k),
+                        x: this.resolveSetDataText(this.xSet, k),
                         y: _.reduce(g, (total: number, val: IVariableResultItem) => {
                             return total + val.v;
                         }, 0),
                     };
                 }).value(),
             };
-        }).value();
+            }).value();
+        this.pending.chartData = _.filter(unfilteredChartData, d => {
+            if (!this.setDataFilters)
+                return true;
+            var namedSetDataFilters = _.map(this.setDataFilters, s => this.resolveSetDataText(this.groupSet, s));
+            return _.contains(namedSetDataFilters, d.key);
+        });
     }
 
     getMinY = () => {
@@ -135,9 +170,12 @@ export class VariableResult {
         this.chartData = this.pending.chartData;
     }
 
-    resolveSetDataDescription = (set: ISet, value: string) => {
+    resolveSetDataText = (set: ISet, value: string) => {
         if (set == null)
             return this.name;
+        if (this.useSetValues) {
+            return value;
+        }
         var actualSetData = _.find(this.setData, 'setId', set.id);
         var actualSetDataEntry = _.find(actualSetData.items, 'value', value);
         if (actualSetDataEntry == null)
@@ -146,12 +184,23 @@ export class VariableResult {
     }
 
     toggleLegend = (visible: boolean) => {
+        defaultChartOptions.showControls = visible;
+        defaultChartOptions.showLegend = visible;
         this.pending.chartOptions.chart.showControls = visible;
         this.pending.chartOptions.chart.showLegend = visible;
         if (this.chartOptions != null) {
             this.chartOptions.chart.showControls = visible;
             this.chartOptions.chart.showLegend = visible;
         }
+    }
+
+    toggleUseSetDataDescriptions = (useDescriptions: boolean) => {
+        this.useSetValues = !useDescriptions;
+        this.updateChart();
+        var minY = this.getMinY();
+        var maxY = this.getMaxY();
+        this.setYRange(minY, maxY);
+        this.draw();
     }
 }
 

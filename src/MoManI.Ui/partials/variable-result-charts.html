@@ -20,6 +20,10 @@
                         ng-change="updateChart()">
                 </select>
             </div>
+
+            <div class="form-group" ng-if="variableResult" ng-include="'partials/variable-result-settings.html'">
+            </div>
+
             <div class="form-group">
 
                 <nvd3 options="variableResult.chartOptions" data="variableResult.chartData"></nvd3>

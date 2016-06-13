@@ -2,6 +2,7 @@
 import application = require('application');
 import variableModel = require('models/variable')
 import variableResultModel = require('models/variableResult')
+import settingsModel = require('models/variableResultSettings');
 import setService = require('services/setService');
 import variableService = require('services/variableService');
 import scenarioService = require('services/scenarioService');
@@ -25,6 +26,8 @@ export interface IVariableResultChartsScope extends ng.IScope {
     loading: boolean;
     updateGroupOptions: () => void;
     updateChart: () => void;
+    changeSetDataFilters: (setDataValues: string[]) => void;
+    settings: settingsModel.VariableResultSettings;
 }
 
 export class VariableResultListController {
@@ -81,8 +84,11 @@ export class VariableResultChartsController {
 
             $q.all(setDataReqs).then((setDatas: ISetData[]) => {
                 var variable = new variableModel.Variable(sets, variableRes);
+                $scope.settings = new settingsModel.VariableResultSettings();
 
-                $scope.variableResult = new variableResultModel.VariableResult(variable, variableResult, sets, setDatas, true);
+                $scope.variableResult = new variableResultModel.VariableResult(variable, variableResult, sets, setDatas, true, $scope.settings);
+                $scope.variableResult.addGroupDataHandler($scope.settings.updateSetData);
+                $scope.settings.addSetDataFilterSubscriber($scope.changeSetDataFilters);
                 setRangeAndDraw();
                 $scope.loading = false;
             });
@@ -94,7 +100,12 @@ export class VariableResultChartsController {
         }
 
         $scope.updateChart = () => {
-            $scope.variableResult.updateChart();
+            $scope.variableResult.selectGrouping();
+            setRangeAndDraw();
+        }
+
+        $scope.changeSetDataFilters = (setDataValues: string[]) => {
+            $scope.variableResult.changeSetDataFilters(setDataValues);
             setRangeAndDraw();
         }
 

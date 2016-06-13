@@ -1,10 +1,9 @@
 ﻿import _ = require('lodash');
 import application = require('application');
 
-//import modelModel = require('models/model')
-
 import variableModel = require('models/variable')
 import variableResultModel = require('models/variableResult')
+import settingsModel = require('models/variableResultSettings');
 
 import modelService = require('services/modelService');
 import scenarioService = require('services/scenarioService');
@@ -29,9 +28,9 @@ export interface ICompareResultsScope extends ng.IScope {
     updateComparison: () => void;
     updateGroupOptions: () => void;
     updateChart: () => void;
-    legendVisible: boolean;
-    toggleLegend: (any) => void;
+    changeSetDataFilters: (setDataValues: string[]) => void;
     loading: boolean;
+    settings: settingsModel.VariableResultSettings;
 }
 
 export class CompareResultsController {
@@ -64,6 +63,7 @@ export class CompareResultsController {
             $scope.variable = _.first($scope.variables);
             $scope.sets = <ISet[]>res[3];
             $scope.setData = <ISetData[]>res[4];
+            $scope.settings = new settingsModel.VariableResultSettings();
             $scope.loading = false;
         });
 
@@ -79,10 +79,10 @@ export class CompareResultsController {
             $q.all(scenarioResultPromises).then((res: IVariableResultResource[]) => {
                 var scenario1Result = res[0];
                 var scenario2Result = res[1];
-                $scope.scenario1VariableResult = new variableResultModel.VariableResult(variable, scenario1Result, $scope.sets, $scope.setData, true);
-                $scope.scenario2VariableResult = new variableResultModel.VariableResult(variable, scenario2Result, $scope.sets, $scope.setData, true);
-                $scope.scenario1VariableResult.toggleLegend($scope.legendVisible);
-                $scope.scenario2VariableResult.toggleLegend($scope.legendVisible);
+                $scope.scenario1VariableResult = new variableResultModel.VariableResult(variable, scenario1Result, $scope.sets, $scope.setData, true, $scope.settings);
+                $scope.scenario2VariableResult = new variableResultModel.VariableResult(variable, scenario2Result, $scope.sets, $scope.setData, true, $scope.settings);
+                $scope.scenario1VariableResult.addGroupDataHandler($scope.settings.updateSetData);
+                $scope.settings.addSetDataFilterSubscriber($scope.changeSetDataFilters);
                 setRangeAndDraw();
                 $scope.loading = false;
             });
@@ -97,17 +97,15 @@ export class CompareResultsController {
 
         $scope.updateChart = () => {
             $scope.scenario2VariableResult.groupSet = $scope.scenario1VariableResult.groupSet;
-            $scope.scenario1VariableResult.updateChart();
-            $scope.scenario2VariableResult.updateChart();
+            $scope.scenario1VariableResult.selectGrouping();
+            $scope.scenario2VariableResult.selectGrouping();
             setRangeAndDraw();
         }
 
-        $scope.legendVisible = true;
-        $scope.toggleLegend = $event => {
-            var checkbox = <ICheckbox>$event.target;
-            $scope.legendVisible = checkbox.checked;
-            $scope.scenario1VariableResult.toggleLegend($scope.legendVisible);
-            $scope.scenario2VariableResult.toggleLegend($scope.legendVisible);
+        $scope.changeSetDataFilters = (setDataValues: string[]) => {
+            $scope.scenario1VariableResult.changeSetDataFilters(setDataValues);
+            $scope.scenario2VariableResult.changeSetDataFilters(setDataValues);
+            setRangeAndDraw();
         }
 
         var setRangeAndDraw = () => {

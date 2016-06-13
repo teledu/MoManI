@@ -41,10 +41,8 @@
                         ng-model="scenario1VariableResult.groupSet"
                         ng-change="updateChart()"></select>
             </div>
-            <div class="form-group" ng-if="variable.id != null">
-                <div class="checkbox">
-                    <label><input type="checkbox" ng-click="toggleLegend($event)" ng-checked="legendVisible">Show legend</label>
-                </div>
+
+            <div class="form-group" ng-if="scenario1VariableResult" ng-include="'partials/variable-result-settings.html'">
             </div>
 
 

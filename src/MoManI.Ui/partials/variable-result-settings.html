@@ -1,0 +1,26 @@
+<div ng-if="!settings.visible">
+    <button class="btn btn-default" ng-click="settings.visible = true">
+        Show additional settings
+    </button>
+</div>
+<div ng-if="settings.visible">
+    <button class="btn btn-default" ng-click="settings.visible = false">
+        Hide settings
+    </button>
+    <div class="checkbox">
+        <label><input type="checkbox" ng-click="settings.toggleLegend($event)" ng-checked="settings.legendVisible">Show legend</label>
+    </div>
+    <div class="checkbox">
+        <label><input type="checkbox" ng-click="settings.toggleUseSetDataDescriptions($event)" ng-checked="settings.useSetDataDescriptions">Use set data descriptions instead of names</label>
+    </div>
+    <div>
+        <div>
+            <label>
+                Display data for:
+            </label>
+        </div>
+        <div class="checkbox" ng-repeat="setData in settings.setDataOptions">
+            <label><input type="checkbox" ng-click="settings.toggleSetData($event, setData)" ng-checked="setData.selected">{{setData.display}}</label>
+        </div>
+    </div>
+</div>
