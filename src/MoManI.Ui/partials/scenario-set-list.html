@@ -1,0 +1,18 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <h3>Scenario data entry by set</h3>
+
+        <div ng-repeat="set in sets | orderBy: setOrderProp">
+            <div class="scenario-set">{{set.name}}</div>
+            <div class="scenario-set-parameter" ng-repeat="parameter in set.parameters | orderBy: parameterOrderProp">
+                <a href="#/models/{{modelId}}/{{scenarioId}}/data/parameter/{{parameter.id}}/fromSet/{{set.id}}">{{parameter.name}}</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row navigation-link">
+        <a href="#/models/{{modelId}}/{{scenarioId}}/data">Return to scenario parameters</a>
+    </div>
+</div>
+
+<span us-spinner spinner-on="loading"></span>

@@ -35,6 +35,15 @@ export interface IScenarioDetailsScope extends ng.IScope {
     loading: boolean;
 }
 
+export interface ISetListDataScope extends ng.IScope {
+    modelId: string;
+    scenarioId: string;
+    sets: ISetWithParameters[];
+    setOrderProp: string;
+    parameterOrderProp: string;
+    loading: boolean;
+}
+
 export class ScenarioListController {
     modelId: string;
     $scope: IScenarioListScope;
@@ -148,14 +157,16 @@ export class ScenarioDetailsController {
         ModelService: angular.resource.IResourceClass<IModelResource>, ScenarioService: angular.resource.IResourceClass<IScenarioResource>
     ) {
         $scope.loading = true;
+        var modelId = $routeParams['modelId'];
+        var scenarioId = $routeParams['scenarioId'];
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var variableReq = VariableService.query().$promise;
         var objectiveFunctionReq = ObjectiveFunctionService.query().$promise;
         var constraintGroupReq = ConstraintGroupService.query().$promise;
         var constraintReq = ConstraintService.query().$promise;
-        var modelReq = ModelService.get({ id: $routeParams['modelId'] }).$promise;
-        var scenarioReq = ScenarioService.get({ modelId: $routeParams['modelId'], id: $routeParams['scenarioId'] }).$promise;
+        var modelReq = ModelService.get({ id: modelId}).$promise;
+        var scenarioReq = ScenarioService.get({ modelId: modelId, id: scenarioId}).$promise;
 
         $q.all([scenarioReq]).then(res => {
             $scope.scenario = new scenarioModel.Scenario(<IScenario>res[0]);
@@ -174,4 +185,66 @@ export class ScenarioDetailsController {
             });
         }
     }
+}
+
+export class SetListController {
+    constructor($scope: ISetListDataScope, $routeParams: angular.route.IRouteParamsService, $window: angular.IWindowService, $q: angular.IQService,
+        SetService: ng.resource.IResourceClass<ISetResource>, ParameterService: angular.resource.IResourceClass<IParameterResource>,
+        VariableService: angular.resource.IResourceClass<IVariableResource>, ObjectiveFunctionService: angular.resource.IResourceClass<IObjectiveFunctionResource>,
+        ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: angular.resource.IResourceClass<IConstraintResource>,
+        ModelService: angular.resource.IResourceClass<IModelResource>
+    ) {
+        $scope.loading = true;
+        $scope.modelId = $routeParams['modelId'];
+        $scope.scenarioId = $routeParams['scenarioId'];
+        var setId = $routeParams['setId'];
+        var setReq = SetService.query().$promise;
+        var parameterReq = ParameterService.query().$promise;
+        var variableReq = VariableService.query().$promise;
+        var objectiveFunctionReq = ObjectiveFunctionService.query().$promise;
+        var constraintGroupReq = ConstraintGroupService.query().$promise;
+        var constraintReq = ConstraintService.query().$promise;
+        var modelReq = ModelService.get({ id: $scope.modelId }).$promise;
+
+        $scope.setOrderProp = 'name';
+        $scope.parameterOrderProp = 'name';
+
+        $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
+            var model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
+
+            var parameters = _.map(model.selectedParameters(), p => {
+                return {
+                    id: p.id,
+                    name: p.name,
+                    description: p.description,
+                    setIds: _.map(p.sets, s => s.value),
+                };
+            });
+            $scope.sets = _.map(model.selectedSets(), s => {
+                return {
+                    id: s.id,
+                    name: s.name,
+                    description: s.description,
+                    parameters: _.filter(parameters, p => _.contains(p.setIds, s.id)),
+                    expanded: s.id == setId,
+                };
+            });
+            $scope.loading = false;
+        });
+    }
+}
+
+export interface ISetWithParameters {
+    id: string;
+    name: string;
+    description: string;
+    parameters: IDependentParameter[];
+    expanded: boolean;
+}
+
+export interface IDependentParameter {
+    id: string;
+    name: string;
+    description: string;
+    setIds: string[];
 }

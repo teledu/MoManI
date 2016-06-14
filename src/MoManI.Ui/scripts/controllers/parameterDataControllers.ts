@@ -13,6 +13,7 @@ export interface IParameterDataScope extends ng.IScope {
     data: parameterDataModel.ParameterData;
     save: () => void;
     loading: boolean;
+    returnUrlSuffix: string;
 }
 
 export class ParameterDataController {
@@ -24,6 +25,8 @@ export class ParameterDataController {
         var modelId = $routeParams['modelId'];
         var scenarioId = $routeParams['scenarioId'];
         var parameterId = $routeParams['parameterId'];
+        var returnSetId = $routeParams['setId'];
+        $scope.returnUrlSuffix = returnSetId ? `/sets/${returnSetId}` : ``;
 
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.get({ id: parameterId }).$promise;
@@ -49,7 +52,7 @@ export class ParameterDataController {
         $scope.save = () => {
             $scope.loading = true;
             ParameterDataService.save($scope.data.serialize(), () => {
-                $window.location.href = `#/models/${modelId}/${scenarioId}/data`;
+                $window.location.href = `#/models/${modelId}/${scenarioId}/data${$scope.returnUrlSuffix}`;
             }, () => {
                 alert('An error occured');
                 $scope.loading = false;

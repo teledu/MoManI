@@ -27,6 +27,7 @@
     <Content Include="images\spinner.gif" />
     <Content Include="index.html" />
     <Content Include="partials\composition-details.html" />
+    <Content Include="partials\scenario-set-list.html" />
     <Content Include="partials\set-data-list.html" />
     <Content Include="partials\scenario-details.html" />
     <Content Include="partials\result-scenario-list.html" />

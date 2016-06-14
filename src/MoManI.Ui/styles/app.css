@@ -98,3 +98,16 @@ td.set-data-name {
 .nvd3-svg {
     padding-left: 10px;
 }
+
+.scenario-set-parameter {
+    margin-left: 20px;
+}
+
+.scenario-set {
+    margin-top: 10px;
+}
+
+.navigation-link {
+    margin-top: 20px;
+    padding-bottom: 20px;
+}

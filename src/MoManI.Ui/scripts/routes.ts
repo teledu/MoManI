@@ -95,16 +95,26 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
             })
         .when(
             '/models/:modelId/scenarios', {
-            controller: scenarioControllers.ScenarioListController,
+                controller: scenarioControllers.ScenarioListController,
                 templateUrl: 'partials/scenario-list.html'
             })
         .when(
             '/models/:modelId/:scenarioId/data', {
-            controller: scenarioControllers.ScenarioDetailsController,
+                controller: scenarioControllers.ScenarioDetailsController,
                 templateUrl: 'partials/scenario-details.html'
             })
         .when(
+            '/models/:modelId/:scenarioId/data/sets/:setId?', {
+                controller: scenarioControllers.SetListController,
+                templateUrl: 'partials/scenario-set-list.html'
+            })
+        .when(
             '/models/:modelId/:scenarioId/data/parameter/:parameterId', {
+                controller: parameterDataControllers.ParameterDataController,
+                templateUrl: 'partials/parameter-data.html'
+            })
+        .when(
+            '/models/:modelId/:scenarioId/data/parameter/:parameterId/fromSet/:setId?', {
                 controller: parameterDataControllers.ParameterDataController,
                 templateUrl: 'partials/parameter-data.html'
             })
