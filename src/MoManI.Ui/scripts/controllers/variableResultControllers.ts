@@ -8,6 +8,7 @@ import variableService = require('services/variableService');
 import scenarioService = require('services/scenarioService');
 import setDataService = require('services/setDataService');
 import variableResultService = require('services/variableResultService');
+import csvBuilder = require('models/csvBuilder');
 
 var forceLoad = [setService, variableService, scenarioService, setDataService, variableResultService];
 
@@ -16,6 +17,7 @@ export interface IVariableResultListScope extends ng.IScope {
     orderProp: string;
     variableResults: variableResultModel.VariableResult[];
     loading: boolean;
+    download: (variableListItem: variableResultModel.VariableResult) => void;
 }
 
 export interface IVariableResultChartsScope extends ng.IScope {
@@ -57,6 +59,29 @@ export class VariableResultListController {
             $scope.loading = false;
         });
         $scope.orderProp = 'name';
+
+        $scope.download = (variableListItem: variableResultModel.VariableResult) => {
+            if (variableListItem == null)
+                return;
+
+            $scope.loading = true;
+            var variable = variableListItem.variable;
+            var variableResultReq = VariableResultService.get({ id: variable.id, scenarioId: scenarioId }).$promise;
+            var setIds = _.map(variable.sets, set => set.value);
+            var setDataReqs = _.map(setIds, setId => {
+                return SetDataService.get({ setId: setId, modelId: modelId }).$promise;
+            });
+            $q.all([setsReq, variableResultReq].concat(<ng.IPromise<any>[]>setDataReqs)).then(res => {
+                var sets = <ISet[]>res[0];
+                var variableResultData = <IVariableResult>res[1];
+                var setDatas = <ISetData[]>res.splice(2);
+
+                var builder = new csvBuilder.CsvBuilder(variableResultData, sets, setDatas);
+                var dataBlob = builder.getCsvBlob();
+                saveAs(dataBlob, `${variable.name}.csv`);
+                $scope.loading = false;
+            });
+        };
     }
 }
 

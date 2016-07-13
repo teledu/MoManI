@@ -43,7 +43,7 @@ export class ParameterData {
         });
     }
 
-    private loadData(parameterData: IParameterDataItem[]) {
+    private loadData(parameterData: IDimensionalDataItem[]) {
         if (this.setDatas.length == 0) {
             this.defaultValue = parameterData && parameterData.length > 0 ? _.first(parameterData).v : this.defaultValue;
             return;
@@ -124,7 +124,7 @@ export class ParameterData {
     }
 }
 
-function findDataItem(coords: string[], data: IParameterDataItem[]) {
+function findDataItem(coords: string[], data: IDimensionalDataItem[]) {
     return _.find(data, d => hasSameCoordinates(coords, d.c));
 }
 

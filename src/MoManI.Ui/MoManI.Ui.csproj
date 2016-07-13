@@ -118,6 +118,7 @@
     <TypeScriptCompile Include="scripts\lib\angular-resource.d.ts" />
     <TypeScriptCompile Include="scripts\lib\angular-route.d.ts" />
     <TypeScriptCompile Include="scripts\lib\angular.d.ts" />
+    <TypeScriptCompile Include="scripts\models\csvBuilder.ts" />
     <TypeScriptCompile Include="scripts\models\dictionary.d.ts" />
     <TypeScriptCompile Include="scripts\models\dictionary.ts" />
     <TypeScriptCompile Include="scripts\lib\FileSaver.d.ts" />
@@ -133,6 +134,7 @@
     <TypeScriptCompile Include="scripts\models\scenario.d.ts" />
     <TypeScriptCompile Include="scripts\models\constraintGroup.ts" />
     <TypeScriptCompile Include="scripts\models\tree.ts" />
+    <TypeScriptCompile Include="scripts\models\dimensionalData.d.ts" />
     <TypeScriptCompile Include="scripts\models\variableResultSettings.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.ts" />
     <TypeScriptCompile Include="scripts\models\variableResult.d.ts" />

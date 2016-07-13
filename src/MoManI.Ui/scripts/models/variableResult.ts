@@ -8,12 +8,13 @@ export class VariableResult {
     modelId: string;
     name: string;
     description: string;
-    data: IVariableResultItem[];
+    data: IDimensionalDataItem[];
     sets: ISet[];
     xSet: ISet;
     groupOptions: ISet[];
     groupSet: ISet;
     setData: ISetData[];
+    variable: variableModel.Variable;
 
     private pending: any;
     private chartOptions: any;
@@ -27,6 +28,7 @@ export class VariableResult {
         this.variableId = variableResult.variableId;
         this.scenarioId = variableResult.scenarioId;
         this.modelId = variableResult.modelId;
+        this.variable = variable;
         this.name = variable.name;
         this.description = variable.description;
         this.data = variableResult.data;
@@ -89,15 +91,15 @@ export class VariableResult {
         this.pending.chartOptions.chart.type = this.xSet.numeric ? 'stackedAreaChart' : 'multiBarChart';
         var unfilteredChartData = _(this.data).groupBy(d => {
             return this.groupSet != null ? d.c[this.groupSetIndex()] : this.name;
-        }).map((group: IVariableResultItem[], key: string) => {
+        }).map((group: IDimensionalDataItem[], key: string) => {
             return {
                 key: this.resolveSetDataText(this.groupSet, key),
                 values: _(group).groupBy(v => {
                     return v.c[this.xSetIndex()];
-                }).map((g: IVariableResultItem[], k: string) => {
+                }).map((g: IDimensionalDataItem[], k: string) => {
                     return {
                         x: this.resolveSetDataText(this.xSet, k),
-                        y: _.reduce(g, (total: number, val: IVariableResultItem) => {
+                        y: _.reduce(g, (total: number, val: IDimensionalDataItem) => {
                             return total + val.v;
                         }, 0),
                     };

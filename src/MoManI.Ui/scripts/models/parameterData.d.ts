@@ -1,20 +1,8 @@
-﻿interface IParameterData {
+﻿interface IParameterData extends IDimensionalData {
     parameterId: string;
     scenarioId: string;
     modelId: string;
     defaultValue: number;
-    sets: IParameterDataSet[];
-    data: IParameterDataItem[];
-}
-
-interface IParameterDataSet {
-    id: string;
-    index: number;
-}
-
-interface IParameterDataItem {
-    c: string[];
-    v: number;
 }
 
 interface IParameterDataResource extends IParameterData, ng.resource.IResource<IParameterDataResource> {
