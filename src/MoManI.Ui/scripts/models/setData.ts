@@ -4,6 +4,8 @@ interface ISetDataValue {
     id: string;
     value: string | number;
     name: string;
+    color: string;
+    groupId: string;
     editable: boolean;
 }
 
@@ -14,6 +16,7 @@ export class SetData {
     setName: string;
     description: string;
     numeric: boolean;
+    groups: ISetDataGroup[];
 
     constructor(modelId: string, set: ISet, setData?: ISetData) {
         this.setId = set.id;
@@ -26,9 +29,12 @@ export class SetData {
                  id: uuid.v4(),
                  value: this.numeric ? +i.value : i.value,
                  name: i.name,
+                 color: i.color,
+                 groupId: i.groupId,
                  editable: false,
              }
         }) : [];
+        this.groups = setData && setData.groups ? setData.groups : [];
     }
 
     serialize: () => ISetData = () => {
@@ -39,8 +45,11 @@ export class SetData {
                 return {
                     name: val.name,
                     value: val.value.toString(),
+                    color: val.color,
+                    groupId: val.groupId,
                 }
-            }), 
+            }),
+            groups: this.groups,
         };
     }
 
@@ -52,6 +61,8 @@ export class SetData {
         var value: ISetDataValue = {
             id: uuid.v4(),
             value: null,
+            color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+            groupId: null,
             name: null,
             editable: true,
         }
@@ -70,6 +81,7 @@ export class SetData {
     getValues = () => {
         return _.map(this.values, val => val.value.toString());
     }
+
     getValueNamePairs = () => {
         return _.map(this.values, val => {
             return {
@@ -78,6 +90,23 @@ export class SetData {
             }
         });
     }
+
+    addGroup = () => {
+        this.groups.push({
+            id: uuid.v4(),
+            name: '',
+        });
+    }
+
+    removeGroup = (group: ISetDataGroup) => {
+        _.forEach(this.values, val => {
+            if (val.groupId == group.id) {
+                val.groupId = null;
+            };
+        });
+        _.remove(this.groups, group);
+    }
+
     getGlpkReadyValues = () => {
         return _.map(this.values, val => {
             var stringValue = val.value.toString();

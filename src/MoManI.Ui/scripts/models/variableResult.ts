@@ -103,7 +103,8 @@ export class VariableResult {
                             return total + val.v;
                         }, 0),
                     };
-                }).value(),
+                    }).value(),
+                //color: this.resolveSetDataColor(this.groupSet, key),
             };
             }).value();
         this.pending.chartData = _.filter(unfilteredChartData, d => {
@@ -178,11 +179,27 @@ export class VariableResult {
         if (this.useSetValues) {
             return value;
         }
-        var actualSetData = _.find(this.setData, 'setId', set.id);
-        var actualSetDataEntry = _.find(actualSetData.items, 'value', value);
+        var actualSetDataEntry = this.resolveSetDataEntry(set, value);
         if (actualSetDataEntry == null)
             return value;
         return set.numeric ? +actualSetDataEntry.value : actualSetDataEntry.name;
+    }
+
+    resolveSetDataColor = (set: ISet, value: string) => {
+        var defaultColor = '#1F77B4';
+        if (set == null)
+            return defaultColor;
+        var actualSetDataEntry = this.resolveSetDataEntry(set, value);
+        if (actualSetDataEntry == null)
+            return defaultColor;
+        return actualSetDataEntry.color;
+    }
+
+    resolveSetDataEntry = (set: ISet, value: string) => {
+        if (set == null)
+            return null;
+        var actualSetData = _.find(this.setData, 'setId', set.id);
+        return _.find(actualSetData.items, 'value', value);
     }
 
     toggleLegend = (visible: boolean) => {

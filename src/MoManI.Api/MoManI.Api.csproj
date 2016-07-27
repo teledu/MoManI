@@ -161,6 +161,7 @@
     <Compile Include="Controllers\ParameterDataController.cs" />
     <Compile Include="Controllers\SetDataController.cs" />
     <Compile Include="Infrastructure\Persistence\Migration.cs" />
+    <Compile Include="Infrastructure\Persistence\Migrations\SetDataColorsAndGroups.cs" />
     <Compile Include="Infrastructure\Persistence\Migrations\SetDataNames.cs" />
     <Compile Include="Infrastructure\Persistence\Migrations\VariableResultItemIndex.cs" />
     <Compile Include="Infrastructure\Persistence\MongoDatabase.cs" />

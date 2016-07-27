@@ -2,10 +2,18 @@
     setId: string;
     modelId: string;
     items: ISetDataItem[];
+    groups: ISetDataGroup[];
 }
 
 interface ISetDataItem {
     value: string;
+    name: string;
+    color: string;
+    groupId: string;
+}
+
+interface ISetDataGroup {
+    id: string;
     name: string;
 }
 

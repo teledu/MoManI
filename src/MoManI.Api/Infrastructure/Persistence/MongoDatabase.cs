@@ -53,6 +53,12 @@ namespace MoManI.Api.Infrastructure.Persistence
                 await migrator.Migrate();
                 latestVersion = migrator.Version;
             }
+            if (latestVersion == 2)
+            {
+                var migrator = new SetDataColorsAndGroups(database);
+                await migrator.Migrate();
+                latestVersion = migrator.Version;
+            }
         }
     }
 

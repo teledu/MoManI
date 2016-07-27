@@ -37,10 +37,17 @@ namespace MoManI.Api.Controllers
             {
                 SetId = setData.SetId,
                 ModelId = setData.ModelId,
-                Items = setData?.Items.Select(i => new SetDataItem
+                Items = setData.Items.Select(i => new SetDataItem
                 {
                     Value = i.Value,
                     Name = i.Name,
+                    Color = i.Color,
+                    GroupId = i.GroupId,
+                }),
+                Groups = setData.Groups?.Select(g => new SetDataGroup
+                {
+                    Id = g.Id,
+                    Name = g.Name,
                 })
             });
             return Request.CreateResponse(HttpStatusCode.OK);
@@ -58,11 +65,20 @@ namespace MoManI.Api.Controllers
         public Guid SetId { get; set; }
         public Guid ModelId { get; set; }
         public IEnumerable<SetDataItemSaveRequest> Items { get; set; }
+        public IEnumerable<SetDataGroupSaveRequest> Groups { get; set; }
     }
 
     public class SetDataItemSaveRequest
     {
         public string Value { get; set; }
+        public string Name { get; set; }
+        public string Color { get; set; }
+        public Guid? GroupId { get; set; }
+    }
+
+    public class SetDataGroupSaveRequest
+    {
+        public Guid Id { get; set; }
         public string Name { get; set; }
     }
 }
