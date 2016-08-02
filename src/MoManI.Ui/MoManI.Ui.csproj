@@ -62,6 +62,7 @@
     <Content Include="scripts\lib\angular-spinner.js" />
     <Content Include="scripts\lib\angular-strap-navbar.js" />
     <Content Include="scripts\lib\angular.js" />
+    <Content Include="scripts\lib\angularjs-color-picker.js" />
     <Content Include="scripts\lib\checklist-model.js" />
     <Content Include="scripts\lib\d3.js" />
     <Content Include="scripts\lib\FileSaver.js" />
@@ -77,6 +78,9 @@
     <Content Include="scripts\lib\tree-grid-directive.js" />
     <Content Include="scripts\lib\ui-bootstrap-tpls.js" />
     <Content Include="scripts\lib\uuid.js" />
+    <Content Include="scripts\lib\tinycolor.js" />
+    <Content Include="styles\angularjs-color-picker-bootstrap.css" />
+    <Content Include="styles\angularjs-color-picker.css" />
     <Content Include="styles\app.css" />
     <Content Include="styles\bootstrap.css" />
     <Content Include="styles\handsontable.full.css" />

@@ -12,6 +12,7 @@ export interface ISetDataScope extends ng.IScope {
     invalidValuesNotUnique: boolean;
     valuesForm: angular.IFormController;
     loading: boolean;
+    colorPickerOptions: IColorPickerOptions;
 }
 
 export class SetDataController {
@@ -20,6 +21,7 @@ export class SetDataController {
     ) {
         $scope.loading = true;
         $scope.invalidValuesNotUnique = false;
+        $scope.colorPickerOptions = defaultColorPickerOptions;
         var modelId = $routeParams['modelId'];
         var setId = $routeParams['setId'];
         var setReq = SetService.get({ id: setId }).$promise;
@@ -48,4 +50,36 @@ export class SetDataController {
             });
         }
     }
+}
+
+var defaultColorPickerOptions: IColorPickerOptions = {
+    disabled: false,
+    round: false,
+    format: 'hex',
+    hue: true,
+    alpha: false,
+    swatch: true,
+    swatchPos: 'left',
+    swatchBootstrap: true,
+    swatchOnly: true,
+    pos: 'bottom left',
+    case: 'lower',
+    inline: false,
+    placeholder: '',
+}
+
+export interface IColorPickerOptions {
+    disabled: boolean;
+    round: boolean;
+    format: string;
+    hue: boolean;
+    alpha: boolean;
+    swatch: boolean;
+    swatchPos: string;
+    swatchBootstrap: boolean;
+    swatchOnly: boolean;
+    pos: string;
+    case: string;
+    inline: boolean;
+    placeholder: string;
 }

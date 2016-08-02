@@ -6,6 +6,7 @@
             <tr>
                 <th>Name</th>
                 <th ng-if="!data.numeric">Description</th>
+                <th>Color</th>
                 <th>Remove</th>
             </tr>
         </thead>
@@ -16,7 +17,10 @@
                            type="{{data.numeric ? 'number' : 'text'}}" ng-model="value.value" ng-disabled="!value.editable" />
                 </td>
                 <td ng-if="!data.numeric" class="set-data-name">
-                    <input class="form-control" type="text" ng-model="value.name" />
+                    <input class="form-control" type="text" ng-model="value.name"/>
+                </td>
+                <td>
+                    <color-picker ng-model="value.color" options="colorPickerOptions"></color-picker>
                 </td>
                 <td>
                     <button type="button" class="btn btn-default" ng-click="data.removeValue(value)" tabindex="-1">

@@ -104,7 +104,7 @@ export class VariableResult {
                         }, 0),
                     };
                     }).value(),
-                //color: this.resolveSetDataColor(this.groupSet, key),
+                color: this.resolveSetDataColor(this.groupSet, key),
             };
             }).value();
         this.pending.chartData = _.filter(unfilteredChartData, d => {
