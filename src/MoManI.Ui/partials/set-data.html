@@ -6,6 +6,7 @@
             <tr>
                 <th>Name</th>
                 <th ng-if="!data.numeric">Description</th>
+                <th>Group</th>
                 <th>Color</th>
                 <th>Remove</th>
             </tr>
@@ -18,6 +19,11 @@
                 </td>
                 <td ng-if="!data.numeric" class="set-data-name">
                     <input class="form-control" type="text" ng-model="value.name"/>
+                </td>
+                <td>
+                    <select class="form-control" ng-options="group.id as group.name for group in data.groups" ng-model="value.groupId">
+                        <option value=""></option>
+                    </select>
                 </td>
                 <td>
                     <color-picker ng-model="value.color" options="colorPickerOptions"></color-picker>
@@ -39,6 +45,35 @@
 
     <div class="alert alert-danger" role="alert" ng-if="invalidValuesNotUnique">
         Some values are not unique
+    </div>
+
+    <h4>Groups</h4>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="group in data.groups">
+            <td>
+                <input class="form-control" type="text" ng-model="group.name"/>
+            </td>
+            <td>
+                <button type="button" class="btn btn-default" ng-click="data.removeGroup(group)" tabindex="-1">
+                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div>
+        <button type="button" class="btn btn-default" ng-click="data.addGroup()">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        </button>
     </div>
 
     <div>

@@ -19,8 +19,15 @@
                 Display data for:
             </label>
         </div>
-        <div class="checkbox" ng-repeat="setData in settings.setDataOptions">
-            <label><input type="checkbox" ng-click="settings.toggleSetData($event, setData)" ng-checked="setData.selected">{{setData.display}}</label>
+        <div ng-repeat="setDataGroup in settings.setDataGroups">
+            <div>
+                <input type="checkbox" ng-click="setDataGroup.toggleGroupItems($event)" ng-checked="setDataGroup.selected"/>
+                <span class="bold">{{setDataGroup.name}}</span>
+            </div>
+            <div ng-repeat="setData in setDataGroup.items">
+                <input type="checkbox" ng-click="settings.toggleSetData($event, setData)" ng-checked="setData.selected">
+                {{settings.displayForNameValue(setData.data.name, setData.data.value)}}
+            </div>
         </div>
     </div>
 </div>
