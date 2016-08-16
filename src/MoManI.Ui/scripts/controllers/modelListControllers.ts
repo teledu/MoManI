@@ -1,6 +1,6 @@
 ﻿import $ = require('jquery');
 import application = require('application');
-import executableRenderingControllers = require('controllers/executableRenderingControllers');
+import modelCloningControllers = require('controllers/modelCloningControllers');
 import modelService = require('services/modelService');
 
 var forceLoad = [modelService];
@@ -8,7 +8,7 @@ var forceLoad = [modelService];
 export interface IModelListScope extends ng.IScope {
     orderProp: string;
     models: angular.resource.IResourceArray<IModel>;
-    downloadExec: (model: IModel) => void;
+    clone: (model: IModel) => void;
     delete: (model: IModel) => void;
     loading: boolean;
 }
@@ -19,13 +19,22 @@ export class ModelListController {
         $scope.models = ModelService.query();
         $scope.orderProp = 'name';
 
-        $scope.downloadExec = (model: IModel) => {
-            $modal.open({
-                templateUrl: 'partials/render-executable.html',
-                controller: executableRenderingControllers.ExecutableRenderingController,
+        $scope.clone = (model: IModel) => {
+            var modalInstance = $modal.open({
+                templateUrl: 'partials/clone-model-scenario-dialog.html',
+                controller: modelCloningControllers.ModelCloningModalController,
+                backdrop: 'static',
+                keyboard: false,
                 resolve: {
                     model() { return model; },
                 }
+            });
+            modalInstance.result.then(() => {
+                $scope.loading = true;
+                $scope.models = ModelService.query();
+                $scope.models.$promise.finally(() => {
+                    $scope.loading = false;
+                });
             });
         }
 

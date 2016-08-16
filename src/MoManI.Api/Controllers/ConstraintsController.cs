@@ -12,28 +12,28 @@ namespace MoManI.Api.Controllers
     [LimitedWriteModel]
     public class ConstraintsController : ApiController
     {
-        private readonly IModelRepository _modelRepository;
+        private readonly IComponentsRepository _componentsRepository;
 
-        public ConstraintsController(IModelRepository modelRepository)
+        public ConstraintsController(IComponentsRepository componentsRepository)
         {
-            _modelRepository = modelRepository;
+            _componentsRepository = componentsRepository;
         }
 
         public async Task<HttpResponseMessage> GetConstraints()
         {
-            var result = await _modelRepository.GetConstraints();
+            var result = await _componentsRepository.GetConstraints();
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> GetConstraint(Guid id)
         {
-            var result = await _modelRepository.GetConstraint(id);
+            var result = await _componentsRepository.GetConstraint(id);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostConstraint(Guid id, ConstraintSaveRequest constraint)
         {
-            await _modelRepository.SaveConstraint(new Constraint
+            await _componentsRepository.SaveConstraint(new Constraint
             {
                 Id = id,
                 ConstraintGroupId = constraint.ConstraintGroupId,
@@ -47,7 +47,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> DeleteConstraint(Guid id)
         {
-            await _modelRepository.DeleteConstraint(id);
+            await _componentsRepository.DeleteConstraint(id);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

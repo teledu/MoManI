@@ -13,6 +13,7 @@
                     <th></th>
                     <th></th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +28,9 @@
                     </td>
                     <td>
                         <a href="#/models/{{model.id}}/scenarios">Scenarios</a>
+                    </td>
+                    <td>
+                        <a ng-click="clone(model)" >Clone model</a>
                     </td>
                     <td>
                         <a ng-click="delete(model)" confirm="Are you sure you want to delete the model {{model.name}}? This will remove all of its scenarios, associated data and results">Delete</a>

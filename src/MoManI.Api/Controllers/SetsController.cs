@@ -14,31 +14,31 @@ namespace MoManI.Api.Controllers
     [LimitedWriteModel]
     public class SetsController : ApiController
     {
-        private readonly IModelRepository _modelRepository;
+        private readonly IComponentsRepository _componentsRepository;
         private readonly ClaimsPrincipal _principal;
 
-        public SetsController(IModelRepository modelRepository, ClaimsPrincipal principal)
+        public SetsController(IComponentsRepository componentsRepository, ClaimsPrincipal principal)
         {
-            _modelRepository = modelRepository;
+            _componentsRepository = componentsRepository;
             _principal = principal;
         }
 
         public async Task<HttpResponseMessage> GetSets()
         {
             //var asdf = _principal;
-            var result = await _modelRepository.GetSets();
+            var result = await _componentsRepository.GetSets();
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> GetSet(Guid id)
         {
-            var result = await _modelRepository.GetSet(id);
+            var result = await _componentsRepository.GetSet(id);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostSet(Guid id, SetSaveRequest set)
         {
-            await _modelRepository.SaveSet(new Set
+            await _componentsRepository.SaveSet(new Set
             {
                 Id = id,
                 Name = set.Name,
@@ -51,7 +51,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> DeleteSet(Guid id)
         {
-            await _modelRepository.DeleteSet(id);
+            await _componentsRepository.DeleteSet(id);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

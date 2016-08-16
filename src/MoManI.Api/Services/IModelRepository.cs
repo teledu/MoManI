@@ -7,39 +7,26 @@ namespace MoManI.Api.Services
 {
     public interface IModelRepository
     {
-        Task<IEnumerable<Set>> GetSets();
-        Task<Set> GetSet(Guid id);
-        Task SaveSet(Set set);
-        Task DeleteSet(Guid id);
-
-        Task<IEnumerable<Parameter>> GetParameters();
-        Task<Parameter> GetParameter(Guid id);
-        Task SaveParameter(Parameter parameter);
-        Task DeleteParameter(Guid id);
-
-        Task<IEnumerable<Variable>> GetVariables();
-        Task<Variable> GetVariable(Guid id);
-        Task SaveVariable(Variable variable);
-        Task DeleteVariable(Guid id);
-
-        Task<IEnumerable<ObjectiveFunction>> GetObjectiveFunctions();
-        Task<ObjectiveFunction> GetObjectiveFunction(Guid id);
-        Task SaveObjectiveFunction(ObjectiveFunction objectiveFunction);
-        Task DeleteObjectiveFunction(Guid id);
-
-        Task<IEnumerable<ConstraintGroup>> GetConstraintGroups();
-        Task<ConstraintGroup> GetConstraintGroup(Guid id);
-        Task SaveConstraintGroup(ConstraintGroup constraintGroup);
-        Task DeleteConstraintGroup(Guid id);
-
-        Task<IEnumerable<Constraint>> GetConstraints();
-        Task<Constraint> GetConstraint(Guid id);
-        Task SaveConstraint(Constraint constraint);
-        Task DeleteConstraint(Guid id);
-
         Task<IEnumerable<ComposedModel>> GetComposedModels();
         Task<ComposedModel> GetComposedModel(Guid id);
         Task SaveComposedModel(ComposedModel composedModel);
         Task DeleteComposedModel(Guid id);
+        Task CloneComposedModel(Guid modelId, Guid scenarioId, string name);
+
+        Task<IEnumerable<Scenario>> GetScenarios(Guid modelId);
+        Task<Scenario> GetScenario(Guid scenarioId);
+        Task SaveScenario(Scenario scenario);
+        Task DeleteScenario(Guid scenarioId);
+        Task CloneScenario(Guid scenarioId, int revision);
+
+        Task<SetData> GetSetData(Guid setId, Guid modelId);
+        Task<IEnumerable<SetData>> GetAllModelSetData(Guid modelId);
+        Task SaveSetData(SetData setData);
+        Task DeleteSetData(Guid setId, Guid modelId);
+        Task DeleteModelSetData(Guid modelId);
+
+        Task<ParameterData> GetParameterData(Guid parameterId, Guid scenarioId);
+        Task SaveParameterData(ParameterData parameterData);
+        Task DeleteParameterData(Guid parameterId, Guid scenarioId);
     }
 }

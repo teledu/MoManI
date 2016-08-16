@@ -12,13 +12,11 @@ namespace MoManI.Api.Controllers
     public class ComposedModelsController : ApiController
     {
         private readonly IModelRepository _modelRepository;
-        private readonly IDataRepository _dataRepository;
         private readonly IResultsRepository _resultsRepository;
 
-        public ComposedModelsController(IModelRepository modelRepository, IDataRepository dataRepository, IResultsRepository resultsRepository)
+        public ComposedModelsController(IModelRepository modelRepository, IResultsRepository resultsRepository)
         {
             _modelRepository = modelRepository;
-            _dataRepository = dataRepository;
             _resultsRepository = resultsRepository;
         }
 
@@ -60,19 +58,19 @@ namespace MoManI.Api.Controllers
                     Description = composedModel.Description,
                     Revision = 1,
                 };
-                await _dataRepository.SaveScenario(scenario);
+                await _modelRepository.SaveScenario(scenario);
             }
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         public async Task<HttpResponseMessage> DeleteComposedModel(Guid id)
         {
-            var scenarios = await _dataRepository.GetScenarios(id);
+            var scenarios = await _modelRepository.GetScenarios(id);
             foreach (var scenario in scenarios)
             {
                 await _resultsRepository.DeleteScenarioResults(scenario.Id);
-                await _dataRepository.DeleteModelSetData(id);
-                await _dataRepository.DeleteScenario(scenario.Id);
+                await _modelRepository.DeleteModelSetData(id);
+                await _modelRepository.DeleteScenario(scenario.Id);
             }
             await _modelRepository.DeleteComposedModel(id);
             return Request.CreateResponse(HttpStatusCode.OK);

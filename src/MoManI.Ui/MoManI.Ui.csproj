@@ -26,6 +26,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="images\spinner.gif" />
     <Content Include="index.html" />
+    <Content Include="partials\clone-model-scenario-dialog.html" />
     <Content Include="partials\composition-details.html" />
     <Content Include="partials\scenario-set-list.html" />
     <Content Include="partials\set-data-list.html" />
@@ -98,6 +99,7 @@
     <TypeScriptCompile Include="scripts\application.ts" />
     <TypeScriptCompile Include="scripts\appSettings.ts" />
     <TypeScriptCompile Include="scripts\controllers\constraintGroupControllers.ts" />
+    <TypeScriptCompile Include="scripts\controllers\modelCloningControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\executableRenderingControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\scenarioControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\modelCompositionControllers.ts" />

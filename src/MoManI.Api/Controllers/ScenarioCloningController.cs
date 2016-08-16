@@ -10,17 +10,15 @@ namespace MoManI.Api.Controllers
     public class ScenarioCloningController : ApiController
     {
         private readonly IModelRepository _modelRepository;
-        private readonly IDataRepository _dataRepository;
 
-        public ScenarioCloningController(IModelRepository modelRepository, IDataRepository dataRepository)
+        public ScenarioCloningController(IModelRepository modelRepository)
         {
             _modelRepository = modelRepository;
-            _dataRepository = dataRepository;
         }
 
         public async Task<HttpResponseMessage> PostClone(Guid id)
         {
-            var scenario = await _dataRepository.GetScenario(id);
+            var scenario = await _modelRepository.GetScenario(id);
             if (scenario == null)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Scenario does not exist");
@@ -28,7 +26,7 @@ namespace MoManI.Api.Controllers
             var model = await _modelRepository.GetComposedModel(scenario.ModelId);
             model.LastRevision++;
             await _modelRepository.SaveComposedModel(model);
-            await _dataRepository.CloneScenario(id, model.LastRevision);
+            await _modelRepository.CloneScenario(id, model.LastRevision);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

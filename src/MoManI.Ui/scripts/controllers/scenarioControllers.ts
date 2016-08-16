@@ -111,6 +111,8 @@ export class ScenarioListController {
             $modal.open({
                 templateUrl: 'partials/render-executable.html',
                 controller: executableRenderingControllers.ExecutableRenderingController,
+                backdrop: 'static',
+                keyboard: false,
                 resolve: {
                     scenario() { return scenario; },
                 }

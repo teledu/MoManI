@@ -13,28 +13,28 @@ namespace MoManI.Api.Controllers
     [LimitedWriteModel]
     public class VariablesController : ApiController
     {
-        private readonly IModelRepository _modelRepository;
+        private readonly IComponentsRepository _componentsRepository;
 
-        public VariablesController(IModelRepository modelRepository)
+        public VariablesController(IComponentsRepository componentsRepository)
         {
-            _modelRepository = modelRepository;
+            _componentsRepository = componentsRepository;
         }
 
         public async Task<HttpResponseMessage> GetVariables()
         {
-            var result = await _modelRepository.GetVariables();
+            var result = await _componentsRepository.GetVariables();
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> GetVariable(Guid id)
         {
-            var result = await _modelRepository.GetVariable(id);
+            var result = await _componentsRepository.GetVariable(id);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostVariable(Guid id, VariableSaveRequest variable)
         {
-            await _modelRepository.SaveVariable(new Variable
+            await _componentsRepository.SaveVariable(new Variable
             {
                 Id = id,
                 Name = variable.Name,
@@ -52,7 +52,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> DeleteVariable(Guid id)
         {
-            await _modelRepository.DeleteVariable(id);
+            await _componentsRepository.DeleteVariable(id);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

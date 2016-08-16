@@ -11,6 +11,7 @@ export var objectiveFunctions = apiRoot + 'ObjectiveFunctions/';
 export var constraintGroups = apiRoot + 'ConstraintGroups/';
 export var constraints = apiRoot + 'Constraints/';
 export var models = apiRoot + 'ComposedModels/';
+export var modelCloning = apiRoot + 'ModelCloning/';
 export var scenarios = apiRoot + 'Scenarios/';
 export var scenarioCloning = apiRoot + 'ScenarioCloning/';
 export var setData = apiRoot + 'SetData/';

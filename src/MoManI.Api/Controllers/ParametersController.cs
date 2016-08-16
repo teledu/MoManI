@@ -13,28 +13,28 @@ namespace MoManI.Api.Controllers
     [LimitedWriteModel]
     public class ParametersController : ApiController
     {
-        private readonly IModelRepository _modelRepository;
+        private readonly IComponentsRepository _componentsRepository;
 
-        public ParametersController(IModelRepository modelRepository)
+        public ParametersController(IComponentsRepository componentsRepository)
         {
-            _modelRepository = modelRepository;
+            _componentsRepository = componentsRepository;
         }
 
         public async Task<HttpResponseMessage> GetParameters()
         {
-            var result = await _modelRepository.GetParameters();
+            var result = await _componentsRepository.GetParameters();
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> GetParameter(Guid id)
         {
-            var result = await _modelRepository.GetParameter(id);
+            var result = await _componentsRepository.GetParameter(id);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostSet(Guid id, ParameterSaveRequest parameter)
         {
-            await _modelRepository.SaveParameter(new Parameter
+            await _componentsRepository.SaveParameter(new Parameter
             {
                 Id = id,
                 Name = parameter.Name,
@@ -46,7 +46,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> DeleteParameter(Guid id)
         {
-            await _modelRepository.DeleteParameter(id);
+            await _componentsRepository.DeleteParameter(id);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

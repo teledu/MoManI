@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MoManI.Api.Models;
 using MongoDB.Bson;
@@ -9,178 +10,19 @@ namespace MoManI.Api.Services
 {
     public class MongoModelRepository : IModelRepository
     {
-        private readonly IMongoCollection<Set> _setsCollection;
-        private readonly IMongoCollection<Parameter> _parametersCollection;
-        private readonly IMongoCollection<Variable> _variablesCollection;
-        private readonly IMongoCollection<ObjectiveFunction> _objectiveFunctionsCollection;
-        private readonly IMongoCollection<ConstraintGroup> _constraintGroupsCollection;
-        private readonly IMongoCollection<Constraint> _constraintsCollection;
         private readonly IMongoCollection<ComposedModel> _composedModelsCollection;
+        private readonly IMongoCollection<Scenario> _scenariosCollection;
+        private readonly IMongoCollection<SetData> _setDataCollection;
+        private readonly IMongoCollection<ParameterDataStorageModel> _parameterDataCollection;
+        private readonly IMongoCollection<ParameterDataItemStorageModel> _parameterDataItemCollection;
 
         public MongoModelRepository(IMongoDatabase database)
         {
-            _setsCollection = database.GetCollection<Set>("Sets");
-            _parametersCollection = database.GetCollection<Parameter>("Parameters");
-            _variablesCollection = database.GetCollection<Variable>("Variables");
-            _objectiveFunctionsCollection = database.GetCollection<ObjectiveFunction>("ObjectiveFunction");
-            _constraintGroupsCollection = database.GetCollection<ConstraintGroup>("ConstraintGroup");
-            _constraintsCollection = database.GetCollection<Constraint>("Constraint");
             _composedModelsCollection = database.GetCollection<ComposedModel>("ComposedModel");
-        }
-
-        public async Task<IEnumerable<Set>> GetSets()
-        {
-            return await _setsCollection.Find(new BsonDocument())
-                .ToListAsync();
-        }
-
-        public async Task<Set> GetSet(Guid id)
-        {
-            var filter = Builders<Set>.Filter.Eq("_id", id);
-            return await _setsCollection.Find(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task SaveSet(Set set)
-        {
-            await _setsCollection.ReplaceOneAsync(x => x.Id == set.Id, set, new UpdateOptions
-            {
-                IsUpsert = true
-            });
-        }
-
-        public async Task DeleteSet(Guid id)
-        {
-            await _setsCollection.DeleteOneAsync(x => x.Id == id);
-        }
-
-        public async Task<IEnumerable<Parameter>> GetParameters()
-        {
-            return await _parametersCollection.Find(new BsonDocument())
-                .ToListAsync();
-        }
-
-        public async Task<Parameter> GetParameter(Guid id)
-        {
-            var filter = Builders<Parameter>.Filter.Eq("_id", id);
-            return await _parametersCollection.Find(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task SaveParameter(Parameter parameter)
-        {
-            await _parametersCollection.ReplaceOneAsync(x => x.Id == parameter.Id, parameter, new UpdateOptions
-            {
-                IsUpsert = true
-            });
-        }
-
-        public async Task DeleteParameter(Guid id)
-        {
-            await _parametersCollection.DeleteOneAsync(x => x.Id == id);
-        }
-
-        public async Task<IEnumerable<Variable>> GetVariables()
-        {
-            return await _variablesCollection.Find(new BsonDocument())
-                .ToListAsync();
-        }
-
-        public async Task<Variable> GetVariable(Guid id)
-        {
-            var filter = Builders<Variable>.Filter.Eq("_id", id);
-            return await _variablesCollection.Find(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task SaveVariable(Variable variable)
-        {
-            await _variablesCollection.ReplaceOneAsync(x => x.Id == variable.Id, variable, new UpdateOptions
-            {
-                IsUpsert = true
-            });
-        }
-
-        public async Task DeleteVariable(Guid id)
-        {
-            await _variablesCollection.DeleteOneAsync(x => x.Id == id);
-        }
-
-        public async Task<IEnumerable<ObjectiveFunction>> GetObjectiveFunctions()
-        {
-            return await _objectiveFunctionsCollection.Find(new BsonDocument()).ToListAsync();
-        }
-
-        public async Task<ObjectiveFunction> GetObjectiveFunction(Guid id)
-        {
-            var filter = Builders<ObjectiveFunction>.Filter.Eq("_id", id);
-            return await _objectiveFunctionsCollection.Find(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task SaveObjectiveFunction(ObjectiveFunction objectiveFunction)
-        {
-            await _objectiveFunctionsCollection.ReplaceOneAsync(x => x.Id == objectiveFunction.Id, objectiveFunction, new UpdateOptions
-            {
-                IsUpsert = true
-            });
-        }
-
-        public async Task DeleteObjectiveFunction(Guid id)
-        {
-            await _objectiveFunctionsCollection.DeleteOneAsync(x => x.Id == id);
-        }
-
-        public async Task<IEnumerable<ConstraintGroup>> GetConstraintGroups()
-        {
-            return await _constraintGroupsCollection.Find(new BsonDocument())
-                .ToListAsync();
-        }
-
-        public async Task<ConstraintGroup> GetConstraintGroup(Guid id)
-        {
-            var filter = Builders<ConstraintGroup>.Filter.Eq("_id", id);
-            return await _constraintGroupsCollection.Find(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task SaveConstraintGroup(ConstraintGroup constraintGroup)
-        {
-            await _constraintGroupsCollection.ReplaceOneAsync(x => x.Id == constraintGroup.Id, constraintGroup, new UpdateOptions
-            {
-                IsUpsert = true
-            });
-        }
-
-        public async Task DeleteConstraintGroup(Guid id)
-        {
-            var constraintsFilter = Builders<Constraint>.Filter.Eq("constraintGroupId", id);
-            var constraintCount = await _constraintsCollection.Find(constraintsFilter).CountAsync();
-            if (constraintCount > 0)
-            {
-                throw new InvalidOperationException($"Constraint group contains {constraintCount} constraints and can not be deleted");
-            }
-            await _constraintGroupsCollection.DeleteOneAsync(x => x.Id == id);
-        }
-
-        public async Task<IEnumerable<Constraint>> GetConstraints()
-        {
-            return await _constraintsCollection.Find(new BsonDocument())
-                .ToListAsync();
-        }
-
-        public async Task<Constraint> GetConstraint(Guid id)
-        {
-            var filter = Builders<Constraint>.Filter.Eq("_id", id);
-            return await _constraintsCollection.Find(filter).FirstOrDefaultAsync();
-        }
-
-        public async Task SaveConstraint(Constraint constraint)
-        {
-            await _constraintsCollection.ReplaceOneAsync(x => x.Id == constraint.Id, constraint, new UpdateOptions
-            {
-                IsUpsert = true
-            });
-        }
-
-        public async Task DeleteConstraint(Guid id)
-        {
-            await _constraintsCollection.DeleteOneAsync(x => x.Id == id);
+            _setDataCollection = database.GetCollection<SetData>("SetData");
+            _parameterDataCollection = database.GetCollection<ParameterDataStorageModel>("ParameterData");
+            _parameterDataItemCollection = database.GetCollection<ParameterDataItemStorageModel>("ParameterDataItem");
+            _scenariosCollection = database.GetCollection<Scenario>("Scenario");
         }
 
         public async Task<IEnumerable<ComposedModel>> GetComposedModels()
@@ -206,6 +48,245 @@ namespace MoManI.Api.Services
         public async Task DeleteComposedModel(Guid id)
         {
             await _composedModelsCollection.DeleteOneAsync(x => x.Id == id);
+        }
+
+        public async Task CloneComposedModel(Guid modelId, Guid scenarioId, string name)
+        {
+            var model = await CreateClonedModel(modelId, name);
+            var scenario = await CreateClonedScenario(scenarioId, model);
+            var sourceSetData = await GetAllModelSetData(modelId);
+            var setData = sourceSetData.Select(s => s.CloneToModel(model.Id));
+            foreach (var setDataValue in setData)
+            {
+                await SaveSetData(setDataValue);
+            }
+            await CloneParameterData(scenarioId, scenario.Id);
+        }
+
+        private async Task<ComposedModel> CreateClonedModel(Guid modelId, string name)
+        {
+            var sourceModel = await GetComposedModel(modelId);
+            var model = sourceModel.Clone();
+            model.Name = name;
+            await SaveComposedModel(model);
+            return model;
+        }
+
+        private async Task<Scenario> CreateClonedScenario(Guid scenarioId, ComposedModel model)
+        {
+            var sourceScenario = await GetScenario(scenarioId);
+            var scenario = sourceScenario.Clone(1);
+            scenario.ModelId = model.Id;
+            scenario.ParentScenarioId = null;
+            await SaveScenario(scenario);
+            return scenario;
+        }
+
+        public async Task<IEnumerable<Scenario>> GetScenarios(Guid modelId)
+        {
+            var filter = Builders<Scenario>.Filter.Eq("modelId", modelId);
+            return await _scenariosCollection.Find(filter)
+                .ToListAsync();
+        }
+
+        public async Task<Scenario> GetScenario(Guid id)
+        {
+            var filter = Builders<Scenario>.Filter.Eq("_id", id);
+            return await _scenariosCollection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task SaveScenario(Scenario scenario)
+        {
+            await _scenariosCollection.ReplaceOneAsync(x => x.Id == scenario.Id, scenario, new UpdateOptions
+            {
+                IsUpsert = true
+            });
+        }
+
+        public async Task DeleteScenario(Guid scenarioId)
+        {
+            var childScenarios = await _scenariosCollection.Find(s => s.ParentScenarioId == scenarioId).ToListAsync();
+            foreach (var childScenario in childScenarios)
+            {
+                await DeleteScenario(childScenario.Id);
+            }
+            var parameters = await _parameterDataCollection.Find(x => x.ScenarioId == scenarioId).ToListAsync();
+            foreach (var parameter in parameters)
+            {
+                await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == parameter.Id);
+            }
+            await _parameterDataCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
+            await _scenariosCollection.DeleteOneAsync(x => x.Id == scenarioId);
+        }
+
+        public async Task CloneScenario(Guid id, int revision)
+        {
+            var source = await GetScenario(id);
+            var scenario = source.Clone(revision);
+            await SaveScenario(scenario);
+            await CloneParameterData(id, scenario.Id);
+        }
+
+        public async Task<SetData> GetSetData(Guid setId, Guid modelId)
+        {
+            var builder = Builders<SetData>.Filter;
+            var filter = builder.Eq("setId", setId) & builder.Eq("modelId", modelId);
+            return await _setDataCollection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<SetData>> GetAllModelSetData(Guid modelId)
+        {
+            var builder = Builders<SetData>.Filter;
+            var filter = builder.Eq("modelId", modelId);
+            return await _setDataCollection.Find(filter).ToListAsync();
+        }
+
+        public async Task SaveSetData(SetData setData)
+        {
+            await _setDataCollection.ReplaceOneAsync(x => x.SetId == setData.SetId && x.ModelId == setData.ModelId, setData, new UpdateOptions
+            {
+                IsUpsert = true
+            });
+        }
+
+        public async Task DeleteSetData(Guid setId, Guid modelId)
+        {
+            await _setDataCollection.DeleteOneAsync(x => x.SetId == setId && x.ModelId == modelId);
+        }
+
+        public async Task DeleteModelSetData(Guid modelId)
+        {
+            await _setDataCollection.DeleteManyAsync(x => x.ModelId == modelId);
+        }
+
+        public async Task<ParameterData> GetParameterData(Guid parameterId, Guid scenarioId)
+        {
+            var data = await GetParameterDataStorageModel(parameterId, scenarioId);
+            if (data == null)
+            {
+                return null;
+            }
+            var items = await GetParameterDataItemStorageModels(data.Id);
+            return new ParameterData
+            {
+                ParameterId = data.ParameterId,
+                ModelId = data.ModelId,
+                ScenarioId = data.ScenarioId,
+                DefaultValue = data.DefaultValue,
+                Sets = data.Sets,
+                Data = items.Select(i => new ParameterDataItem
+                {
+                    C = i.Coordinates,
+                    V = i.Value,
+                })
+            };
+        }
+
+        public async Task SaveParameterData(ParameterData parameterData)
+        {
+            var existingData = await GetParameterDataStorageModel(parameterData.ParameterId, parameterData.ScenarioId);
+            var dataModel = new ParameterDataStorageModel
+            {
+                Id = existingData?.Id ?? Guid.NewGuid(),
+                ScenarioId = parameterData.ScenarioId,
+                ModelId = parameterData.ModelId,
+                ParameterId = parameterData.ParameterId,
+                DefaultValue = parameterData.DefaultValue,
+                Sets = parameterData.Sets,
+            };
+            var itemsModel = parameterData.Data.Select(d => new ParameterDataItemStorageModel
+            {
+                ParameterDataId = dataModel.Id,
+                Coordinates = d.C,
+                Value = d.V,
+            }).ToList();
+            await _parameterDataCollection.ReplaceOneAsync(x => x.Id == dataModel.Id, dataModel, new UpdateOptions
+            {
+                IsUpsert = true,
+            });
+            await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == dataModel.Id);
+            if (itemsModel.Any())
+            {
+                await _parameterDataItemCollection.InsertManyAsync(itemsModel);
+            }
+        }
+
+        public async Task DeleteParameterData(Guid parameterId, Guid scenarioId)
+        {
+            var existingData = await GetParameterDataStorageModel(parameterId, scenarioId);
+            if (existingData == null)
+                return;
+            await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == existingData.Id);
+            await _parameterDataCollection.DeleteOneAsync(x => x.Id == existingData.Id);
+        }
+
+        private async Task CloneParameterData(Guid sourceScenarioId, Guid scenarioId)
+        {
+            var filter = Builders<ParameterDataStorageModel>.Filter.Eq("scenarioId", sourceScenarioId);
+            var parameterDatas = await _parameterDataCollection.Find(filter).ToListAsync();
+            foreach (var parameterData in parameterDatas)
+            {
+                var newParameterData = parameterData.Clone(scenarioId);
+                await _parameterDataCollection.InsertOneAsync(newParameterData);
+                var items = await GetParameterDataItemStorageModels(parameterData.Id);
+                var parameterDataItemStorageModels = items as ParameterDataItemStorageModel[] ?? items.ToArray();
+                if (!parameterDataItemStorageModels.Any()) continue;
+                await _parameterDataItemCollection.InsertManyAsync(parameterDataItemStorageModels.Select(i => i.Clone(newParameterData.Id)));
+            }
+        }
+
+        private async Task<ParameterDataStorageModel> GetParameterDataStorageModel(Guid parameterId, Guid scenarioId)
+        {
+            var builder = Builders<ParameterDataStorageModel>.Filter;
+            var filter = builder.Eq("parameterId", parameterId) & builder.Eq("scenarioId", scenarioId);
+            return await _parameterDataCollection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        private async Task<IEnumerable<ParameterDataItemStorageModel>> GetParameterDataItemStorageModels(Guid parameterDataId)
+        {
+            var builder = Builders<ParameterDataItemStorageModel>.Filter;
+            var filter = builder.Eq("parameterDataId", parameterDataId);
+            return await _parameterDataItemCollection.Find(filter).ToListAsync();
+        }
+
+        private class ParameterDataStorageModel
+        {
+            public Guid Id { get; set; }
+            public Guid ParameterId { get; set; }
+            public Guid ScenarioId { get; set; }
+            public Guid ModelId { get; set; }
+            public decimal DefaultValue { get; set; }
+            public IEnumerable<ParameterDataSet> Sets { get; set; }
+
+            public ParameterDataStorageModel Clone(Guid scenarioId)
+            {
+                return new ParameterDataStorageModel
+                {
+                    Id = Guid.NewGuid(),
+                    ParameterId = ParameterId,
+                    ScenarioId = scenarioId,
+                    ModelId = ModelId,
+                    DefaultValue = DefaultValue,
+                    Sets = Sets.ToList(),
+                };
+            }
+        }
+
+        private class ParameterDataItemStorageModel
+        {
+            public Guid ParameterDataId { get; set; }
+            public IEnumerable<string> Coordinates { get; set; }
+            public decimal Value { get; set; }
+
+            public ParameterDataItemStorageModel Clone(Guid parameterDataId)
+            {
+                return new ParameterDataItemStorageModel
+                {
+                    ParameterDataId = parameterDataId,
+                    Coordinates = Coordinates.ToList(),
+                    Value = Value,
+                };
+            }
         }
     }
 }

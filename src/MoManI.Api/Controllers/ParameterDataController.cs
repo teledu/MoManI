@@ -12,23 +12,23 @@ namespace MoManI.Api.Controllers
 {
     public class ParameterDataController : ApiController
     {
-        private readonly IDataRepository _dataRepository;
+        private readonly IModelRepository _modelRepository;
 
-        public ParameterDataController(IDataRepository dataRepository)
+        public ParameterDataController(IModelRepository modelRepository)
         {
-            _dataRepository = dataRepository;
+            _modelRepository = modelRepository;
         }
 
         public async Task<HttpResponseMessage> GetParameterData(Guid parameterId, Guid scenarioId)
         {
-            var result = await _dataRepository.GetParameterData(parameterId, scenarioId);
+            var result = await _modelRepository.GetParameterData(parameterId, scenarioId);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostParameterData(ParameterDataSaveRequest parameterData)
         {
             System.Diagnostics.Trace.TraceError($"{DateTime.Now}: saving data for parameter {parameterData.ParameterId} in {parameterData.ScenarioId}, {parameterData.Data?.Count() ?? 0} data items, request size {Request.Content.Headers.ContentLength}");
-            await _dataRepository.SaveParameterData(new ParameterData
+            await _modelRepository.SaveParameterData(new ParameterData
             {
                 ParameterId = parameterData.ParameterId,
                 ScenarioId = parameterData.ScenarioId,
@@ -42,7 +42,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> DeleteParameterData(Guid parameterId, Guid modelId)
         {
-            await _dataRepository.DeleteParameterData(parameterId, modelId);
+            await _modelRepository.DeleteParameterData(parameterId, modelId);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

@@ -12,28 +12,28 @@ namespace MoManI.Api.Controllers
 {
     public class SetDataController : ApiController
     {
-        private readonly IDataRepository _dataRepository;
+        private readonly IModelRepository _modelRepository;
 
-        public SetDataController(IDataRepository dataRepository)
+        public SetDataController(IModelRepository modelRepository)
         {
-            _dataRepository = dataRepository;
+            _modelRepository = modelRepository;
         }
 
         public async Task<HttpResponseMessage> GetSetData(Guid setId, Guid modelId)
         {
-            var result = await _dataRepository.GetSetData(setId, modelId);
+            var result = await _modelRepository.GetSetData(setId, modelId);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> GetSetData(Guid modelId)
         {
-            var result = await _dataRepository.GetAllModelSetData(modelId);
+            var result = await _modelRepository.GetAllModelSetData(modelId);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostSetData(SetDataSaveRequest setData)
         {
-            await _dataRepository.SaveSetData(new SetData
+            await _modelRepository.SaveSetData(new SetData
             {
                 SetId = setData.SetId,
                 ModelId = setData.ModelId,
@@ -55,7 +55,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> DeleteSetData(Guid setId, Guid modelId)
         {
-            await _dataRepository.DeleteSetData(setId, modelId);
+            await _modelRepository.DeleteSetData(setId, modelId);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

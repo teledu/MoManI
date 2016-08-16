@@ -12,28 +12,28 @@ namespace MoManI.Api.Controllers
     [LimitedWriteModel]
     public class ObjectiveFunctionsController : ApiController
     {
-        private readonly IModelRepository _modelRepository;
+        private readonly IComponentsRepository _componentsRepository;
 
-        public ObjectiveFunctionsController(IModelRepository modelRepository)
+        public ObjectiveFunctionsController(IComponentsRepository componentsRepository)
         {
-            _modelRepository = modelRepository;
+            _componentsRepository = componentsRepository;
         }
 
         public async Task<HttpResponseMessage> GetObjectiveFunctions()
         {
-            var result = await _modelRepository.GetObjectiveFunctions();
+            var result = await _componentsRepository.GetObjectiveFunctions();
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> GetObjectiveFunction(Guid id)
         {
-            var result = await _modelRepository.GetObjectiveFunction(id);
+            var result = await _componentsRepository.GetObjectiveFunction(id);
             return Request.CreateResponse(HttpStatusCode.OK, result);
         }
 
         public async Task<HttpResponseMessage> PostVariable(Guid id, ObjectiveFunctionSaveRequest objectiveFunction)
         {
-            await _modelRepository.SaveObjectiveFunction(new ObjectiveFunction
+            await _componentsRepository.SaveObjectiveFunction(new ObjectiveFunction
             {
                 Id = id,
                 Name = objectiveFunction.Name,
@@ -46,7 +46,7 @@ namespace MoManI.Api.Controllers
 
         public async Task<HttpResponseMessage> DeleteObjectiveFunction(Guid id)
         {
-            await _modelRepository.DeleteObjectiveFunction(id);
+            await _componentsRepository.DeleteObjectiveFunction(id);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }

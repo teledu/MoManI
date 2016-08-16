@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MoManI.Api.Models
 {
@@ -14,5 +15,21 @@ namespace MoManI.Api.Models
         public Guid? ObjectiveFunction { get; set; }
         public IEnumerable<Guid> Constraints { get; set; }
         public int LastRevision { get; set; }
+
+        public ComposedModel Clone()
+        {
+            return new ComposedModel
+            {
+                Id = Guid.NewGuid(),
+                Name = Name,
+                Description = Description,
+                Sets = Sets.ToList(),
+                Parameters = Parameters.ToList(),
+                Variables = Variables.ToList(),
+                ObjectiveFunction = ObjectiveFunction,
+                Constraints = Constraints.ToList(),
+                LastRevision = 1,
+            };
+        }
     }
 }
