@@ -9,7 +9,7 @@ namespace MoManI.WinExecApp.Models
         public Guid ModelId { get; set; }
         public Guid VariableId { get; set; }
         public IEnumerable<VariableSet> Sets { get; set; }
-        public IEnumerable<VariableResultItem> Data { get; set; }
+        public List<VariableResultItem> Data { get; set; }
     }
 
     public class VariableSet

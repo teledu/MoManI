@@ -15,5 +15,21 @@ namespace MoManI.WinExecApp
                 throw new Exception("Problem has no promary feasible solution");
             }
         }
+
+        public static void VerifyFileCreated(string fileName)
+        {
+            try
+            {
+                var lines = File.ReadLines(fileName);
+                if (!lines.Any())
+                {
+                    throw new Exception($"File {fileName} is empty");
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error reading file {fileName}: {e}");
+            }
+        }
     }
 }

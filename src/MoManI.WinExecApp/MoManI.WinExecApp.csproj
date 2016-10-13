@@ -55,6 +55,7 @@
     <Compile Include="Models\Metadata.cs" />
     <Compile Include="MetadataReader.cs" />
     <Compile Include="Models\Result.cs" />
+    <Compile Include="Models\SolverType.cs" />
     <Compile Include="OutputReader.cs" />
     <Compile Include="ResultReader.cs" />
     <Compile Include="Executor.cs" />
