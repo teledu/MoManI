@@ -32,6 +32,7 @@ export class Variable implements IRenderable {
     sets: VariableSet[];
     constraint: IVariableConstraint;
     integer: boolean;
+    unit: string;
     setOptions: ISet[];
 
     constructor(setOptions: ISet[], variable?: IVariable) {
@@ -45,6 +46,7 @@ export class Variable implements IRenderable {
             });
             this.constraint = variable.constraint ? new VariableConstraint(variable.constraint) : null;
             this.integer = variable.integer;
+            this.unit = variable.unit;
         } else {
             this.id = uuid.v4();
             this.name = '';
@@ -52,6 +54,7 @@ export class Variable implements IRenderable {
             this.sets = [];
             this.constraint = null;
             this.integer = false;
+            this.unit = null;
         }
     }
 
@@ -78,6 +81,7 @@ export class Variable implements IRenderable {
             sets: _.map(this.sets, set => set.value),
             constraint: this.constraint,
             integer: this.integer,
+            unit: this.unit,
         }
     }
 

@@ -11,6 +11,7 @@ namespace MoManI.Api.Models
         public IEnumerable<Guid> Sets { get; set; }
         public VariableContstraint Constraint { get; set; }
         public bool Integer { get; set; }
+        public string Unit { get; set; }
     }
 
     public class VariableContstraint

@@ -10,6 +10,7 @@ interface IVariable {
     sets: string[];
     constraint: IVariableConstraint;
     integer: boolean;
+    unit: string;
 }
 
 interface IVariableResource extends IVariable, ng.resource.IResource<IVariableResource> {

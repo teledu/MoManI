@@ -46,6 +46,7 @@ namespace MoManI.Api.Controllers
                     Value = variable.Constraint.Value
                 },
                 Integer = variable.Integer,
+                Unit = variable.Unit,
             });
             return Request.CreateResponse(HttpStatusCode.OK);
         }
@@ -64,6 +65,7 @@ namespace MoManI.Api.Controllers
         public IEnumerable<Guid> Sets { get; set; }
         public VariableSaveRequestConstraint Constraint { get; set; }
         public bool Integer { get; set; }
+        public string Unit { get; set; }
     }
 
     public class VariableSaveRequestConstraint
