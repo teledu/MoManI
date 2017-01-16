@@ -1,9 +1,10 @@
 ﻿import _ = require('lodash');
+import variableModel = require('models/variable')
 
 export class CsvBuilder {
     rows: string[];
 
-    constructor(dataset: IDimensionalData, sets: ISet[], setDatas: ISetData[]) {
+    constructor(dataset: IDimensionalData, sets: ISet[], setDatas: ISetData[], variable: variableModel.Variable) {
         var actualSets = _.map(dataset.sets, s => {
             return _.find(sets, 'id', s.id);
         });
@@ -14,6 +15,9 @@ export class CsvBuilder {
         var otherSetDatas = _.take(actualSetDatas, otherSetCount);
         var detailedSetDataValueCount = detailedSetData.items.length;
         this.rows = [];
+        if (variable.unit) {
+            this.rows.push(variable.unit);
+        }
         var headerSetNames = _.map(otherSets, s => s.name);
         var headerSetValues = _.map(detailedSetData.items, i => i.value);
         var headerItems = headerSetNames.concat(headerSetValues);

@@ -98,6 +98,7 @@ export class VariableResult {
             chart: _.assign({}, defaultChartOptions),
         }
         this.pending.chartOptions.chart.type = this.xSet.numeric ? 'stackedAreaChart' : 'multiBarChart';
+        this.pending.chartOptions.chart.yAxis.axisLabel = this.variable.unit;
         this.pending.chartOptions.chart.height = this.chartHeight;
         var unfilteredChartData = _(this.data).groupBy(d => {
             return this.groupSet != null ? d.c[this.groupSetIndex()] : this.name;
@@ -258,7 +259,7 @@ var defaultChartOptions = {
         top: 20,
         right: 20,
         bottom: 30,
-        left: 40
+        left: 60
     },
     x: (d) => {
         return d.x;

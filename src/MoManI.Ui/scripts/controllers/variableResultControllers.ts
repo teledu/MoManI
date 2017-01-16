@@ -76,7 +76,7 @@ export class VariableResultListController {
                 var variableResultData = <IVariableResult>res[1];
                 var setDatas = <ISetData[]>res.splice(2);
 
-                var builder = new csvBuilder.CsvBuilder(variableResultData, sets, setDatas);
+                var builder = new csvBuilder.CsvBuilder(variableResultData, sets, setDatas, variable);
                 var dataBlob = builder.getCsvBlob();
                 saveAs(dataBlob, `${variable.name}.csv`);
                 $scope.loading = false;
