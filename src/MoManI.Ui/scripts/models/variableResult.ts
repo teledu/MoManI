@@ -16,6 +16,7 @@ export class VariableResult {
     setData: ISetData[];
     variable: variableModel.Variable;
 
+    private chartHeight: number;
     private pending: any;
     private chartOptions: any;
     private chartData: IChartGroup[];
@@ -39,11 +40,14 @@ export class VariableResult {
             this.xSet = _(this.sets).filter(s => s.numeric).first() || _.first(this.sets);
             this.updateGroupOptions();
             this.useSetValues = false;
+            this.chartHeight = 450;
         }
         if (settings) {
             settings.addLegendSubscriber(this.toggleLegend);
             settings.addUseSetDataDescriptionSubscriber(this.toggleUseSetDataDescriptions);
             settings.addSetDataFilterSubscriber(this.changeSetDataFilters);
+            settings.addChartHeightSubscriber(this.changeChartHeight);
+            this.chartHeight = settings.chartHeight;
         }
     }
 
@@ -76,6 +80,11 @@ export class VariableResult {
         this.updateChart();
     }
 
+    changeChartHeight = (height: number) => {
+        this.chartHeight = height;
+        this.chartOptions.chart.height = height;
+    }
+
     selectGrouping = () => {
         if (this.groupDataHandler) {
             var groupSetData = _.find(this.setData, 'setId', this.groupSet.id);
@@ -89,6 +98,7 @@ export class VariableResult {
             chart: _.assign({}, defaultChartOptions),
         }
         this.pending.chartOptions.chart.type = this.xSet.numeric ? 'stackedAreaChart' : 'multiBarChart';
+        this.pending.chartOptions.chart.height = this.chartHeight;
         var unfilteredChartData = _(this.data).groupBy(d => {
             return this.groupSet != null ? d.c[this.groupSetIndex()] : this.name;
         }).map((group: IDimensionalDataItem[], key: string) => {
@@ -244,7 +254,6 @@ var roundUp = (input: number) => {
 }
 
 var defaultChartOptions = {
-    height: 450,
     margin: {
         top: 20,
         right: 20,

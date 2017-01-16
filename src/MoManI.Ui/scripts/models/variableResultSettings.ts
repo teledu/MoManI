@@ -37,14 +37,18 @@ export class VariableResultSettings {
     private useSetDataDescriptionsSubscribers: ((useSetDataDescriptions: boolean) => void)[];
     private setDataGroups: SetDataGroup[];
     private setDataFilterSubscribers: ((selectedDataValues: string[]) => void)[];
+    private chartHeightSubscribers: ((height: number) => void)[];
+    chartHeight: number;
 
     constructor() {
+        this.chartHeight = 500;
         this.visible = false;
         this.legendVisible = true;
         this.legendSubscribers = [];
         this.useSetDataDescriptions = true;
         this.useSetDataDescriptionsSubscribers = [];
         this.setDataFilterSubscribers = [];
+        this.chartHeightSubscribers = [];
     }
 
     addLegendSubscriber = (subscriber: (legendVisible: boolean) => void) => {
@@ -100,6 +104,16 @@ export class VariableResultSettings {
         var selectedSetDataValues = _.map(selectedSetDataOptions, sdo => sdo.value);
         _.forEach(this.setDataFilterSubscribers, subscriber => {
             subscriber(selectedSetDataValues);
+        });
+    }
+
+    addChartHeightSubscriber = (subscriber: (height: number) => void) => {
+        this.chartHeightSubscribers.push(subscriber);
+    }
+
+    private notifyChartHeightSubscribers = () => {
+        _.forEach(this.chartHeightSubscribers, subscriber => {
+            subscriber(this.chartHeight);
         });
     }
 

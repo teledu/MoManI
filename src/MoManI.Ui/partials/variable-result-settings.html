@@ -30,4 +30,10 @@
             </div>
         </div>
     </div>
+    <div>
+        <label>
+            Chart height:
+        </label>
+        <input type="number" min="0" max="1000" step="10" ng-model="settings.chartHeight" ng-model-options="{updateOn: 'blur'}" ng-change="settings.notifyChartHeightSubscribers()"/>
+    </div>
 </div>
