@@ -28,6 +28,7 @@
     <Content Include="index.html" />
     <Content Include="partials\clone-model-scenario-dialog.html" />
     <Content Include="partials\composition-details.html" />
+    <Content Include="partials\parameter-data-csv.html" />
     <Content Include="partials\scenario-set-list.html" />
     <Content Include="partials\set-data-list.html" />
     <Content Include="partials\scenario-details.html" />
@@ -136,6 +137,7 @@
     <TypeScriptCompile Include="scripts\models\constraintGroup.d.ts" />
     <TypeScriptCompile Include="scripts\models\dataStringBuilder.ts" />
     <TypeScriptCompile Include="scripts\models\constraintList.ts" />
+    <TypeScriptCompile Include="scripts\models\parameterDataCsv.ts" />
     <TypeScriptCompile Include="scripts\models\scenario.ts" />
     <TypeScriptCompile Include="scripts\models\scenario.d.ts" />
     <TypeScriptCompile Include="scripts\models\constraintGroup.ts" />

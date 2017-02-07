@@ -1,4 +1,5 @@
-﻿import uuid = require('node-uuid');
+﻿import _ = require('lodash');
+import uuid = require('node-uuid');
 import setDataModel = require('models/setData')
 
 interface IDimensionItem {
@@ -72,9 +73,10 @@ export class ParameterData {
                 name: setData.setName,
                 index: instanceIndex,
                 values: _.map(setData.getValueNamePairs(), valueName => {
+                    var onlyDisplayValue = valueName.value == valueName.name || !valueName.name;
                     return {
                         value: valueName.value,
-                        displayName: valueName.value == valueName.name ? valueName.value : `${valueName.value} (${valueName.name})`,
+                        displayName: onlyDisplayValue ? valueName.value : `${valueName.value} (${valueName.name})`,
                     }
                 }),
             }

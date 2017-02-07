@@ -82,6 +82,10 @@ export class SetData {
         return _.map(this.values, val => val.value.toString());
     }
 
+    getValueCount = () => {
+        return this.values.length;
+    }
+
     getValueNamePairs = () => {
         return _.map(this.values, val => {
             return {
