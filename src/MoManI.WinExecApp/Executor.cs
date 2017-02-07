@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Threading.Tasks;
 using MoManI.WinExecApp.Models;
 
@@ -9,6 +10,7 @@ namespace MoManI.WinExecApp
     {
         public async Task<bool> Run()
         {
+            PrintVersion();
             try
             {
                 var solver = SelectSolver();
@@ -31,6 +33,14 @@ namespace MoManI.WinExecApp
             }
             ReportSuccess();
             return true;
+        }
+
+        private static void PrintVersion()
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            if (asm.Location == null) return;
+            var fvi = FileVersionInfo.GetVersionInfo(asm.Location);
+            Console.WriteLine($"Running MoManI solver version {fvi.ProductMajorPart}.{fvi.ProductMinorPart}");
         }
 
         private static void ReportSuccess()
