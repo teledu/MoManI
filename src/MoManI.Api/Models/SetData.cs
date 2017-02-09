@@ -8,7 +8,14 @@ namespace MoManI.Api.Models
     {
         public Guid SetId { get; set; }
         public Guid ModelId { get; set; }
-        public IEnumerable<SetDataItem> Items { get; set; }
+
+        private IEnumerable<SetDataItem> _items; 
+        public IEnumerable<SetDataItem> Items
+        {
+            get { return _items.OrderBy(i => i.Value); }
+            set { _items = value; }
+        }
+
         public IEnumerable<SetDataGroup> Groups { get; set; }
 
         public SetData CloneToModel(Guid modelId)
