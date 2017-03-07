@@ -78,6 +78,10 @@ namespace MoManI.Api.Infrastructure
             {
                 return new ParameterDataController(_modelRepository);
             }
+            if (controllerType == typeof(ParameterDataForSetController))
+            {
+                return new ParameterDataForSetController(_modelRepository);
+            }
             if (controllerType == typeof(VariableResultsController))
             {
                 return new VariableResultsController(_resultsRepository);

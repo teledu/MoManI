@@ -156,8 +156,10 @@
     <Compile Include="Controllers\ComposedModelsController.cs" />
     <Compile Include="Controllers\ExecutableController.cs" />
     <Compile Include="Controllers\ModelCloningController.cs" />
+    <Compile Include="Controllers\ParameterDataForSetController.cs" />
     <Compile Include="Controllers\ScenarioCloningController.cs" />
     <Compile Include="Controllers\ScenariosController.cs" />
+    <Compile Include="Infrastructure\Extensions\EnumerableExtensions.cs" />
     <Compile Include="Infrastructure\LimitedWriteAttribute.cs" />
     <Compile Include="Controllers\ParameterDataController.cs" />
     <Compile Include="Controllers\SetDataController.cs" />

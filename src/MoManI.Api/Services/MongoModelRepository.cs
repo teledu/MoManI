@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MoManI.Api.Infrastructure.Extensions;
 using MoManI.Api.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -197,7 +198,7 @@ namespace MoManI.Api.Services
             var itemsModel = parameterData.Data.Select(d => new ParameterDataItemStorageModel
             {
                 ParameterDataId = dataModel.Id,
-                Coordinates = d.C,
+                Coordinates = d.C.ToList(),
                 Value = d.V,
             }).ToList();
             await _parameterDataCollection.ReplaceOneAsync(x => x.Id == dataModel.Id, dataModel, new UpdateOptions
@@ -218,6 +219,41 @@ namespace MoManI.Api.Services
                 return;
             await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == existingData.Id);
             await _parameterDataCollection.DeleteOneAsync(x => x.Id == existingData.Id);
+        }
+
+        public async Task<IEnumerable<ParameterData>> GetParameterDataForSet(Guid scenarioId, Guid setId, string setValue)
+        {
+            var parameters = await GetParametersUsingSet(scenarioId, setId);
+            var data = new List<ParameterData>();
+            foreach (var parameter in parameters)
+            {
+                var coordinateIndex = parameter.Sets.IndexOf(s => s.Id == setId);
+                var itemBuilder = Builders<ParameterDataItemStorageModel>.Filter;
+                var itemFilter = itemBuilder.Eq("parameterDataId", parameter.Id) & itemBuilder.Where(i => i.Coordinates[coordinateIndex] == setValue);
+                var items = await _parameterDataItemCollection.Find(itemFilter).ToListAsync();
+                data.Add(new ParameterData
+                {
+                    ParameterId = parameter.ParameterId,
+                    ModelId = parameter.ModelId,
+                    ScenarioId = parameter.ScenarioId,
+                    DefaultValue = parameter.DefaultValue,
+                    Sets = parameter.Sets,
+                    Data = items.Select(i => new ParameterDataItem
+                    {
+                        C = i.Coordinates,
+                        V = i.Value,
+                    })
+                });
+            }
+            return data;
+        }
+
+        private async Task<List<ParameterDataStorageModel>> GetParametersUsingSet(Guid scenarioId, Guid setId)
+        {
+            var parameterBuilder = Builders<ParameterDataStorageModel>.Filter;
+            var parameterFilter = parameterBuilder.Eq("scenarioId", scenarioId) & parameterBuilder.Where(p => p.Sets.Any(s => s.Id == setId));
+            var parameters = await _parameterDataCollection.Find(parameterFilter).ToListAsync();
+            return parameters;
         }
 
         private async Task CloneParameterData(Guid sourceScenarioId, Guid scenarioId)
@@ -275,7 +311,7 @@ namespace MoManI.Api.Services
         private class ParameterDataItemStorageModel
         {
             public Guid ParameterDataId { get; set; }
-            public IEnumerable<string> Coordinates { get; set; }
+            public List<string> Coordinates { get; set; }
             public decimal Value { get; set; }
 
             public ParameterDataItemStorageModel Clone(Guid parameterDataId)
