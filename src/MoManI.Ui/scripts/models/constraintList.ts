@@ -31,7 +31,7 @@ export class ConstraintList {
         });
         this.ungrouped = [];
         _.forEach(constraints, c => {
-            var group = _.find(this.groups, 'id', c.constraintGroupId);
+            var group = _.find(this.groups, g => g.id == c.constraintGroupId);
             if (group == null) {
                 this.ungrouped.push(c);
             } else {

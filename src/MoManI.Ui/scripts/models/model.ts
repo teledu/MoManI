@@ -26,7 +26,7 @@ export class ModelConstraintGroup {
                 selected: _.some(selectedConstraints, constraintId => constraintId == c.id),
             }
         });
-        this.selected = _.all(this.constraints, c => c.selected);
+        this.selected = _.every(this.constraints, c => c.selected);
         this.toggleGroupConstraints = (checked) => {
             var checkbox = <ICheckbox>checked.target;
             _.forEach(this.constraints, c => { c.selected = checkbox.checked });
@@ -176,7 +176,7 @@ export class Model {
     }
 
     selectedConstraintGroups = () => {
-        return _.filter(this.constraintGroups, cg => _.any(cg.constraints, c => c.selected));
+        return _.filter(this.constraintGroups, cg => _.some(cg.constraints, c => c.selected));
     }
 
     serialize: () => IModel = () => {

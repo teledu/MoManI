@@ -25,7 +25,7 @@ export class ParameterData {
         }
 
         var orderedSetDatas = _.map(parameterData.sets, s => {
-            return _.find(setDatas, 'setId', s.id);
+            return _.find(setDatas, sd => sd.setId == s.id);
         });
         if (_.some(orderedSetDatas, s => s == null)) {    // needed as a fallback due to a fixed mistake that caused incorrect set ids in parameter data
             orderedSetDatas = setDatas;

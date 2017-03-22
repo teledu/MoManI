@@ -48,10 +48,10 @@ export class Builder {
         var loaded = this.$q.defer();
         var req = this.parameterDataService.get({ parameterId: parameterId, scenarioId: this.scenarioId }).$promise;
         var load = this.$q.all([req, this.setsLoading]).then(res => {
-            var parameter = _.find(this.parameters, 'id', parameterId).serialize();
+            var parameter = _.find(this.parameters, p => p.id == parameterId).serialize();
             var parameterData = <IParameterData>res[0];
             var dependentSetData = _.map(parameter.sets, s => {
-                return _.find(this.setData, 'setId', s);
+                return _.find(this.setData, sd => sd.setId == s);
             });
             this.parameterData.push(new parameterDataSerializer.ParameterData(parameter, dependentSetData, parameterData));
             loaded.resolve();

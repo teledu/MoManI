@@ -54,7 +54,7 @@ export class SetData {
     }
 
     valuesUnique: () => boolean = () => {
-        return this.values.length == _.uniq(this.values, 'value').length;
+        return this.values.length == _.uniqBy(this.values, 'value').length;
     }
 
     addValue = () => {

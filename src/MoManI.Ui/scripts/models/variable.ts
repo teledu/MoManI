@@ -87,7 +87,7 @@ export class Variable implements IRenderable {
 
     private getInternalSets: () => ISetWithAbbreviation[] = () => {
         return _.map(this.sets, (variableSet, index) => {
-            var set = _.find(this.setOptions, 'id', variableSet.value);
+            var set = _.find(this.setOptions, so => so.id == variableSet.value);
             var sameSetCount = _(this.sets).take(index).filter(s => s.value == set.id).value().length;
             return {
                 set: set,
@@ -102,7 +102,7 @@ export class Variable implements IRenderable {
         var internalSetDefinitionsString = this.sets.length > 0 ? `{${setDefinitions.join(', ') }}` : ``;
         var res = `var ${this.name}${internalSetDefinitionsString}`;
         if (this.constraint) {
-            var operator = _.find(variableOperators, 'id', this.constraint.operator);
+            var operator = _.find(variableOperators, vo => vo.id == this.constraint.operator);
             res += ` ${operator.name} ${this.constraint.value}`;
         }
         if (this.integer) {

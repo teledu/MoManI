@@ -38,7 +38,7 @@ export class SelectEnumeratorModalController {
 
     constructor($scope: ISelectEnumeratorModalScope, $modalInstance: angular.ui.bootstrap.IModalServiceInstance, $modal: angular.ui.bootstrap.IModalService, data: IEquationObjectData, enumerators: IEquationObjectSet[], selected: IEnumeratingSetObject[], constraint: IEquation) {
         $scope.enumerators = _.map(enumerators, enumeratorData => {
-            var set = _.find(data.sets, 'id', enumeratorData.setId);
+            var set = _.find(data.sets, s => s.id == enumeratorData.setId);
             var currentData = _.find(selected, sel => sel.set.id == enumeratorData.setId && sel.abbreviation == enumeratorData.actualAbbreviation);
             return new SelectableEnumerator(enumeratorData, set, currentData);
         });

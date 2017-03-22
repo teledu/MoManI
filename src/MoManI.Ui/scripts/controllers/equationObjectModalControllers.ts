@@ -37,7 +37,7 @@ export class EquationObjectModalController {
         });
         var sortedParameters = _.sortBy(data.parameters, 'name');
         $scope.parameters = _.map(sortedParameters, parameter => {
-            var parameterSets = _.map(parameter.sets, setId => _.find(data.sets, 'id', setId));
+            var parameterSets = _.map(parameter.sets, setId => _.find(data.sets, s => s.id == setId));
             var setRenders = _.map(parameterSets, (set, index) => {
                 var previousSets = _.take(parameterSets, index);
                 var repetitions = _.filter(previousSets, previousSet => previousSet.id === set.id).length;
@@ -50,7 +50,7 @@ export class EquationObjectModalController {
         });
         var sortedVariables = _.sortBy(data.variables, 'name');
         $scope.variables = _.map(sortedVariables, variable => {
-            var variableSets = _.map(variable.sets, setId => _.find(data.sets, 'id', setId));
+            var variableSets = _.map(variable.sets, setId => _.find(data.sets, s => s.id == setId));
             var setRenders = _.map(variableSets, (set, index) => {
                 var previousSets = _.take(variableSets, index);
                 var repetitions = _.filter(previousSets, previousSet => previousSet.id === set.id).length;
@@ -88,11 +88,11 @@ export class EquationObjectModalController {
         };
         $scope.numberValue = null;
 
-        $scope.parametersVisible = _.contains(availableGroups, equationObject.ReplaceGroupOption.Parameters);
-        $scope.variablesVisible = _.contains(availableGroups, equationObject.ReplaceGroupOption.Variables);
-        $scope.operatorsVisible = _.contains(availableGroups, equationObject.ReplaceGroupOption.Operators);
-        $scope.numberVisible = _.contains(availableGroups, equationObject.ReplaceGroupOption.Number);
-        $scope.setsVisible = _.contains(availableGroups, equationObject.ReplaceGroupOption.Sets);
+        $scope.parametersVisible = _.includes(availableGroups, equationObject.ReplaceGroupOption.Parameters);
+        $scope.variablesVisible = _.includes(availableGroups, equationObject.ReplaceGroupOption.Variables);
+        $scope.operatorsVisible = _.includes(availableGroups, equationObject.ReplaceGroupOption.Operators);
+        $scope.numberVisible = _.includes(availableGroups, equationObject.ReplaceGroupOption.Number);
+        $scope.setsVisible = _.includes(availableGroups, equationObject.ReplaceGroupOption.Sets);
 
         $scope.select = (object, objectType) => {
             $scope.selected = {

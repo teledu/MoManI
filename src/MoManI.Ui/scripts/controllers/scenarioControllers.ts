@@ -1,4 +1,5 @@
 ﻿import $ = require('jquery');
+import _ = require('lodash');
 import application = require('application');
 import urls = require('urls');
 import modelModel = require('models/model');
@@ -107,7 +108,7 @@ export class ScenarioListController {
         ];
 
         $scope.downloadExec = (scenarioId: string) => {
-            var scenario = _.find($scope.scenarios, 'id', scenarioId);
+            var scenario = _.find($scope.scenarios, s => s.id == scenarioId);
             $modal.open({
                 templateUrl: 'partials/render-executable.html',
                 controller: executableRenderingControllers.ExecutableRenderingController,
@@ -227,7 +228,7 @@ export class SetListController {
                     id: s.id,
                     name: s.name,
                     description: s.description,
-                    parameters: _.filter(parameters, p => _.contains(p.setIds, s.id)),
+                    parameters: _.filter(parameters, p => _.includes(p.setIds, s.id)),
                     expanded: s.id == setId,
                 };
             });

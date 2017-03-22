@@ -5,12 +5,12 @@ export class CsvBuilder {
     rows: string[];
 
     constructor(dataset: IDimensionalData, sets: ISet[], setDatas: ISetData[], variable: variableModel.Variable) {
-        var actualSets = _.map(dataset.sets, s => {
-            return _.find(sets, 'id', s.id);
+        var actualSets = _.map(dataset.sets, ds => {
+            return _.find(sets, s => s.id == ds.id);
         });
         var otherSetCount = actualSets.length - 1;
         var otherSets = _.take(actualSets, otherSetCount);
-        var actualSetDatas = _.map(actualSets, s => _.find(setDatas, 'setId', s.id));
+        var actualSetDatas = _.map(actualSets, s => _.find(setDatas, sd => sd.setId == s.id));
         var detailedSetData = _.last(actualSetDatas);
         var otherSetDatas = _.take(actualSetDatas, otherSetCount);
         var detailedSetDataValueCount = detailedSetData.items.length;

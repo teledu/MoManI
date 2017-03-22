@@ -49,7 +49,7 @@ export class ParameterDataController {
             });
             $q.all(setDataReqs).then(setDataRes => {
                 var setDatas = _.map(parameter.sets, (setId, index) => {
-                    var actualSet = _.find(sets, 'id', setId);
+                    var actualSet = _.find(sets, s => s.id == setId);
                     return new setDataModel.SetData(modelId, actualSet, <ISetData>setDataRes[index]);
                 });
                 $scope.data = new parameterDataModel.ParameterData(scenarioId, modelId, parameter, setDatas, parameterData);
@@ -94,7 +94,7 @@ export class CsvParameterDataController {
             });
             $q.all(setDataReqs).then(setDataRes => {
                 var setDatas = _.map(parameter.sets, (setId, index) => {
-                    var actualSet = _.find(sets, 'id', setId);
+                    var actualSet = _.find(sets, s => s.id == setId);
                     return new setDataModel.SetData(modelId, actualSet, <ISetData>setDataRes[index]);
                 });
                 $scope.data = new parameterDataModelCsv.ParameterDataCsv(scenarioId, modelId, parameter, setDatas, parameterData);

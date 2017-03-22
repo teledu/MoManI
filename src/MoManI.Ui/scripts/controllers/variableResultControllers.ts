@@ -53,7 +53,7 @@ export class VariableResultListController {
             var variables = <IVariable[]>res[2];
             var sets = <ISet[]>res[3];
             $scope.variableResults = _.map(variableResults, variableResult => {
-                var variable = new variableModel.Variable(sets, _.find(variables, 'id', variableResult.variableId));
+                var variable = new variableModel.Variable(sets, _.find(variables, v => v.id == variableResult.variableId));
                 return new variableResultModel.VariableResult(variable, variableResult, sets, []);
             });
             $scope.loading = false;

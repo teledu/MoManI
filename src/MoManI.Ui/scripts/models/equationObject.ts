@@ -116,7 +116,7 @@ export class EquationObjectBase implements IEquationObject {
         if (this.innerEquation3) {
             setCollection = setCollection.concat(this.innerEquation3.getSets());
         }
-        return _.uniq(setCollection, setItem => {
+        return _.uniqBy(setCollection, setItem => {
             return [setItem.setId, setItem.actualAbbreviation].join(':');
         });
     }
@@ -245,7 +245,7 @@ class EditableSetEquationObjectBase extends EquationObjectBase {
     }
 
     getSets = () => {
-        return _.uniq(this.internalSets, setItem => {
+        return _.uniqBy(this.internalSets, setItem => {
             return [setItem.setId, setItem.actualAbbreviation].join(':');
         });
     }
@@ -262,8 +262,8 @@ class ParameterEquationObject extends EditableSetEquationObjectBase {
         equation: IEquation, updateHandler?: () => void
     ) {
         super(data, availableReplacementGroups, replaceCallback, modal, updateHandler);
-        this.parameter = _.find(data.parameters, 'id', equation.value);
-        var parameterSets = _.map(this.parameter.sets, setId => _.find(data.sets, 'id', setId));
+        this.parameter = _.find(data.parameters, p => p.id == equation.value);
+        var parameterSets = _.map(this.parameter.sets, setId => _.find(data.sets, s => s.id == setId));
         this.internalSets = _.map(parameterSets, (set: ISet, index) => {
             var previousSets = _.take(parameterSets, index);
             var repetitions = _.filter(previousSets, (previousSet: ISet) => previousSet.id === set.id).length;
@@ -306,8 +306,8 @@ class VariableEquationObject extends EditableSetEquationObjectBase {
         equation: IEquation, updateHandler?: () => void
     ) {
         super(data, availableReplacementGroups, replaceCallback, modal, updateHandler);
-        this.variable = _.find(data.variables, 'id', equation.value);
-        var variableSets = _.map(this.variable.sets, setId => _.find(data.sets, 'id', setId));
+        this.variable = _.find(data.variables, v => v.id == equation.value);
+        var variableSets = _.map(this.variable.sets, setId => _.find(data.sets, s => s.id == setId));
         this.internalSets = _.map(variableSets, (set: ISet, index) => {
             var previousSets = _.take(variableSets, index);
             var repetitions = _.filter(previousSets, (previousSet: ISet) => previousSet.id === set.id).length;
@@ -351,7 +351,7 @@ class SetEquationObject extends EquationObjectBase {
         equation: IEquation, updateHandler?: () => void
     ) {
         super(data, availableReplacementGroups, replaceCallback, modal, updateHandler);
-        this.set = _.find(data.sets, 'id', equation.value);
+        this.set = _.find(data.sets, s => s.id == equation.value);
         this.render = () => this.internalSet.render();
         this.canRender = true;
         this.internalSet = new equationObjectSet.EquationObjectSet(this.set, 1);
@@ -550,7 +550,7 @@ class SetEnumeratedOperator extends EquationObjectBase {
         var setCollection: IEquationObjectSet[] = [];
         setCollection = setCollection.concat(this.innerEquation1.constraint.getSets());
         setCollection = setCollection.concat(this.innerEquation2.getSets());
-        return _.uniq(setCollection, setItem => {
+        return _.uniqBy(setCollection, setItem => {
             return [setItem.setId, setItem.actualAbbreviation].join(':');
         });
     }
@@ -688,7 +688,7 @@ class EnumeratingSetObject implements IEnumeratingSetObject {
         this.data = data;
         this.modal = modal;
         this.abbreviation = enumerator.abbreviation;
-        this.set = _.find(data.sets, 'id', enumerator.setId);
+        this.set = _.find(data.sets, s => s.id == enumerator.setId);
     }
 
     render = () => {

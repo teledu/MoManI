@@ -125,7 +125,7 @@ export class ParameterDataCsv {
         
         _.forEach(parameterData.data, value => {
             var actualRowIndex = _.findIndex(this.spreadsheetItems, row => {
-                return _.all(setIndexMap, mapEntry => {
+                return _.every(setIndexMap, mapEntry => {
                     return row[mapEntry.toIndex] == value.c[mapEntry.fromIndex];
                 });
             });

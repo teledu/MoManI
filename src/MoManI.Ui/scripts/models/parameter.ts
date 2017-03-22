@@ -61,7 +61,7 @@ export class Parameter implements IRenderable {
 
     private getInternalSets: () => ISetWithAbbreviation[] = () => {
         return _.map(this.sets, (variableSet, index) => {
-            var set = _.find(this.setOptions, 'id', variableSet.value);
+            var set = _.find(this.setOptions, so => so.id == variableSet.value);
             var sameSetCount = _(this.sets).take(index).filter(s => s.value == set.id).value().length;
             return {
                 set: set,

@@ -33,7 +33,7 @@ export class VariableResult {
         this.name = variable.name;
         this.description = variable.description;
         this.data = variableResult.data;
-        this.sets = _.map(variable.sets, s => _.find(sets, 'id', s.value));
+        this.sets = _.map(variable.sets, s => _.find(sets, ss => ss.id == s.value));
         this.setData = setData;
         if (withChart) {
             this.pending = {};
@@ -70,7 +70,7 @@ export class VariableResult {
     addGroupDataHandler = (handler: (setData: ISetData) => void) => {
         this.groupDataHandler = handler;
         if (this.groupSet) {
-            var groupSetData = _.find(this.setData, 'setId', this.groupSet.id);
+            var groupSetData = _.find(this.setData, sd => sd.setId == this.groupSet.id);
             this.groupDataHandler(groupSetData);
         }
     }
@@ -87,7 +87,7 @@ export class VariableResult {
 
     selectGrouping = () => {
         if (this.groupDataHandler) {
-            var groupSetData = _.find(this.setData, 'setId', this.groupSet.id);
+            var groupSetData = _.find(this.setData, sd => sd.setId == this.groupSet.id);
             this.groupDataHandler(groupSetData);
         }
         this.updateChart();
@@ -122,7 +122,7 @@ export class VariableResult {
             if (!this.setDataFilters)
                 return true;
             var namedSetDataFilters = _.map(this.setDataFilters, s => this.resolveSetDataText(this.groupSet, s));
-            return _.contains(namedSetDataFilters, d.key);
+            return _.includes(namedSetDataFilters, d.key);
         });
     }
 
@@ -136,14 +136,14 @@ export class VariableResult {
                 return fv.x;
             });
             var groupSums = _.map(groupedValues, gv => {
-                return <number>_.sum(gv, (val: IChartValue) => {
+                return _.sumBy(gv, (val: IChartValue) => {
                     return val.y;
                 });
             });
             var minSum = _.min(groupSums);
             return minSum < 0 ? roundUp(minSum) : 0;
         } else {                    // multiBarChart
-            var min = _.min(flatValues, fv => fv.y);
+            var min = _.minBy(flatValues, fv => fv.y);
             return min.y < 0 ? roundUp(min.y) : 0;
         }
     }
@@ -158,14 +158,14 @@ export class VariableResult {
                 return fv.x;
             });
             var groupSums = _.map(groupedValues, gv => {
-                return <number>_.sum(gv, (val: IChartValue) => {
+                return _.sumBy(gv, (val: IChartValue) => {
                     return val.y;
                 });
             });
             var maxSum = _.max(groupSums);
             return maxSum > 0 ? roundUp(maxSum) : 0;
         } else {                    // multiBarChart
-            var max = _.max(flatValues, fv => fv.y);
+            var max = _.maxBy(flatValues, fv => fv.y);
             return max.y > 0 ? roundUp(max.y) : 0;
         }
     }
@@ -209,8 +209,8 @@ export class VariableResult {
     resolveSetDataEntry = (set: ISet, value: string) => {
         if (set == null)
             return null;
-        var actualSetData = _.find(this.setData, 'setId', set.id);
-        return _.find(actualSetData.items, 'value', value);
+        var actualSetData = _.find(this.setData, sd => sd.setId == set.id);
+        return _.find(actualSetData.items, i => i.value == value);
     }
 
     toggleLegend = (visible: boolean) => {

@@ -110,7 +110,7 @@ export class ParameterData {
         this.dimensionSelectors = _.take(this.dimensionSelectors, index + 1);
         var changed = _.last(this.dimensionSelectors);
         if (changed.selected) {
-            changed.selectedDimension = _.find(changed.dimensions, 'id', changed.selected);
+            changed.selectedDimension = _.find(changed.dimensions, d => d.id == changed.selected);
             changed.dimensionValue = _.first(changed.selectedDimension.values).value;
             var availableDimensions = _.filter(this.dimensions, dimension => !_.some(this.dimensionSelectors, ds => ds.selected == dimension.id));
             if (availableDimensions.length > 2) {
@@ -182,8 +182,8 @@ export class ParameterData {
     private setupSpreadsheet(dimension1: IDimension, dimension2?: IDimension) {
         this.rowSet = dimension1;
         this.colSet = dimension2;
-        var rowSetData = _.find(this.setDatas, 'setId', dimension1.setId);
-        var colSetData = dimension2 ? _.find(this.setDatas, 'setId', dimension2.setId) : null;
+        var rowSetData = _.find(this.setDatas, sd => sd.setId == dimension1.setId);
+        var colSetData = dimension2 ? _.find(this.setDatas, sd => sd.setId == dimension2.setId) : null;
         this.rows = rowSetData.getValues();
         this.columns = colSetData ? colSetData.getValues() : [null];
         this.spreadsheetSettings = {
