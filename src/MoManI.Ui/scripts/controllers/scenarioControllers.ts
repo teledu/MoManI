@@ -13,9 +13,10 @@ import constraintGroupService = require('services/constraintGroupService');
 import constraintService = require('services/constraintService');
 import modelService = require('services/modelService');
 import scenarioService = require('services/scenarioService');
+import setDataService = require('services/setDataService');
 import tree = require('models/tree');
 
-var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintGroupService, constraintService, modelService, scenarioService];
+var forceLoad = [setService, parameterService, variableService, objectiveFunctionService, constraintGroupService, constraintService, modelService, scenarioService, setDataService];
 
 export interface IScenarioListScope extends ng.IScope {
     scenarios: angular.resource.IResourceArray<IScenario>;
@@ -30,10 +31,12 @@ export interface IScenarioListScope extends ng.IScope {
 
 export interface IScenarioDetailsScope extends ng.IScope {
     parameterOrderProp: string;
+    setOrderProp: string;
     model: modelModel.Model;
     scenario: scenarioModel.Scenario;
     save: () => void;
     loading: boolean;
+    setData: any[];
 }
 
 export interface ISetListDataScope extends ng.IScope {
@@ -157,7 +160,8 @@ export class ScenarioDetailsController {
         SetService: ng.resource.IResourceClass<ISetResource>, ParameterService: angular.resource.IResourceClass<IParameterResource>,
         VariableService: angular.resource.IResourceClass<IVariableResource>, ObjectiveFunctionService: angular.resource.IResourceClass<IObjectiveFunctionResource>,
         ConstraintGroupService: angular.resource.IResourceClass<IConstraintGroupResource>, ConstraintService: angular.resource.IResourceClass<IConstraintResource>,
-        ModelService: angular.resource.IResourceClass<IModelResource>, ScenarioService: angular.resource.IResourceClass<IScenarioResource>
+        ModelService: angular.resource.IResourceClass<IModelResource>, ScenarioService: angular.resource.IResourceClass<IScenarioResource>,
+        SetDataService: angular.resource.IResourceClass<ISetDataResource>
     ) {
         $scope.loading = true;
         var modelId = $routeParams['modelId'];
@@ -171,15 +175,24 @@ export class ScenarioDetailsController {
         var modelReq = ModelService.get({ id: modelId}).$promise;
         var scenarioReq = ScenarioService.get({ modelId: modelId, id: scenarioId}).$promise;
 
-        $q.all([scenarioReq]).then(res => {
-            $scope.scenario = new scenarioModel.Scenario(<IScenario>res[0]);
-        });
-        $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq]).then(res => {
-            $scope.model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
-            $scope.loading = false;
+        $q.all([setReq, parameterReq, variableReq, objectiveFunctionReq, constraintGroupReq, constraintReq, modelReq, scenarioReq]).then(res => {
+            var model = new modelModel.Model(<ISet[]>res[0], <IParameter[]>res[1], <IVariable[]>res[2], <IObjectiveFunction[]>res[3], <IConstraintGroup[]>res[4], <IConstraint[]>res[5], <IModel>res[6]);
+            $scope.scenario = new scenarioModel.Scenario(<IScenario>res[7]);
+            $scope.setData = [];
+            var setDataRequests = [];
+            _.forEach(model.selectedSets(), s => {
+                setDataRequests.push(SetDataService.get({ setId: s.id, modelId: modelId }).$promise.then(setData => {
+                    $scope.setData[s.id] = setData;
+                }));
+            });
+            $q.all(setDataRequests).then(() => {
+                $scope.model = model;
+                $scope.loading = false;
+            });
         });
         
         $scope.parameterOrderProp = 'data.name';
+        $scope.setOrderProp = 'name';
 
         $scope.save = () => {
             $scope.loading = true;

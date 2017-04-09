@@ -16,6 +16,7 @@ export var scenarios = apiRoot + 'Scenarios/';
 export var scenarioCloning = apiRoot + 'ScenarioCloning/';
 export var setData = apiRoot + 'SetData/';
 export var parameterData = apiRoot + 'ParameterData/';
+export var parameterDataForSet = apiRoot + 'ParameterDataForSet/';
 export var parameterDataSlice = apiRoot + 'ParameterDataSlice/';
 export var executable = apiRoot + 'Executable/';
 export var variableResults = apiRoot + 'VariableResults/';

@@ -55,6 +55,15 @@
         </table>
     </div>
     <div class="row">
+        <h4>Sets</h4>
+        <div ng-repeat="set in model.selectedSets() | orderBy: setOrderProp">
+            <div class="scenario-set">{{set.name}}</div>
+            <div class="scenario-set-parameter" ng-repeat="setDataItem in setData[set.id].items">
+                <a href="#/models/{{model.id}}/{{scenario.id}}/data/set/{{set.id}}/{{setDataItem.value}}">{{setDataItem.value}}</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <a href="#/models/{{scenario.modelId}}/{{scenario.id}}/data/sets">Go to parameter data entry by set</a>
     </div>
     <div class="row navigation-link">

@@ -1,0 +1,23 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <form name="detailsForm" class="form-horizontal" id="parameterDataCsvForm">
+            <h3>CSV data entry for the value '{{setValue}}' of set '{{set.name}}'</h3>
+            
+            <div ng-if="data.spreadsheetVisible">
+                <hot-table settings="data.spreadsheetSettings"
+                           datarows="data.spreadsheetItems">
+                </hot-table>
+            </div>
+            <br/>
+            
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button class="btn btn-default" ng-click="save()" disabled="disabled">Save</button>
+                    <a href="#/models/{{modelId}}/{{scenarioId}}/data" class="btn btn-default">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<span us-spinner spinner-on="loading"></span>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <PropertyGroup>
@@ -28,6 +28,7 @@
     <Content Include="index.html" />
     <Content Include="partials\clone-model-scenario-dialog.html" />
     <Content Include="partials\composition-details.html" />
+    <Content Include="partials\parameter-data-set-csv.html" />
     <Content Include="partials\parameter-data-csv.html" />
     <Content Include="partials\scenario-set-list.html" />
     <Content Include="partials\set-data-list.html" />
@@ -173,6 +174,7 @@
     <TypeScriptCompile Include="scripts\routes.ts" />
     <TypeScriptCompile Include="scripts\services\constraintGroupService.ts" />
     <TypeScriptCompile Include="scripts\services\constraintService.ts" />
+    <TypeScriptCompile Include="scripts\services\parameterDataForSetService.ts" />
     <TypeScriptCompile Include="scripts\services\scenarioService.ts" />
     <TypeScriptCompile Include="scripts\services\objectiveFunctionService.ts" />
     <TypeScriptCompile Include="scripts\services\modelService.ts" />

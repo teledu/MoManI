@@ -119,6 +119,11 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/parameter-data-csv.html'
             })
         .when(
+            '/models/:modelId/:scenarioId/data/set/:setId/:setValue', {
+                controller: parameterDataControllers.CsvParameterDataForSetController,
+                templateUrl: 'partials/parameter-data-set-csv.html'
+            })
+        .when(
             '/models/:modelId/:scenarioId/data/parameter/:parameterId/fromSet/:setId?', {
                 controller: parameterDataControllers.ParameterDataController,
                 templateUrl: 'partials/parameter-data.html'
