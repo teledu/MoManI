@@ -26,6 +26,7 @@ namespace MoManI.Api.Infrastructure.Persistence
             mongoConventions.Add(new CamelCaseElementNameConvention());
             mongoConventions.Add(new IgnoreExtraElementsConvention(true));
             mongoConventions.Add(new StringEnumConvention());
+            mongoConventions.Add(new IgnoreIfNullConvention(true));
             ConventionRegistry.Register("camel case", mongoConventions, t => true);
             BsonDefaults.GuidRepresentation = GuidRepresentation.Standard;
             var mongoClient = new MongoClient(_connectionString);
