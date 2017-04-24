@@ -268,6 +268,7 @@ export class MultipleParameterDataCsv {
     actualSetValue: string;
     
     private dimensionStore: CsvDimensionStore;
+    private unshownParameterData: IParameterData[];
 
     spreadsheetVisible: boolean;
     spreadsheetSettings: any;
@@ -278,6 +279,7 @@ export class MultipleParameterDataCsv {
         this.modelId = modelId;
         this.actualSetValue = actualSetValue;
         this.dimensionStore = new CsvDimensionStore(modelId, sets, setDatas, actualSetId, axisSetId);
+        this.unshownParameterData = [];
 
         var parameterDimensions = _.map(_.orderBy(parameters, p => p.name), parameter => {
             var dimensions = this.dimensionStore.updateAndRetrieveDimensions(parameter);
@@ -390,11 +392,27 @@ export class MultipleParameterDataCsv {
         };
 
         _.forEach(parameterDimensions, (parameterDimension, parameterDimensionIndex) => {
-            if (!parameterDimension.data)
+            if (!parameterDimension.data) {
+                this.unshownParameterData.push({
+                    modelId: this.modelId,
+                    scenarioId: this.scenarioId,
+                    parameterId: parameterDimension.parameter.id,
+                    defaultValue: 0,
+                    sets: _.map(parameterDimension.parameter.sets, (setId, index) => {
+                        var instanceIndex = _(parameterDimension.parameter.sets).slice(0, index).filter(sId => sId == setId).value().length;
+                        return {
+                            id: setId,
+                            index: instanceIndex,
+                        }
+                    }),
+                    data: [],
+                });
                 return;
+            }
 
             var stringgedData = _.map(parameterDimension.data.data, data => {
                 return {
+                    coordinates: data.c,
                     coordinateString: data.c.join('|'),
                     value: data.v,
                 };
@@ -407,6 +425,9 @@ export class MultipleParameterDataCsv {
                     for (var i = 0; i < axisDimension.values.length; i++) {
                         var mappedCoordinates = dataMappingFunction(parameterDimension, this.spreadsheetItems[row], axisDimension.values[i].value);
                         var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
+                        if (found) {
+                            stringgedData.splice(stringgedData.indexOf(found), 1);
+                        }
                         var value = found ? found.value : parameterDimension.data.defaultValue;
                         this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
                     }
@@ -415,14 +436,91 @@ export class MultipleParameterDataCsv {
                 for (var row = startingRow; row < startingRow + parameterDimension.rows; row++) {
                     var mappedCoordinates = dataMappingFunction(parameterDimension, this.spreadsheetItems[row]);
                     var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
+                    if (found) {
+                        stringgedData.splice(stringgedData.indexOf(found), 1);
+                    }
                     var value = found ? found.value : parameterDimension.data.defaultValue;
                     this.spreadsheetItems[row][valueColumnStartIndex] = value;
                 }
             }
+            
+            this.unshownParameterData.push({
+                modelId: parameterDimension.data.modelId,
+                scenarioId: parameterDimension.data.scenarioId,
+                parameterId: parameterDimension.data.parameterId,
+                defaultValue: parameterDimension.data.defaultValue,
+                sets: parameterDimension.data.sets,
+                data: _.map(stringgedData, d => {return {
+                    c: d.coordinates,
+                    v: d.value,
+                }})
+            });
         });
     }
 
-    serialize: () => IParameterData = () => {
-        return null;
+    serialize: () => IParameterData[] = () => {
+        return _.map(_.groupBy(this.spreadsheetItems, r => r[this.spreadsheetSettings.columns.length]), (rows, parameterId, b) => {
+            var unshownParameterData = _.find(this.unshownParameterData, d => d.parameterId == parameterId);
+            var data = unshownParameterData.data.slice();
+
+            var valueColumnStartIndex = this.dimensionStore.getColumnDimensions().length + 1;
+            var axisDimension = this.dimensionStore.getAxisDimension();
+            var fixedDimension = this.dimensionStore.getFixedDimension();
+            var columns = this.dimensionStore.getColumnDimensions();
+
+            var columnIndexMap = _.map(unshownParameterData.sets, dimension => {
+                var index = _.findIndex(columns, col => col.setId == dimension.id && col.index == dimension.index);
+                if (index < 0)
+                    return null;
+                return index + 1;
+            });
+            var coordinateFunction = (row: (string|number)[], valueIndex?: number) => {
+                return _.map(unshownParameterData.sets, (dimension, index) => {
+                    var mappedColumnIndex = columnIndexMap[index];
+                    if (mappedColumnIndex)
+                        return row[mappedColumnIndex].toString();
+                    if (fixedDimension.setId == dimension.id && fixedDimension.index == dimension.index) {
+                        return this.actualSetValue;
+                    }
+                    if (axisDimension.setId == dimension.id && axisDimension.index == dimension.index) {
+                        return axisDimension.values[valueIndex].value;
+                    }
+                    throw 'err';
+                });
+            };
+
+            _.forEach(rows, row => {
+                if (axisDimension) {
+                    for (var i = 0; i < axisDimension.values.length; i++) {
+                        var val = +row[valueColumnStartIndex + i];
+                        if (val == unshownParameterData.defaultValue)
+                            return;
+                        var coordinates = coordinateFunction(row, i);
+                        data.push({
+                            c: coordinates,
+                            v: val,
+                        });
+                    }
+                } else {
+                    var val = +row[valueColumnStartIndex];
+                    if (val == unshownParameterData.defaultValue)
+                        return;
+                    var coordinates = coordinateFunction(row);
+                    data.push({
+                        c: coordinates,
+                        v: val,
+                    });
+                }
+            });
+
+            return {
+                modelId: this.modelId,
+                scenarioId: this.scenarioId,
+                parameterId: parameterId,
+                defaultValue: unshownParameterData.defaultValue,
+                sets: unshownParameterData.sets,
+                data: data,
+            };
+        });
     }
 }

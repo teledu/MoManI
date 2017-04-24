@@ -28,7 +28,5 @@ namespace MoManI.Api.Services
         Task<ParameterData> GetParameterData(Guid parameterId, Guid scenarioId);
         Task SaveParameterData(ParameterData parameterData);
         Task DeleteParameterData(Guid parameterId, Guid scenarioId);
-
-        Task<IEnumerable<ParameterData>> GetParameterDataForSet(Guid scenarioId, Guid setId, string setValue);
     }
 }

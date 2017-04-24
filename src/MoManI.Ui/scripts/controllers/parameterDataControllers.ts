@@ -7,10 +7,9 @@ import setService = require('services/setService');
 import parameterService = require('services/parameterService');
 import setDataService = require('services/setDataService');
 import parameterDataService = require('services/parameterDataService');
-import parameterDataForSetService = require('services/parameterDataForSetService');
 import modelService = require('services/modelService');
 
-var forceLoad = [setService, parameterService, setDataService, parameterDataService, parameterDataForSetService, modelService];
+var forceLoad = [setService, parameterService, setDataService, parameterDataService, modelService];
 
 export interface IParameterDataScope extends ng.IScope {
     data: parameterDataModel.ParameterData;
@@ -130,7 +129,7 @@ export class CsvParameterDataForSetController {
     constructor($scope: ICsvParameterDataForSetScope, $routeParams: angular.route.IRouteParamsService, $window: angular.IWindowService, $q: angular.IQService,
         ParameterService: ng.resource.IResourceClass<IParameterResource>, SetService: ng.resource.IResourceClass<ISetResource>,
         ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>,
-        ParameterDataForSetService: angular.resource.IResourceClass<IParameterDataResource>, ModelService: angular.resource.IResourceClass<IModelResource>
+        ModelService: angular.resource.IResourceClass<IModelResource>
     ) {
         $scope.loading = true;
         $scope.modelId = $routeParams['modelId'];
@@ -141,13 +140,11 @@ export class CsvParameterDataForSetController {
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
         var modelReq = ModelService.get({ id: $scope.modelId }).$promise;
-        var parameterDataReq = ParameterDataForSetService.query({ scenarioId: $scope.scenarioId, setId: setId, setValue: $scope.setValue }).$promise;
 
-        $q.all([setReq, parameterReq, modelReq, parameterDataReq]).then(res => {
+        $q.all([setReq, parameterReq, modelReq]).then(res => {
             var allSets = <ISet[]>res[0];
             var allParameters = <IParameter[]>res[1];
             var model = <IModel>res[2];
-            var parameterDatas = <IParameterData[]>res[3];
             $scope.set = _.find(allSets, s => s.id == setId);
             var parameters = _.filter(allParameters, p => _.includes(model.parameters, p.id) && _.includes(p.sets, setId));
             if (parameters.length == 0) {
@@ -159,7 +156,14 @@ export class CsvParameterDataForSetController {
                 return SetDataService.get({ setId: s, modelId: $scope.modelId }).$promise;
             });
 
-            $q.all(setDataReqs).then((setDatas: ISetData[]) => {
+            var parameterDataReqs = _.map(parameters, p => ParameterDataService.get({ parameterId: p.id, scenarioId: $scope.scenarioId }).$promise);
+            var allParameterDataReqs = $q.all(parameterDataReqs);
+            var allSetDataReqs = $q.all(setDataReqs);
+
+            $q.all([allSetDataReqs, allParameterDataReqs]).then((dataRes) => {
+                var setDatas = <ISetData[]>dataRes[0];
+                var parameterDatas = <IParameterData[]>dataRes[1];
+
                 var commonSets = _.filter(allSets, s => s != null && s.id != setId && _.every(parameters, p => _.includes(p.sets, s.id)));
                 var axisSet = this.determineCommonSet(commonSets, setDatas);
                 var axisSetId = axisSet ? axisSet.id : null;
@@ -171,7 +175,14 @@ export class CsvParameterDataForSetController {
 
         $scope.save = () => {
             $scope.loading = true;
-            alert('Not yet implemented');
+            var parameterDatas = $scope.data.serialize();
+            var saveReqs = _.map(parameterDatas, parameterData => ParameterDataService.save(parameterData).$promise);
+            $q.all(saveReqs).then(() => {
+                $window.location.href = `#/models/${$scope.modelId}/${$scope.scenarioId}/data`;
+            }, () => {
+                alert('An error has occured during saving');
+                $scope.loading = false;
+            });
         }
     }
 

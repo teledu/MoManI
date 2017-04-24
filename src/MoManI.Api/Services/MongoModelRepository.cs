@@ -221,33 +221,6 @@ namespace MoManI.Api.Services
             await _parameterDataCollection.DeleteOneAsync(x => x.Id == existingData.Id);
         }
 
-        public async Task<IEnumerable<ParameterData>> GetParameterDataForSet(Guid scenarioId, Guid setId, string setValue)
-        {
-            var parameters = await GetParametersUsingSet(scenarioId, setId);
-            var data = new List<ParameterData>();
-            foreach (var parameter in parameters)
-            {
-                var coordinateIndex = parameter.Sets.IndexOf(s => s.Id == setId);
-                var itemBuilder = Builders<ParameterDataItemStorageModel>.Filter;
-                var itemFilter = itemBuilder.Eq("parameterDataId", parameter.Id) & itemBuilder.Where(i => i.Coordinates[coordinateIndex] == setValue);
-                var items = await _parameterDataItemCollection.Find(itemFilter).ToListAsync();
-                data.Add(new ParameterData
-                {
-                    ParameterId = parameter.ParameterId,
-                    ModelId = parameter.ModelId,
-                    ScenarioId = parameter.ScenarioId,
-                    DefaultValue = parameter.DefaultValue,
-                    Sets = parameter.Sets,
-                    Data = items.Select(i => new ParameterDataItem
-                    {
-                        C = i.Coordinates,
-                        V = i.Value,
-                    })
-                });
-            }
-            return data;
-        }
-
         private async Task<List<ParameterDataStorageModel>> GetParametersUsingSet(Guid scenarioId, Guid setId)
         {
             var parameterBuilder = Builders<ParameterDataStorageModel>.Filter;
