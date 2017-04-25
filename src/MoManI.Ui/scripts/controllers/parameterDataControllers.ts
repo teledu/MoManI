@@ -16,6 +16,9 @@ export interface IParameterDataScope extends ng.IScope {
     save: () => void;
     loading: boolean;
     returnUrlSuffix: string;
+    selectedParameterId: string;
+    parameters: IParameter[];
+    switchParameter: () => void;
 }
 
 export interface ICsvParameterDataScope extends ng.IScope {
@@ -28,7 +31,8 @@ export interface ICsvParameterDataScope extends ng.IScope {
 export class ParameterDataController {
     constructor($scope: IParameterDataScope, $routeParams: angular.route.IRouteParamsService, $window: angular.IWindowService, $q: angular.IQService,
         ParameterService: ng.resource.IResourceClass<IParameterResource>, SetService: ng.resource.IResourceClass<ISetResource>,
-        ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>
+        ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>,
+        ModelService: angular.resource.IResourceClass<IModelResource>
     ) {
         $scope.loading = true;
         var modelId = $routeParams['modelId'];
@@ -37,14 +41,19 @@ export class ParameterDataController {
         var returnSetId = $routeParams['setId'];
         $scope.returnUrlSuffix = returnSetId ? `/sets/${returnSetId}` : ``;
 
+        var modelReq = ModelService.get({ id: modelId }).$promise;
         var setReq = SetService.query().$promise;
-        var parameterReq = ParameterService.get({ id: parameterId }).$promise;
+        var parametersReq = ParameterService.query().$promise;
         var parameterDataReq = ParameterDataService.get({ parameterId: parameterId, scenarioId: scenarioId }).$promise;
 
-        $q.all([setReq, parameterReq, parameterDataReq]).then(res => {
+        $q.all([setReq, parameterDataReq, parametersReq, modelReq]).then(res => {
             var sets = <ISet[]>res[0];
-            var parameter = <IParameter>res[1];
-            var parameterData = <IParameterData>res[2];
+            var parameterData = <IParameterData>res[1];
+            var allParameters = _.sortBy(<IParameter[]>res[2], p => p.name);
+            var model = <IModel>res[3];
+            $scope.parameters = _.filter(allParameters, param => _.some(model.parameters, pId => param.id == pId));
+            var parameter = _.find($scope.parameters, p => p.id == parameterId);
+            $scope.selectedParameterId = parameter.id;
             var setDataReqs = _.map(parameter.sets, setId => {
                 return SetDataService.get({ setId: setId, modelId: modelId }).$promise;
             });
@@ -57,6 +66,25 @@ export class ParameterDataController {
                 $scope.loading = false;
             });
         });
+
+        $scope.switchParameter = () => {
+            var redirectHandler = () => {
+                $window.location.href = `#/models/${modelId}/${scenarioId}/data/parameter/${$scope.selectedParameterId}`;
+            }
+            var saveBeforeRedirect = confirm('Do you want to save your current data before navigating to the selected parameter?');
+            if (saveBeforeRedirect) {
+                $scope.loading = true;
+                ParameterDataService.save($scope.data.serialize(),
+                    redirectHandler,
+                    () => {
+                        alert('An error occured');
+                        $scope.loading = false;
+                        return;
+                    });
+            } else {
+                redirectHandler();
+            }
+        }
 
         $scope.save = () => {
             $scope.loading = true;

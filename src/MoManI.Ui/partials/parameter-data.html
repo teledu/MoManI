@@ -44,6 +44,14 @@
                     <a href="#/models/{{data.modelId}}/{{data.scenarioId}}/data{{returnUrlSuffix}}" class="btn btn-default">Cancel</a>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="parameterSelector" class="col-sm-2 control-label">Other parameters</label>
+                <div class="col-sm-2">
+                    <select id="parameterSelector" class="form-control" ng-model="selectedParameterId" ng-change="switchParameter()">
+                        <option ng-repeat="parameter in parameters" value="{{parameter.id}}">{{parameter.name}}</option>
+                    </select>
+                </div>
+            </div>
         </form>
     </div>
 </div>
