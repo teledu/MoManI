@@ -115,25 +115,25 @@ export class CsvParameterDataController {
         var parameterDataReq = ParameterDataService.get({ parameterId: parameterId, scenarioId: scenarioId }).$promise;
 
         $q.all([setReq, parameterReq, parameterDataReq]).then(res => {
-            var sets = <ISet[]>res[0];
+            var allSets = <ISet[]>res[0];
             var parameter = <IParameter>res[1];
+            var sets = _.filter(allSets, s => _.some(parameter.sets, sId => sId == s.id));
             var parameterData = <IParameterData>res[2];
             var setDataReqs = _.map(parameter.sets, setId => {
                 return SetDataService.get({ setId: setId, modelId: modelId }).$promise;
             });
             $q.all(setDataReqs).then(setDataRes => {
-                var setDatas = _.map(parameter.sets, (setId, index) => {
-                    var actualSet = _.find(sets, s => s.id == setId);
-                    return new setDataModel.SetData(modelId, actualSet, <ISetData>setDataRes[index]);
-                });
-                $scope.data = new parameterDataModelCsv.ParameterDataCsv(scenarioId, modelId, parameter, setDatas, parameterData);
+                var setDatas = <ISetData[]>setDataRes;
+                var numericSets = _.filter(sets, s => s.numeric);
+                var axisSetData = numericSets.length ? _(setDatas).filter(sd => _.some(numericSets, ns => ns.id == sd.setId)).maxBy(sd => sd.items.length) : _.maxBy(setDatas, sd => sd.items.length);
+                $scope.data = new parameterDataModelCsv.ParameterDataCsv(modelId, scenarioId, [parameter], sets, [parameterData], setDatas, axisSetData.setId);
                 $scope.loading = false;
             });
         });
 
         $scope.save = () => {
             $scope.loading = true;
-            ParameterDataService.save($scope.data.serialize(), () => {
+            ParameterDataService.save(_.first($scope.data.serialize()), () => {
                 $window.location.href = `#/models/${modelId}/${scenarioId}/data${$scope.returnUrlSuffix}`;
             }, () => {
                 alert('An error occured');
@@ -144,7 +144,7 @@ export class CsvParameterDataController {
 }
 
 export interface ICsvParameterDataForSetScope extends ng.IScope {
-    data: parameterDataModelCsv.MultipleParameterDataCsv;
+    data: parameterDataModelCsv.ParameterDataCsv;
     set: ISet;
     modelId: string;
     scenarioId: string;
@@ -196,7 +196,7 @@ export class CsvParameterDataForSetController {
                 var axisSet = this.determineCommonSet(commonSets, setDatas);
                 var axisSetId = axisSet ? axisSet.id : null;
                 
-                $scope.data = new parameterDataModelCsv.MultipleParameterDataCsv($scope.modelId, $scope.scenarioId, parameters, allSets, parameterDatas, setDatas, setId, $scope.setValue, axisSetId);
+                $scope.data = new parameterDataModelCsv.ParameterDataCsv($scope.modelId, $scope.scenarioId, parameters, allSets, parameterDatas, setDatas, axisSetId, setId, $scope.setValue);
                 $scope.loading = false;
             });
         });
