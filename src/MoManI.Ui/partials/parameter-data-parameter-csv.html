@@ -1,9 +1,13 @@
 ﻿<div class="container-fluid">
     <div class="row">
         <form name="detailsForm" class="form-horizontal" id="parameterDataCsvForm">
-            <h3>CSV data entry for all parameters</h3>
-            <h4>Model {{model.name}}</h4>
-            <h4>Scenario {{scenario.name}}</h4>
+            <h3>CSV data entry for parameter {{data.parameter.name}}</h3>
+            <div class="form-group">
+                <label for="defaultValue" class="col-sm-2 control-label">Default value</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" id="defaultValue" ng-model="data.defaultValue" required>
+                </div>
+            </div>
             <div ng-if="data.spreadsheetVisible">
                 <hot-table settings="data.spreadsheetSettings"
                            datarows="data.spreadsheetItems">
@@ -13,7 +17,7 @@
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
                     <button class="btn btn-default" ng-click="save()">Save</button>
-                    <a href="#/models/{{model.id}}/{{scenario.id}}/data" class="btn btn-default">Cancel</a>
+                    <a href="#/models/{{data.modelId}}/{{data.scenarioId}}/data{{returnUrlSuffix}}" class="btn btn-default">Cancel</a>
                 </div>
             </div>
         </form>
