@@ -93,8 +93,9 @@ class CsvDimensionStore {
     private assignInitialAxisSet = () => {
         if (this.dimensions.length == 0)
             return;
-        var randomSetData = this.setDatas[1];
-        this.setAxisSet(randomSetData.setId);
+        var numericSets = _.filter(this.setDatas, s => s.numeric);
+        var initialSet = numericSets.length ? _.maxBy(numericSets, s => s.getValueCount()) : _.maxBy(this.setDatas, s => s.getValueCount());
+        this.setAxisSet(initialSet.setId);
     }
 
     setAxisSet = (setId: string) => {
