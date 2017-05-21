@@ -130,10 +130,6 @@ class CsvDimensionStore {
 }
 
 
-
-
-
-
 export class ParameterDataCsv {
     scenarioId: string;
     modelId: string;
@@ -143,6 +139,9 @@ export class ParameterDataCsv {
     private dimensionStore: CsvDimensionStore;
     private unshownParameterData: IParameterData[];
 
+    columnSetId: string;
+    sets: ISet[];
+
     spreadsheetVisible: boolean;
     spreadsheetSettings: any;
     spreadsheetItems: (number | string)[][];
@@ -150,11 +149,27 @@ export class ParameterDataCsv {
     constructor(modelId: string, scenarioId: string, parameters: IParameter[], sets: ISet[], parameterDatas: IParameterData[], setDatas: ISetData[]) {
         this.scenarioId = scenarioId;
         this.modelId = modelId;
+        this.sets = sets;
         this.parameters = parameters;
         this.parameterDatas = parameterDatas;
         this.dimensionStore = new CsvDimensionStore(modelId, sets, setDatas, parameters);
+        var axisDimension = this.dimensionStore.getAxisDimension();
+        this.columnSetId = axisDimension ? _.find(this.sets, s => s.id == axisDimension.setId).id : null;
         this.unshownParameterData = [];
 
+        this.showSpreadsheet();
+    }
+
+    public clearSpreadsheet = () => {
+        this.parameterDatas = this.serialize();
+        this.spreadsheetVisible = false;
+        this.unshownParameterData = [];
+        this.spreadsheetSettings = null;
+        this.spreadsheetItems = [];
+    }
+
+    public changeColumnSet = () => {
+        this.dimensionStore.setAxisSet(this.columnSetId);
         this.showSpreadsheet();
     }
 
@@ -262,7 +277,7 @@ export class ParameterDataCsv {
             colHeaders: columnHeaders,
             columns: columnProperties,
             cells: (row, col, prop) => {
-                var usesValueColumn = !!this.spreadsheetItems[row][columnHeaders.length - 1];
+                var usesValueColumn = this.spreadsheetItems[row] && this.spreadsheetItems[row][columnHeaders.length - 1];
 
                 if (usesValueColumn && col < visibleColumnCount - 1) {
                     return {
@@ -455,9 +470,6 @@ export class ParameterDataCsv {
         });
     }
 }
-
-
-
 
 
 

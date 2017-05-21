@@ -96,6 +96,7 @@ export interface ICsvParameterDataScope extends ng.IScope {
     model: IModel;
     scenario: IScenario;
     data: parameterDataModelCsv.ParameterDataCsv;
+    changeColumnSet: () => void;
     save: () => void;
     loading: boolean;
 }
@@ -152,6 +153,15 @@ export class CsvParameterDataController {
                 alert('An error has occured during saving');
                 $scope.loading = false;
             });
+        }
+
+        $scope.changeColumnSet = () => {
+            $scope.loading = true;
+            $scope.data.clearSpreadsheet();
+            setTimeout(() => {
+                $scope.data.changeColumnSet();
+                $scope.loading = false;
+            }, 1);
         }
     }
 }
