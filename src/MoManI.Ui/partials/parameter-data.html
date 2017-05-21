@@ -21,8 +21,11 @@
                                 </select>
                             </div>
                             <div class="col-sm-6">
-                                <select class="form-control" ng-if="selector.selected" ng-model="selector.dimensionValue" ng-change="data.changeDimensionValue()">
-                                    <option ng-repeat="value in selector.selectedDimension.values" value="{{value.value}}">{{value.displayName}}</option>
+                                <select class="form-control"
+                                        ng-if="selector.selected"
+                                        ng-options="value.value as value.displayName for value in selector.selectedDimension.values"
+                                        ng-model="selector.dimensionValue"
+                                        ng-change="data.changeDimensionValue()">
                                 </select>
                             </div>
                         </div>
@@ -47,8 +50,10 @@
             <div class="form-group">
                 <label for="parameterSelector" class="col-sm-2 control-label">Other parameters</label>
                 <div class="col-sm-2">
-                    <select id="parameterSelector" class="form-control" ng-model="selectedParameterId" ng-change="switchParameter()">
-                        <option ng-repeat="parameter in parameters" value="{{parameter.id}}">{{parameter.name}}</option>
+                    <select id="parameterSelector" class="form-control" 
+                            ng-options="parameter.id as parameter.name for parameter in parameters" 
+                            ng-model="selectedParameterId" 
+                            ng-change="switchParameter()">
                     </select>
                 </div>
             </div>
