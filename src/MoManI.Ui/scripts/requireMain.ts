@@ -1,5 +1,6 @@
 ﻿declare var require: any;
 
+var version = 1;
 require.config({
     baseUrl: 'scripts',
     paths: {
@@ -42,6 +43,10 @@ require.config({
         'treeGrid': { exports: 'treeGrid', deps: ['angular'] },
         'angularSpinner': { exports: 'angularSpinner', deps: ['angular', 'spin'] },
         'angular-color-picker': { exports: 'angular-color-picker', deps: ['angular', 'tinycolor'] },
+    },
+    urlArgs: (id, url) => {
+        var args = `v=${version}`;
+        return (url.indexOf('?') === -1 ? '?' : '&') + args;
     },
 });
 
