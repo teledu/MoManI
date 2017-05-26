@@ -322,7 +322,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
     }
 
     serialize: () => TData[] = () => {
-        var asdf = _.map(_.groupBy(this.spreadsheetItems, r => r[this.spreadsheetSettings.columns.length]), (rows, componentId) => {
+        return _.map(_.groupBy(this.spreadsheetItems, r => r[this.spreadsheetSettings.columns.length]), (rows, componentId) => {
             var unshownData = this.getUnshownDataForComponent(componentId);
             var data = unshownData.data.slice();
 
@@ -375,7 +375,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
 
             return this.constructFullDataForComponent(unshownData, data);
         });
-        return [];
+    }
     }
 }
 
