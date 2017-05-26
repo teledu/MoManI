@@ -1,6 +1,6 @@
 ﻿declare var require: any;
 
-var version = 1;
+var version = 2;
 require.config({
     baseUrl: 'scripts',
     paths: {
