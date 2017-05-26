@@ -1,7 +1,7 @@
 ﻿import application = require('application');
 import _ = require('lodash');
 import parameterDataModel = require('models/parameterData');
-import parameterDataModelCsv = require('models/parameterDataCsv');
+import csvData = require('models/csvData');
 import setDataModel = require('models/setData');
 import setService = require('services/setService');
 import parameterService = require('services/parameterService');
@@ -95,7 +95,7 @@ export class ParameterDataController {
 export interface ICsvParameterDataScope extends ng.IScope {
     model: IModel;
     scenario: IScenario;
-    data: parameterDataModelCsv.ParameterDataCsv;
+    data: csvData.ParameterDataCsv;
     changeColumnSet: () => void;
     save: () => void;
     loading: boolean;
@@ -138,7 +138,7 @@ export class CsvParameterDataController {
                 var setDatas = <ISetData[]>dataRes[0];
                 var parameterDatas = <IParameterData[]>dataRes[1];
 
-                $scope.data = new parameterDataModelCsv.ParameterDataCsv(modelId, scenarioId, parameters, sets, parameterDatas, setDatas);
+                $scope.data = new csvData.ParameterDataCsv(modelId, scenarioId, parameters, sets, parameterDatas, setDatas);
                 $scope.loading = false;
             });
         });
@@ -167,7 +167,7 @@ export class CsvParameterDataController {
 }
 
 export interface ICsvParameterDataForParameterScope extends ng.IScope {
-    data: parameterDataModelCsv.LegacyParameterDataCsv;
+    data: csvData.LegacyParameterDataCsv;
     save: () => void;
     loading: boolean;
     returnUrlSuffix: string;
@@ -201,7 +201,7 @@ export class CsvParameterDataForParameterController {
                 var setDatas = <ISetData[]>setDataRes;
                 var numericSets = _.filter(sets, s => s.numeric);
                 var axisSetData = numericSets.length ? _(setDatas).filter(sd => _.some(numericSets, ns => ns.id == sd.setId)).maxBy(sd => sd.items.length) : _.maxBy(setDatas, sd => sd.items.length);
-                $scope.data = new parameterDataModelCsv.LegacyParameterDataCsv(modelId, scenarioId, [parameter], sets, [parameterData], setDatas, axisSetData.setId);
+                $scope.data = new csvData.LegacyParameterDataCsv(modelId, scenarioId, [parameter], sets, [parameterData], setDatas, axisSetData.setId);
                 $scope.loading = false;
             });
         });
@@ -219,7 +219,7 @@ export class CsvParameterDataForParameterController {
 }
 
 export interface ICsvParameterDataForSetScope extends ng.IScope {
-    data: parameterDataModelCsv.LegacyParameterDataCsv;
+    data: csvData.LegacyParameterDataCsv;
     set: ISet;
     modelId: string;
     scenarioId: string;
@@ -271,7 +271,7 @@ export class CsvParameterDataForSetController {
                 var axisSet = this.determineCommonSet(commonSets, setDatas);
                 var axisSetId = axisSet ? axisSet.id : null;
                 
-                $scope.data = new parameterDataModelCsv.LegacyParameterDataCsv($scope.modelId, $scope.scenarioId, parameters, allSets, parameterDatas, setDatas, axisSetId, setId, $scope.setValue);
+                $scope.data = new csvData.LegacyParameterDataCsv($scope.modelId, $scope.scenarioId, parameters, allSets, parameterDatas, setDatas, axisSetId, setId, $scope.setValue);
                 $scope.loading = false;
             });
         });

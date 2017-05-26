@@ -7,9 +7,9 @@ interface IDimensionItem {
 }
 
 interface IColumnProperties {
-    readOnly: boolean,
-    type: string,
-    format: string,
+    readOnly?: boolean,
+    type?: string,
+    format?: string,
 }
 
 interface IDimension {
@@ -20,12 +20,22 @@ interface IDimension {
     values: IDimensionItem[];
 }
 
-interface IParameterCsvData {
-    parameter: IParameter;
+interface IStringgedData extends IDimensionalDataItem {
+    coordinateString: string
+}
+
+interface IDimensionalCsvData<TComponent extends IDimensionalComponent, TData extends IDimensionalData> {
+    component: TComponent;
     columnDimensions: IDimension[];
     rows: number;
-    data: IParameterData;
+    data: TData;
     usesValueColumn: boolean;
+}
+
+interface ITestDimensionalData<T1, T2> {
+    component: T1;
+    data: T2;
+
 }
 
 class Dimension implements IDimension {
@@ -48,22 +58,414 @@ class Dimension implements IDimension {
     }
 }
 
+abstract class CsvData<TComponent extends IDimensionalComponent, TData extends IDimensionalData> {
+    private readonly components: TComponent[];
+    private readonly dimensionStore: CsvDimensionStore;
+
+    protected scenarioId: string;
+    protected modelId: string;
+    protected allColumnsReadOnly: boolean = false;
+    protected typeColumnName: string;
+    protected datas: TData[];
+    protected unshownData: TData[];
+    protected getDataForComponent: (componentId: string) => TData;
+    protected getUnshownDataForComponent: (componentId: string) => TData;
+    protected getDefaultDataForComponent: (component: TComponent) => TData;
+    protected getRemainingDataForComponent: (data: TData, striggedData: IStringgedData[]) => TData;
+    protected getDefaultValueForData: (data: TData) => string | number;
+    protected constructFullDataForComponent: (data: TData, dataArray: IDimensionalDataItem[]) => TData;
+    protected valueSameAsDefault: (value: number, data: TData) => boolean;
+
+    columnSetId: string;
+    sets: ISet[];
+
+    spreadsheetVisible: boolean;
+    spreadsheetSettings: any;
+    spreadsheetItems: (number | string)[][];
+
+    protected constructor(modelId: string, scenarioId: string, components: TComponent[], sets: ISet[], datas: TData[], setDatas: ISetData[]) {
+        this.scenarioId = scenarioId;
+        this.modelId = modelId;
+        this.sets = sets;
+        this.components = components;
+        this.datas = datas;
+        this.dimensionStore = new CsvDimensionStore(modelId, sets, setDatas, components);
+        var axisDimension = this.dimensionStore.getAxisDimension();
+        this.columnSetId = axisDimension ? _.find(this.sets, s => s.id == axisDimension.setId).id : null;
+        this.unshownData = [];
+    }
+
+    public clearSpreadsheet = () => {
+        this.datas = this.serialize();
+        this.spreadsheetVisible = false;
+        this.unshownData = [];
+        this.spreadsheetSettings = null;
+        this.spreadsheetItems = [];
+    }
+
+    public changeColumnSet = () => {
+        this.dimensionStore.setAxisSet(this.columnSetId);
+        this.showSpreadsheet();
+    }
+
+    protected showSpreadsheet = () => {
+        var componentDimensions = _.map(_.orderBy(this.components, c => c.name), component => {
+            var dimensions = this.dimensionStore.getDimensionsForComponent(component);
+            var columnDimensions = _.filter(dimensions, d => d != this.dimensionStore.getAxisDimension());
+            return <IDimensionalCsvData<TComponent, TData>>{
+                component: component,
+                columnDimensions: columnDimensions,
+                rows: _.reduce(columnDimensions, (res, d) => res * d.values.length, 1 as number),
+                data: this.getDataForComponent(component.id),
+                usesValueColumn: dimensions.length == columnDimensions.length,
+            };
+        });
+
+        var rowCount = _.sumBy(componentDimensions, pd => pd.rows);
+        this.setupSpreadsheet(rowCount);
+
+        _.forEach(componentDimensions, (componentDimension, componentDimensionIndex) => {
+            var startingRow = _.sum(_.map(componentDimensions.slice(0, componentDimensionIndex), ppd => ppd.rows));
+
+            for (var rowIndex = startingRow; rowIndex < startingRow + componentDimension.rows; rowIndex++) {
+                this.spreadsheetItems[rowIndex][0] = componentDimension.component.name;
+                this.spreadsheetItems[rowIndex][this.spreadsheetSettings.columns.length] = componentDimension.component.id;
+                this.spreadsheetItems[rowIndex][this.spreadsheetSettings.columns.length + 1] = componentDimension.usesValueColumn ? 1 : 0;
+            };
+
+            var currentRowGroups = 1;
+            _.forEach(this.dimensionStore.getColumnDimensions(), (setData, columnIndex) => {
+                if (_.some(componentDimension.columnDimensions, d => d == setData)) {
+
+                    var repetitionSize = componentDimension.rows / currentRowGroups;
+                    var lumpSize = repetitionSize / setData.values.length;
+                    var repetitions = componentDimension.rows / repetitionSize;
+
+                    for (var rep = 0; rep < repetitions; rep++) {
+                        _.forEach(setData.values, (val, valueIndex) => {
+                            for (var i = 0; i < lumpSize; i++) {
+                                var rowIndex = startingRow + rep * repetitionSize + valueIndex * lumpSize + i;
+                                this.spreadsheetItems[rowIndex][columnIndex + 1] = val.value;
+                            };
+                        });
+                    };
+                    currentRowGroups = currentRowGroups * setData.values.length;
+
+
+                } else {
+                    for (var rowIndex = startingRow; rowIndex < startingRow + componentDimension.rows; rowIndex++) {
+                        this.spreadsheetItems[rowIndex][columnIndex + 1] = '-';
+                    };
+                }
+            });
+        });
+
+        this.loadData(componentDimensions);
+
+        this.spreadsheetVisible = true;
+    }
+
+    private setupSpreadsheet = (rowCount: number) => {
+        var axisDimension = this.dimensionStore.getAxisDimension();
+
+        var columnProperties = <IColumnProperties[]>[{
+            readOnly: true,
+        }];
+        _.forEach(this.dimensionStore.getColumnDimensions(), () => {
+            columnProperties.push(<IColumnProperties>{
+                readOnly: true
+            });
+        });
+        if (axisDimension) {
+            _.forEach(axisDimension.values, () => {
+                columnProperties.push({
+                    readOnly: this.allColumnsReadOnly,
+                    type: 'numeric',
+                    format: '0.[000000000]',
+                });
+            });
+        };
+        if (this.dimensionStore.needsValueColumn()) {
+            columnProperties.push({
+                readOnly: this.allColumnsReadOnly,
+                type: 'numeric',
+                format: '0.[000000000]',
+            });
+        };
+
+        var columnHeaders = [this.typeColumnName].concat(_.map(this.dimensionStore.getColumnDimensions(), s => s.name));
+        if (axisDimension) {
+            _.forEach(axisDimension.values, v => {
+                columnHeaders.push(v.value);
+            });
+        };
+        if (this.dimensionStore.needsValueColumn()) {
+            columnHeaders.push('Value');
+        }
+        columnHeaders.push('id');
+        columnHeaders.push('usesValueColumn');
+
+        var visibleColumnCount = columnHeaders.length - 2;
+        var needsValueColumn = this.dimensionStore.needsValueColumn();
+        var settings = <any>{
+            columnSorting: true,
+            colHeaders: columnHeaders,
+            columns: columnProperties,
+        };
+
+        if (!this.allColumnsReadOnly) {
+            settings.cells = (row, col, prop) => {
+                var usesValueColumn = this.spreadsheetItems[row] && this.spreadsheetItems[row][columnHeaders.length - 1];
+
+                if (usesValueColumn && col < visibleColumnCount - 1) {
+                    return {
+                        readOnly: true,
+                    }
+                }
+
+                if (!usesValueColumn && needsValueColumn && col == visibleColumnCount - 1) {
+                    return {
+                        readOnly: true,
+                    }
+                }
+
+                return {};
+            }
+        }
+        this.spreadsheetSettings = settings;
+
+        this.spreadsheetItems = _.times(rowCount, () => {
+            return _.map(columnHeaders, () => null);
+        });
+    }
+
+    private loadData = (componentDimensions: IDimensionalCsvData<TComponent, TData>[]) => {
+
+        var valueColumnStartIndex = this.dimensionStore.getColumnDimensions().length + 1;
+        var axisDimension = this.dimensionStore.getAxisDimension();
+
+        var dataMappingFunction = (componentDimension: IDimensionalCsvData<TComponent, TData>, rowContents: (string | number)[], colValue?: string) => {
+            var actualOrderedValues = _.map(componentDimension.data.sets, set => {
+                var dimension = _.find(componentDimension.columnDimensions, dim => dim.setId == set.id && dim.index == set.index);
+                if (dimension == null) {
+                    if (axisDimension && axisDimension.setId == set.id && axisDimension.index == set.index)
+                        return colValue;
+                    throw ('this.actualSetValue');
+                }
+                var column = _.findIndex(this.dimensionStore.getColumnDimensions(), dimension) + 1;
+                return rowContents[column];
+            });
+            return actualOrderedValues.join('|');
+        };
+
+        _.forEach(componentDimensions, (componentDimension, componentDimensionIndex) => {
+            var startingRow = _.sum(_.map(componentDimensions.slice(0, componentDimensionIndex), ppd => ppd.rows));
+
+            if (!componentDimension.data) {
+                for (var row = startingRow; row < startingRow + componentDimension.rows; row++) {
+                    if (componentDimension.usesValueColumn) {
+                        for (i = 0; i < axisDimension.values.length; i++) {
+                            this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
+                        }
+                    } else {
+                        if (this.dimensionStore.needsValueColumn()) {
+                            this.spreadsheetItems[row][valueColumnStartIndex + axisDimension.values.length] = '-';
+                        }
+                    }
+                }
+                
+                this.unshownData.push(this.getDefaultDataForComponent(componentDimension.component));
+                return;
+            }
+            var stringgedData = _.map(componentDimension.data.data, data => {
+                return <IStringgedData>{
+                    c: data.c,
+                    coordinateString: data.c.join('|'),
+                    v: data.v,
+                };
+            });
+
+            if (componentDimension.usesValueColumn) {
+                for (var row = startingRow; row < startingRow + componentDimension.rows; row++) {
+                    var i;
+                    for (i = 0; i < axisDimension.values.length; i++) {
+                        this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
+                    }
+                    var mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row]);
+                    var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
+                    if (found) {
+                        stringgedData.splice(stringgedData.indexOf(found), 1);
+                    }
+                    var value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
+                    this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
+                }
+            } else {
+                for (var row = startingRow; row < startingRow + componentDimension.rows; row++) {
+                    var i;
+                    for (i = 0; i < axisDimension.values.length; i++) {
+                        var mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row], axisDimension.values[i].value);
+                        var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
+                        if (found) {
+                            stringgedData.splice(stringgedData.indexOf(found), 1);
+                        }
+                        var value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
+                        this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
+                    }
+                    if (this.dimensionStore.needsValueColumn()) {
+                        this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
+                    }
+                }
+            }
+            
+            this.unshownData.push(this.getRemainingDataForComponent(componentDimension.data, stringgedData));
+        });
+    }
+
+    serialize: () => TData[] = () => {
+        var asdf = _.map(_.groupBy(this.spreadsheetItems, r => r[this.spreadsheetSettings.columns.length]), (rows, componentId) => {
+            var unshownData = this.getUnshownDataForComponent(componentId);
+            var data = unshownData.data.slice();
+
+            var axisDimension = this.dimensionStore.getAxisDimension();
+            var columns = this.dimensionStore.getColumnDimensions();
+
+            var columnIndexMap = _.map(unshownData.sets, dimension => {
+                var index = _.findIndex(columns, col => col.setId == dimension.id && col.index == dimension.index);
+                if (index < 0)
+                    return null;
+                return index + 1;
+            });
+            var coordinateFunction = (row: (string | number)[], valueIndex?: number) => {
+                return _.map(unshownData.sets, (dimension, index) => {
+                    var mappedColumnIndex = columnIndexMap[index];
+                    if (mappedColumnIndex)
+                        return row[mappedColumnIndex].toString();
+                    if (axisDimension.setId == dimension.id && axisDimension.index == dimension.index) {
+                        return axisDimension.values[valueIndex].value;
+                    }
+                    throw 'err';
+                });
+            };
+            var axisColumnsStartIndex = this.dimensionStore.getColumnDimensions().length + 1;
+            var valueColumnIndex = axisColumnsStartIndex + axisDimension.values.length;
+            _.forEach(rows, row => {
+                var rowUsesValueColumn = !!row[this.spreadsheetSettings.columns.length + 1];
+                if (rowUsesValueColumn) {
+                    var val = +row[valueColumnIndex];
+                    if (this.valueSameAsDefault(val, unshownData))
+                        return;
+                    var coordinates = coordinateFunction(row);
+                    data.push({
+                        c: coordinates,
+                        v: val,
+                    });
+                } else {
+                    for (var i = 0; i < axisDimension.values.length; i++) {
+                        var val = +row[axisColumnsStartIndex + i];
+                        if (this.valueSameAsDefault(val, unshownData))
+                            continue;
+                        var coordinates = coordinateFunction(row, i);
+                        data.push({
+                            c: coordinates,
+                            v: val,
+                        });
+                    }
+                }
+            });
+
+            return this.constructFullDataForComponent(unshownData, data);
+        });
+        return [];
+    }
+}
+
+export class ParameterDataCsv extends CsvData<IParameter, IParameterData> {
+    protected datas: IParameterData[];
+
+    constructor(modelId: string, scenarioId: string, parameters: IParameter[], sets: ISet[], parameterDatas: IParameterData[], setDatas: ISetData[]) {
+        super(modelId, scenarioId, parameters, sets, parameterDatas, setDatas);
+        this.typeColumnName = 'Parameter';
+
+        this.showSpreadsheet();
+    }
+
+    getDataForComponent = (componentId: string) => {
+        return _.find(this.datas, pd => pd.parameterId == componentId);
+    }
+
+    getUnshownDataForComponent = (componentId: string) => {
+        return _.find(this.unshownData, pd => pd.parameterId == componentId);
+    }
+
+    getDefaultDataForComponent = (component: IParameter) => {
+        return {                    //TODO: fix no data cases
+            modelId: this.modelId,
+            scenarioId: this.scenarioId,
+            parameterId: component.id,
+            defaultValue: 0,
+            sets: _.map(component.sets, (setId, index) => {
+                var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId == setId).value().length;
+                return {
+                    id: setId,
+                    index: instanceIndex,
+                }
+            }),
+            data: [],
+        };
+    }
+
+    getRemainingDataForComponent = (data: IParameterData, stringedData: IStringgedData[]) => {
+        return {
+            modelId: data.modelId,
+            scenarioId: data.scenarioId,
+            parameterId: data.parameterId,
+            defaultValue: data.defaultValue,
+            sets: data.sets,
+            data: _.map(stringedData, d => {
+                return {
+                    c: d.c,
+                    v: d.v,
+                }
+            })
+        }
+    }
+
+    getDefaultValueForData = (data: IParameterData) => {
+        return data.defaultValue;
+    }
+
+    constructFullDataForComponent = (data: IParameterData, dataArray: IDimensionalDataItem[]) => {
+        return {
+            modelId: this.modelId,
+            scenarioId: this.scenarioId,
+            parameterId: data.parameterId,
+            defaultValue: data.defaultValue,
+            sets: data.sets,
+            data: dataArray,
+        };
+    }
+
+    valueSameAsDefault = (value: number, data: IParameterData) => {
+        return value == data.defaultValue;
+    }
+}
+
 class CsvDimensionStore {
     private dimensions: IDimension[];
-    private parameters: IParameter[];
+    private components: IDimensionalComponent[];
     private setDatas: setDataModel.SetData[];
     private axisDimension: IDimension;
 
-    constructor(modelId: string, sets: ISet[], setDatas: ISetData[], parameters: IParameter[]) {
+    constructor(modelId: string, sets: ISet[], setDatas: ISetData[], components: IDimensionalComponent[]) {
         this.dimensions = [];
-        this.parameters = parameters;
+        this.components = components;
         this.setDatas = _.map(setDatas, setData => {
             var set = _.find(sets, s => s.id == setData.setId);
             return new setDataModel.SetData(modelId, set, setData);
         });
-        _.forEach(parameters, parameter => {
-            _.forEach(parameter.sets, (setId, i) => {
-                var previousSetIds = parameter.sets.slice(0, i);
+        _.forEach(components, component => {
+            _.forEach(component.sets, (setId, i) => {
+                var previousSetIds = component.sets.slice(0, i);
                 var index = _.filter(previousSetIds, psId => psId == setId).length;
                 var dimension = _.find(this.dimensions, d => d.setId == setId && d.index == index);
                 if (dimension) {
@@ -102,9 +504,9 @@ class CsvDimensionStore {
         this.axisDimension = _.find(this.dimensions, d => d.setId == setId && d.index == 0);
     }
 
-    getDimensionsForParameter = (parameter: IParameter) => {
-        return _.map(parameter.sets, (setId, i) => {
-            var previousSetIds = parameter.sets.slice(0, i);
+    getDimensionsForComponent = (component: IDimensionalComponent) => {
+        return _.map(component.sets, (setId, i) => {
+            var previousSetIds = component.sets.slice(0, i);
             var index = _.filter(previousSetIds, psId => psId == setId).length;
             return _.find(this.dimensions, d => d.setId == setId && d.index == index);
         });
@@ -125,351 +527,12 @@ class CsvDimensionStore {
     needsValueColumn = () => {
         if (this.axisDimension == null)
             return true;
-        return !_.every(this.parameters, p => _.some(p.sets, sId => sId == this.axisDimension.setId));
+        return !_.every(this.components, c => _.some(c.sets, sId => sId == this.axisDimension.setId));
     }
 }
 
 
-export class ParameterDataCsv {
-    scenarioId: string;
-    modelId: string;
 
-    private parameters: IParameter[];
-    private parameterDatas: IParameterData[];
-    private dimensionStore: CsvDimensionStore;
-    private unshownParameterData: IParameterData[];
-
-    columnSetId: string;
-    sets: ISet[];
-
-    spreadsheetVisible: boolean;
-    spreadsheetSettings: any;
-    spreadsheetItems: (number | string)[][];
-
-    constructor(modelId: string, scenarioId: string, parameters: IParameter[], sets: ISet[], parameterDatas: IParameterData[], setDatas: ISetData[]) {
-        this.scenarioId = scenarioId;
-        this.modelId = modelId;
-        this.sets = sets;
-        this.parameters = parameters;
-        this.parameterDatas = parameterDatas;
-        this.dimensionStore = new CsvDimensionStore(modelId, sets, setDatas, parameters);
-        var axisDimension = this.dimensionStore.getAxisDimension();
-        this.columnSetId = axisDimension ? _.find(this.sets, s => s.id == axisDimension.setId).id : null;
-        this.unshownParameterData = [];
-
-        this.showSpreadsheet();
-    }
-
-    public clearSpreadsheet = () => {
-        this.parameterDatas = this.serialize();
-        this.spreadsheetVisible = false;
-        this.unshownParameterData = [];
-        this.spreadsheetSettings = null;
-        this.spreadsheetItems = [];
-    }
-
-    public changeColumnSet = () => {
-        this.dimensionStore.setAxisSet(this.columnSetId);
-        this.showSpreadsheet();
-    }
-
-    private showSpreadsheet = () => {
-        var parameterDimensions = _.map(_.orderBy(this.parameters, p => p.name), parameter => {
-            var dimensions = this.dimensionStore.getDimensionsForParameter(parameter);
-            var columnDimensions = _.filter(dimensions, d => d != this.dimensionStore.getAxisDimension());
-            return <IParameterCsvData>{
-                parameter: parameter,
-                columnDimensions: columnDimensions,
-                rows: _.reduce(columnDimensions, (res, d) => res * d.values.length, 1),
-                data: _.find(this.parameterDatas, pd => pd.parameterId == parameter.id),
-                usesValueColumn: dimensions.length == columnDimensions.length,
-            };
-        });
-
-        var rowCount = _.sumBy(parameterDimensions, pd => pd.rows);
-        this.setupSpreadsheet(rowCount);
-
-        _.forEach(parameterDimensions, (parameterDimension, parameterDimensionIndex) => {
-            var startingRow = _.sum(_.map(parameterDimensions.slice(0, parameterDimensionIndex), ppd => ppd.rows));
-
-            for (var rowIndex = startingRow; rowIndex < startingRow + parameterDimension.rows; rowIndex++) {
-                this.spreadsheetItems[rowIndex][0] = parameterDimension.parameter.name;
-                this.spreadsheetItems[rowIndex][this.spreadsheetSettings.columns.length] = parameterDimension.parameter.id;
-                this.spreadsheetItems[rowIndex][this.spreadsheetSettings.columns.length + 1] = parameterDimension.usesValueColumn ? 1 : 0;
-            };
-
-            var currentRowGroups = 1;
-            _.forEach(this.dimensionStore.getColumnDimensions(), (setData, columnIndex) => {
-                if (_.some(parameterDimension.columnDimensions, d => d == setData)) {
-
-                    var repetitionSize = parameterDimension.rows / currentRowGroups;
-                    var lumpSize = repetitionSize / setData.values.length;
-                    var repetitions = parameterDimension.rows / repetitionSize;
-
-                    for (var rep = 0; rep < repetitions; rep++) {
-                        _.forEach(setData.values, (val, valueIndex) => {
-                            for (var i = 0; i < lumpSize; i++) {
-                                var rowIndex = startingRow + rep * repetitionSize + valueIndex * lumpSize + i;
-                                this.spreadsheetItems[rowIndex][columnIndex + 1] = val.value;
-                            };
-                        });
-                    };
-                    currentRowGroups = currentRowGroups * setData.values.length;
-
-
-                } else {
-                    for (var rowIndex = startingRow; rowIndex < startingRow + parameterDimension.rows; rowIndex++) {
-                        this.spreadsheetItems[rowIndex][columnIndex + 1] = '-';
-                    };
-                }
-            });
-        });
-
-        this.loadData(parameterDimensions);
-
-        this.spreadsheetVisible = true;
-    }
-
-    private setupSpreadsheet = (rowCount: number) => {
-        var axisDimension = this.dimensionStore.getAxisDimension();
-
-        var columnProperties = <IColumnProperties[]>[{
-            readOnly: true,
-        }];
-        _.forEach(this.dimensionStore.getColumnDimensions(), () => {
-            columnProperties.push(<IColumnProperties>{
-                 readOnly: true
-            });
-        });
-        if (axisDimension) {
-            _.forEach(axisDimension.values, () => {
-                columnProperties.push({
-                    readOnly: false,
-                    type: 'numeric',
-                    format: '0.[000000000]',
-                });
-            });
-        };
-        if (this.dimensionStore.needsValueColumn()) {
-            columnProperties.push({
-                readOnly: false,
-                type: 'numeric',
-                format: '0.[000000000]',
-            });
-        };
-
-        var columnHeaders = ['Parameter'].concat(_.map(this.dimensionStore.getColumnDimensions(), s => s.name));
-        if (axisDimension) {
-            _.forEach(axisDimension.values, v => {
-                columnHeaders.push(v.value);
-            });
-        };
-        if (this.dimensionStore.needsValueColumn()) {
-            columnHeaders.push('Value');
-        }
-        columnHeaders.push('parameterId');
-        columnHeaders.push('usesValueColumn');
-
-        var visibleColumnCount = columnHeaders.length - 2;
-        var needsValueColumn = this.dimensionStore.needsValueColumn();
-        this.spreadsheetSettings = {
-            columnSorting: true,
-            colHeaders: columnHeaders,
-            columns: columnProperties,
-            cells: (row, col, prop) => {
-                var usesValueColumn = this.spreadsheetItems[row] && this.spreadsheetItems[row][columnHeaders.length - 1];
-
-                if (usesValueColumn && col < visibleColumnCount - 1) {
-                    return {
-                        readOnly: true,
-                    }
-                }
-
-                if (!usesValueColumn && needsValueColumn && col == visibleColumnCount - 1) {
-                    return {
-                        readOnly: true,
-                    }
-                }
-
-                return {};
-            }
-        };
-
-        this.spreadsheetItems = _.times(rowCount, () => {
-            return _.map(columnHeaders, () => null);
-        });
-    }
-
-    private loadData = (parameterDimensions: IParameterCsvData[]) => {
-
-        var valueColumnStartIndex = this.dimensionStore.getColumnDimensions().length + 1;
-        var axisDimension = this.dimensionStore.getAxisDimension();
-
-        var dataMappingFunction = (parameterDimension: IParameterCsvData, rowContents: (string | number)[], colValue?: string) => {
-            var actualOrderedValues = _.map(parameterDimension.data.sets, set => {
-                var dimension = _.find(parameterDimension.columnDimensions, dim => dim.setId == set.id && dim.index == set.index);
-                if (dimension == null) {
-                    if (axisDimension && axisDimension.setId == set.id && axisDimension.index == set.index)
-                        return colValue;
-                    throw('this.actualSetValue');
-                }
-                var column = _.findIndex(this.dimensionStore.getColumnDimensions(), dimension) + 1;
-                return rowContents[column];
-            });
-            return actualOrderedValues.join('|');
-        };
-
-        _.forEach(parameterDimensions, (parameterDimension, parameterDimensionIndex) => {
-            var startingRow = _.sum(_.map(parameterDimensions.slice(0, parameterDimensionIndex), ppd => ppd.rows));
-
-            if (!parameterDimension.data) {
-                for (var row = startingRow; row < startingRow + parameterDimension.rows; row++) {
-                    if (parameterDimension.usesValueColumn) {
-                        for (i = 0; i < axisDimension.values.length; i++) {
-                            this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
-                        }
-                    } else {
-                        if (this.dimensionStore.needsValueColumn()) {
-                            this.spreadsheetItems[row][valueColumnStartIndex + axisDimension.values.length] = '-';
-                        }
-                    }
-                }
-                this.unshownParameterData.push({    //TODO: fix no data cases
-                    modelId: this.modelId,
-                    scenarioId: this.scenarioId,
-                    parameterId: parameterDimension.parameter.id,
-                    defaultValue: 0,
-                    sets: _.map(parameterDimension.parameter.sets, (setId, index) => {
-                        var instanceIndex = _(parameterDimension.parameter.sets).slice(0, index).filter(sId => sId == setId).value().length;
-                        return {
-                            id: setId,
-                            index: instanceIndex,
-                        }
-                    }),
-                    data: [],
-                });
-                return;
-            }
-
-            var stringgedData = _.map(parameterDimension.data.data, data => {
-                return {
-                    coordinates: data.c,
-                    coordinateString: data.c.join('|'),
-                    value: data.v,
-                };
-            });
-
-            if (parameterDimension.usesValueColumn) {
-                for (var row = startingRow; row < startingRow + parameterDimension.rows; row++) {
-                    var i;
-                    for (i = 0; i < axisDimension.values.length; i++) {
-                        this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
-                    }
-                    var mappedCoordinates = dataMappingFunction(parameterDimension, this.spreadsheetItems[row]);
-                    var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
-                    if (found) {
-                        stringgedData.splice(stringgedData.indexOf(found), 1);
-                    }
-                    var value = found ? found.value : parameterDimension.data.defaultValue;
-                    this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
-                }
-            } else {
-                for (var row = startingRow; row < startingRow + parameterDimension.rows; row++) {
-                    var i;
-                    for (i = 0; i < axisDimension.values.length; i++) {
-                        var mappedCoordinates = dataMappingFunction(parameterDimension, this.spreadsheetItems[row], axisDimension.values[i].value);
-                        var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
-                        if (found) {
-                            stringgedData.splice(stringgedData.indexOf(found), 1);
-                        }
-                        var value = found ? found.value : parameterDimension.data.defaultValue;
-                        this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
-                    }
-                    if (this.dimensionStore.needsValueColumn()) {
-                        this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
-                    }
-                }
-            }
-
-            this.unshownParameterData.push({
-                modelId: parameterDimension.data.modelId,
-                scenarioId: parameterDimension.data.scenarioId,
-                parameterId: parameterDimension.data.parameterId,
-                defaultValue: parameterDimension.data.defaultValue,
-                sets: parameterDimension.data.sets,
-                data: _.map(stringgedData, d => {
-                    return {
-                        c: d.coordinates,
-                        v: d.value,
-                    }
-                })
-            });
-        });
-    }
-
-    serialize: () => IParameterData[] = () => {
-        return _.map(_.groupBy(this.spreadsheetItems, r => r[this.spreadsheetSettings.columns.length]), (rows, parameterId) => {
-            var unshownParameterData = _.find(this.unshownParameterData, d => d.parameterId == parameterId);
-            var data = unshownParameterData.data.slice();
-            
-            var axisDimension = this.dimensionStore.getAxisDimension();
-            var columns = this.dimensionStore.getColumnDimensions();
-
-            var columnIndexMap = _.map(unshownParameterData.sets, dimension => {
-                var index = _.findIndex(columns, col => col.setId == dimension.id && col.index == dimension.index);
-                if (index < 0)
-                    return null;
-                return index + 1;
-            });
-            var coordinateFunction = (row: (string | number)[], valueIndex?: number) => {
-                return _.map(unshownParameterData.sets, (dimension, index) => {
-                    var mappedColumnIndex = columnIndexMap[index];
-                    if (mappedColumnIndex)
-                        return row[mappedColumnIndex].toString();
-                    if (axisDimension.setId == dimension.id && axisDimension.index == dimension.index) {
-                        return axisDimension.values[valueIndex].value;
-                    }
-                    throw 'err';
-                });
-            };
-            var axisColumnsStartIndex = this.dimensionStore.getColumnDimensions().length + 1;
-            var valueColumnIndex = axisColumnsStartIndex + axisDimension.values.length;
-            _.forEach(rows, row => {
-                var rowUsesValueColumn = !!row[this.spreadsheetSettings.columns.length + 1];
-                if (rowUsesValueColumn) {
-                    var val = +row[valueColumnIndex];
-                    if (val == unshownParameterData.defaultValue)
-                        return;
-                    var coordinates = coordinateFunction(row);
-                    data.push({
-                        c: coordinates,
-                        v: val,
-                    });
-                } else {
-                    for (var i = 0; i < axisDimension.values.length; i++) {
-                        var val = +row[axisColumnsStartIndex + i];
-                        if (val == unshownParameterData.defaultValue)
-                            continue;
-                        var coordinates = coordinateFunction(row, i);
-                        data.push({
-                            c: coordinates,
-                            v: val,
-                        });
-                    }
-                }
-            });
-
-            return {
-                modelId: this.modelId,
-                scenarioId: this.scenarioId,
-                parameterId: parameterId,
-                defaultValue: unshownParameterData.defaultValue,
-                sets: unshownParameterData.sets,
-                data: data,
-            };
-        });
-    }
-}
 
 
 
@@ -539,6 +602,14 @@ class LegacyCsvDimensionStore {
     }
 }
 
+interface ILegacyParameterCsvData {
+    parameter: IParameter;
+    columnDimensions: IDimension[];
+    rows: number;
+    data: IParameterData;
+    usesValueColumn: boolean;
+}
+
 export class LegacyParameterDataCsv {
     scenarioId: string;
     modelId: string;
@@ -561,10 +632,10 @@ export class LegacyParameterDataCsv {
         var parameterDimensions = _.map(_.orderBy(parameters, p => p.name), parameter => {
             var dimensions = this.dimensionStore.updateAndRetrieveDimensions(parameter);
             var columnDimensions = _.filter(dimensions, d => d != this.dimensionStore.getFixedDimension() && d != this.dimensionStore.getAxisDimension());
-            return <IParameterCsvData>{
+            return <ILegacyParameterCsvData>{
                 parameter: parameter,
                 columnDimensions: columnDimensions,
-                rows: _.reduce(columnDimensions, (res, d) => res * d.values.length, 1),
+                rows: _.reduce(columnDimensions, (res, d) => res * d.values.length, 1 as number),
                 data: _.find(parameterDatas, pd => pd.parameterId == parameter.id),
             };
         });
@@ -613,11 +684,11 @@ export class LegacyParameterDataCsv {
     }
 
     private setupSpreadsheet = (rowCount: number) => {
-        var parameterNameColumns = [{
+        var parameterNameColumns = [<IColumnProperties>{
             readOnly: true,
         }];
-        var indexColumns = _.times(this.dimensionStore.getColumnDimensions().length, () => {
-            return {
+        var indexColumns = _.times(this.dimensionStore.getColumnDimensions().length, (n) => {
+            return <IColumnProperties>{
                 readOnly: true,
             }
         });
@@ -649,12 +720,12 @@ export class LegacyParameterDataCsv {
         });
     }
 
-    private loadData = (parameterDimensions: IParameterCsvData[]) => {
+    private loadData = (parameterDimensions: ILegacyParameterCsvData[]) => {
 
         var valueColumnStartIndex = this.dimensionStore.getColumnDimensions().length + 1;
         var axisDimension = this.dimensionStore.getAxisDimension();
         
-        var dataMappingFunction = (parameterDimension: IParameterCsvData, rowContents: (string | number)[], colValue?: string) => {
+        var dataMappingFunction = (parameterDimension: ILegacyParameterCsvData, rowContents: (string | number)[], colValue?: string) => {
             var actualOrderedValues = _.map(parameterDimension.data.sets, set => {
                 var dimension = _.find(parameterDimension.columnDimensions, dim => dim.setId == set.id && dim.index == set.index);
                 if (dimension == null) {
