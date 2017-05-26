@@ -450,6 +450,75 @@ export class ParameterDataCsv extends CsvData<IParameter, IParameterData> {
     }
 }
 
+export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
+    protected datas: IVariableResult[];
+
+    constructor(modelId: string, scenarioId: string, variables: IVariable[], sets: ISet[], variableResults: IVariableResult[], setDatas: ISetData[]) {
+        super(modelId, scenarioId, variables, sets, variableResults, setDatas);
+        this.typeColumnName = 'Variable';
+        this.allColumnsReadOnly = true;
+
+        this.showSpreadsheet();
+    }
+
+    getDataForComponent = (componentId: string) => {
+        return _.find(this.datas, pd => pd.variableId == componentId);
+    }
+
+    getUnshownDataForComponent = (componentId: string) => {
+        return _.find(this.unshownData, pd => pd.variableId == componentId);
+    }
+
+    getDefaultDataForComponent = (component: IVariable) => {
+        return {                    //TODO: fix no data cases
+            modelId: this.modelId,
+            scenarioId: this.scenarioId,
+            variableId: component.id,
+            sets: _.map(component.sets, (setId, index) => {
+                var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId == setId).value().length;
+                return {
+                    id: setId,
+                    index: instanceIndex,
+                }
+            }),
+            data: [],
+        };
+    }
+
+    getRemainingDataForComponent = (data: IVariableResult, stringedData: IStringgedData[]) => {
+        return {
+            modelId: data.modelId,
+            scenarioId: data.scenarioId,
+            variableId: data.variableId,
+            sets: data.sets,
+            data: _.map(stringedData, d => {
+                return {
+                    c: d.c,
+                    v: d.v,
+                }
+            })
+        }
+    }
+
+    getDefaultValueForData = (data: IVariableResult) => {
+        return '-';
+    }
+
+    constructFullDataForComponent = (data: IVariableResult, dataArray: IDimensionalDataItem[]) => {
+        return {
+            modelId: this.modelId,
+            scenarioId: this.scenarioId,
+            variableId: data.variableId,
+            sets: data.sets,
+            data: dataArray,
+        };
+    }
+
+    valueSameAsDefault = (value: number, data: IVariableResult) => {
+        return false;
+    }
+}
+
 class CsvDimensionStore {
     private dimensions: IDimension[];
     private components: IDimensionalComponent[];

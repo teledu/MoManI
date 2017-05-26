@@ -4,6 +4,12 @@
         <div>{{scenario.description}}</div>
         <br/>
 
+        <div class="row">
+            <a href="#/results/{{scenario.modelId}}/{{scenario.id}}/data/allVariables">View results for all variables in a single spreadsheet</a>
+            <span>(might be very slow when large amounts of data exist)</span>
+        </div>
+        <br/>
+
         <div>
             Search: <input type="text" class="form-control" ng-model="query">
         </div>

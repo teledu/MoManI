@@ -154,6 +154,11 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/variable-result-charts.html'
             })
         .when(
+            '/results/:modelId/:scenarioId/data/allVariables', {
+                controller: variableResultControllers.CsvVariableResultController,
+                templateUrl: 'partials/variable-result-csv.html'
+            })
+        .when(
             '/results/:modelId/compare', {
                 controller: compareResultsControllers.CompareResultsController,
                 templateUrl: 'partials/compare-results.html'
