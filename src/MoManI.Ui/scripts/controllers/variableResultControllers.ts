@@ -150,6 +150,7 @@ export interface ICsvVariableResultScope extends ng.IScope {
     scenario: IScenario;
     data: csvData.VariableResultCsv;
     changeColumnSet: () => void;
+    downloadCsv: () => void;
     loading: boolean;
 }
 
@@ -202,6 +203,12 @@ export class CsvVariableResultController {
                 $scope.data.changeColumnSet();
                 $scope.loading = false;
             }, 1);
+        }
+
+        $scope.downloadCsv = () => {
+            var data = $scope.data.asTextFile();
+            var blob = new Blob(data, { type: 'text/csv;charset=utf-8' });
+            saveAs(blob, `${$scope.scenario.name} - variable results.csv`);
         }
     }
 }

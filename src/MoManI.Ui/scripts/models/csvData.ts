@@ -376,6 +376,17 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
             return this.constructFullDataForComponent(unshownData, data);
         });
     }
+
+    asTextFile: () => string[] = () => {
+        var res = [];
+        res.push(`${this.spreadsheetSettings.colHeaders.slice(0, this.spreadsheetSettings.columns.length).join(',')}\r\n`);
+        _.forEach(this.spreadsheetItems, row => {
+            var values = _.map(row.slice(0, this.spreadsheetSettings.columns.length), val => {
+                return val == '-' ? '' : val;
+            });
+            res.push(`${values.join(',')}\r\n`);
+        });
+        return res;
     }
 }
 

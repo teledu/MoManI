@@ -98,6 +98,7 @@ export interface ICsvParameterDataScope extends ng.IScope {
     data: csvData.ParameterDataCsv;
     changeColumnSet: () => void;
     save: () => void;
+    downloadCsv: () => void;
     loading: boolean;
 }
 
@@ -162,6 +163,12 @@ export class CsvParameterDataController {
                 $scope.data.changeColumnSet();
                 $scope.loading = false;
             }, 1);
+        }
+
+        $scope.downloadCsv = () => {
+            var data = $scope.data.asTextFile();
+            var blob = new Blob(data, { type: 'text/csv;charset=utf-8' });
+            saveAs(blob, `${$scope.scenario.name} - parameter data.csv`);
         }
     }
 }
