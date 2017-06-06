@@ -2,12 +2,24 @@
 import variableModel = require('models/variable')
 import settingsModel = require('models/variableResultSettings');
 
+interface ICoordinateData {
+    x: string | number;
+    y: number;
+}
+
+interface IChartGroupData {
+    key: string | number;
+    values: ICoordinateData[];
+    color: string;
+}
+
 export class VariableResult {
     variableId: string;
     scenarioId: string;
     modelId: string;
     name: string;
     description: string;
+    defaultValue: number;
     data: IDimensionalDataItem[];
     sets: ISet[];
     xSet: ISet;
@@ -32,6 +44,7 @@ export class VariableResult {
         this.variable = variable;
         this.name = variable.name;
         this.description = variable.description;
+        this.defaultValue = variableResult.defaultValue;
         this.data = variableResult.data;
         this.sets = _.map(variable.sets, s => _.find(sets, ss => ss.id == s.value));
         this.setData = setData;
@@ -93,6 +106,46 @@ export class VariableResult {
         this.updateChart();
     }
 
+    getUnfilteredChartData: () => IChartGroupData[] = () => {
+        var axisSetData = _.find(this.setData, sd => sd.setId == this.xSet.id);
+        var axisValues = _.map(axisSetData.items, i => i.value);
+        var xSetIndex = this.xSetIndex();
+        
+        var groupSetId = this.groupSet ? this.groupSet.id : null;
+        var groupSetData = _.find(this.setData, sd => sd.setId == groupSetId);
+        if (!groupSetData) {
+            var values = _.map(axisValues, k => {
+                var axisPointValues = _.filter(this.data, d => d.c[xSetIndex] == k);
+                return {
+                    x: this.resolveSetDataText(this.xSet, k),
+                    y: _.reduce(axisPointValues, (total, val) => total + val.v, 0),
+                }
+            });
+            return [{
+                key: this.name,
+                values: values,
+                color: '#1F77B4',
+            }];
+        }
+
+        var groups = _.map(groupSetData.items, i => i.value);
+        return _.map(groups, group => {
+            var groupData = _.filter(this.data, d => d.c[this.groupSetIndex()] == group);
+            var values = _.map(axisValues, k => {
+                var axisPointValues = _.filter(groupData, d => d.c[xSetIndex] == k);
+                return {
+                    x: this.resolveSetDataText(this.xSet, k),
+                    y: _.reduce(axisPointValues, (total, val) => total + val.v, 0),
+                }
+            });
+            return {
+                key: this.resolveSetDataText(this.groupSet, group),
+                values: values,
+                color: this.resolveSetDataColor(this.groupSet, group),
+            }
+        });
+    }
+
     updateChart = () => {
         this.pending.chartOptions = {
             chart: _.assign({}, defaultChartOptions),
@@ -100,24 +153,8 @@ export class VariableResult {
         this.pending.chartOptions.chart.type = this.xSet.numeric ? 'stackedAreaChart' : 'multiBarChart';
         this.pending.chartOptions.chart.yAxis.axisLabel = this.variable.unit;
         this.pending.chartOptions.chart.height = this.chartHeight;
-        var unfilteredChartData = _(this.data).groupBy(d => {
-            return this.groupSet != null ? d.c[this.groupSetIndex()] : this.name;
-        }).map((group: IDimensionalDataItem[], key: string) => {
-            return {
-                key: this.resolveSetDataText(this.groupSet, key),
-                values: _(group).groupBy(v => {
-                    return v.c[this.xSetIndex()];
-                }).map((g: IDimensionalDataItem[], k: string) => {
-                    return {
-                        x: this.resolveSetDataText(this.xSet, k),
-                        y: _.reduce(g, (total: number, val: IDimensionalDataItem) => {
-                            return total + val.v;
-                        }, 0),
-                    };
-                    }).value(),
-                color: this.resolveSetDataColor(this.groupSet, key),
-            };
-            }).value();
+
+        var unfilteredChartData = this.getUnfilteredChartData();
         this.pending.chartData = _.filter(unfilteredChartData, d => {
             if (!this.setDataFilters)
                 return true;

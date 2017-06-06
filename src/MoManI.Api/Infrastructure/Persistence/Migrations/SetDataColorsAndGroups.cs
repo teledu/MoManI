@@ -18,7 +18,6 @@ namespace MoManI.Api.Infrastructure.Persistence.Migrations
 
         protected override async Task RunMigration()
         {
-            await Task.Delay(5000);
             var collection = Database.GetCollection<SetData>("SetData");
             var setDatas = await collection.Find(x => true).ToListAsync();
             if (!setDatas.Any())

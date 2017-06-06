@@ -8,6 +8,7 @@ namespace MoManI.WinExecApp.Models
         public Guid ScenarioId { get; set; }
         public Guid ModelId { get; set; }
         public Guid VariableId { get; set; }
+        public decimal DefaultValue { get; set; }
         public IEnumerable<VariableSet> Sets { get; set; }
         public List<VariableResultItem> Data { get; set; }
     }

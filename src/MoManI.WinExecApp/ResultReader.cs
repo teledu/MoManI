@@ -26,13 +26,15 @@ namespace MoManI.WinExecApp
                         V = decimal.Parse(values.Last(), NumberStyles.Float, new NumberFormatInfo {NumberDecimalSeparator = "."}),
                     };
                 });
+                var defaultValue = 0;
                 yield return new Result
                 {
                     ScenarioId = metadata.ScenarioId,
                     ModelId = metadata.ModelId,
                     VariableId = variable.Id,
+                    DefaultValue = defaultValue,
                     Sets = variable.Sets.Select(s => new VariableSet {Id = s.Id, Index = s.Index}),
-                    Data = resultItems.ToList(),
+                    Data = resultItems.Where(i => i.V != defaultValue).ToList(),
                 };
             }
         }
@@ -47,6 +49,7 @@ namespace MoManI.WinExecApp
                 ScenarioId = metadata.ScenarioId,
                 ModelId = metadata.ModelId,
                 VariableId = v.Id,
+                DefaultValue = 0,
                 Sets = v.Sets.Select(s => new VariableSet { Id = s.Id, Index = s.Index }),
                 Data = new List<VariableResultItem>(),
             });
@@ -67,6 +70,8 @@ namespace MoManI.WinExecApp
                 var location = node.Attributes["name"].Value;
                 var value = decimal.Parse(node.Attributes["value"].Value, NumberStyles.Float, new NumberFormatInfo {NumberDecimalSeparator = "."});
                 var name = location.Split('(').First();
+                if (value == variableResults[name].DefaultValue)
+                    continue;
                 var coordinates = location.Split('(').Last().TrimEnd(')').Split(',');
                 variableResults[name].Data.Add(new VariableResultItem
                 {

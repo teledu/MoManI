@@ -37,15 +37,31 @@ namespace MoManI.Api.Controllers
             {
                 return Request.CreateErrorResponse(HttpStatusCode.UpgradeRequired, "Request no longer supported, please redownload executable file");
             }
+            var cleanedRequest = CleanUpDefaultData(request);
             await _resultsRepository.SaveVariableResults(new VariableResult
+            {
+                VariableId = cleanedRequest.VariableId,
+                ScenarioId = cleanedRequest.ScenarioId,
+                ModelId = cleanedRequest.ModelId,
+                DefaultValue = cleanedRequest.DefaultValue ?? 0,
+                Sets = cleanedRequest.Sets?.Select(s => new VariableSet { Id = s.Id, Index = s.Index }),
+                Data = cleanedRequest.Data?.Select(d => new VariableResultItem {C = d.C, V = d.V}),
+            });
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        private VariableResultSaveRequest CleanUpDefaultData(VariableResultSaveRequest request)
+        {
+            var defaultValue = request.DefaultValue ?? 0;
+            return new VariableResultSaveRequest
             {
                 VariableId = request.VariableId,
                 ScenarioId = request.ScenarioId,
                 ModelId = request.ModelId,
-                Sets = request.Sets?.Select(s => new VariableSet { Id = s.Id, Index = s.Index }),
-                Data = request.Data?.Select(d => new VariableResultItem {C = d.C, V = d.V}),
-            });
-            return Request.CreateResponse(HttpStatusCode.OK);
+                DefaultValue = defaultValue,
+                Sets = request.Sets,
+                Data = request.Data?.Where(d => d.V != defaultValue),
+            };
         }
     }
 
@@ -54,6 +70,7 @@ namespace MoManI.Api.Controllers
         public Guid VariableId { get; set; }
         public Guid ScenarioId { get; set; }
         public Guid ModelId { get; set; }
+        public decimal? DefaultValue { get; set; }
         public IEnumerable<VariableResultSetSaveRequest> Sets { get; set; }
         public IEnumerable<VariableResultItemSaveRequest> Data { get; set; }
     }

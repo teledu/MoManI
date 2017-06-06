@@ -485,6 +485,7 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
             modelId: this.modelId,
             scenarioId: this.scenarioId,
             variableId: component.id,
+            defaultValue: null,
             sets: _.map(component.sets, (setId, index) => {
                 var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId == setId).value().length;
                 return {
@@ -501,6 +502,7 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
             modelId: data.modelId,
             scenarioId: data.scenarioId,
             variableId: data.variableId,
+            defaultValue: data.defaultValue,
             sets: data.sets,
             data: _.map(stringedData, d => {
                 return {
@@ -512,7 +514,7 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
     }
 
     getDefaultValueForData = (data: IVariableResult) => {
-        return '-';
+        return data.defaultValue;
     }
 
     constructFullDataForComponent = (data: IVariableResult, dataArray: IDimensionalDataItem[]) => {
@@ -520,13 +522,14 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
             modelId: this.modelId,
             scenarioId: this.scenarioId,
             variableId: data.variableId,
+            defaultValue: data.defaultValue,
             sets: data.sets,
             data: dataArray,
         };
     }
 
     valueSameAsDefault = (value: number, data: IVariableResult) => {
-        return false;
+        return value == data.defaultValue;
     }
 }
 

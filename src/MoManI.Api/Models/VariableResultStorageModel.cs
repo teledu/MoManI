@@ -10,5 +10,6 @@ namespace MoManI.Api.Models
         public Guid ScenarioId { get; set; }
         public Guid ModelId { get; set; }
         public IEnumerable<VariableSet> Sets { get; set; }
+        public decimal DefaultValue { get; set; }
     }
 }

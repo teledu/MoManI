@@ -32,7 +32,7 @@ export class CsvBuilder {
         var dataRows = _.map(coordinates, c => {
             return {
                 coordinates: c.join(','),
-                values: _.map(_.range(detailedSetDataValueCount), () => <string>undefined)
+                values: _.map(_.range(detailedSetDataValueCount), () => dataset.defaultValue)
             }
         });
         
@@ -42,11 +42,12 @@ export class CsvBuilder {
             if (index < 0) return;
             var row = _.find(dataRows, r => r.coordinates === coordinates);
             if (row == null) return;
-            row.values[index] = data.v.toString();
+            row.values[index] = data.v;
         });
 
         _.forEach(dataRows, data => {
-            var row = [data.coordinates].concat(data.values).join(',');
+            var valuesString = data.values.join(',');
+            var row = [data.coordinates, valuesString].join(',');
             this.rows.push(row);
         });
     }
