@@ -11,11 +11,11 @@ export class Filter {
 }
 
 export class CsvFiltering {
-    public sets: ISet[];
-    public filters: Filter[];
+    readonly sets: ISet[];
+    filters: Filter[];
 
-    private components: IDimensionalComponent[];
-    private filterCallback: (filteredComponents: IDimensionalComponent[], setFilters: ISetValueFilter[]) => void;
+    private readonly components: IDimensionalComponent[];
+    private readonly filterCallback: (filteredComponents: IDimensionalComponent[], setFilters: ISetValueFilter[]) => void;
 
     constructor(sets: ISet[], components: IDimensionalComponent[], componentType: string, filterCallback: (filteredComponents: IDimensionalComponent[], setFilters: ISetValueFilter[]) => void, initialFilter?: IFilterDescription) {
         this.sets = sets;
@@ -30,8 +30,13 @@ export class CsvFiltering {
         this.filters = [];
         this.filterCallback = filterCallback;
         if (initialFilter) {
-            //TODO: support component name filters
-            if (initialFilter.filterType.toLowerCase() === 'set' && _.some(this.sets, s => s.id == initialFilter.filteredItemId)) {
+            if (initialFilter.filterType.toLowerCase() === componentType.toLowerCase()) {
+                const filteredComponent = _.find(this.components, c => c.id === initialFilter.filteredItemId);
+                if (filteredComponent) {
+                    this.filters.push(new Filter('Component', `^${filteredComponent.name}$`));
+                }
+            }
+            if (initialFilter.filterType.toLowerCase() === 'set' && _.some(this.sets, s => s.id === initialFilter.filteredItemId)) {
                 this.filters.push(new Filter(initialFilter.filteredItemId, initialFilter.filterValue));
             }
             if (this.filters.length) {
@@ -40,19 +45,19 @@ export class CsvFiltering {
         }
     }
 
-    public addFilter = () => {
+    addFilter = () => {
         this.filters.push(new Filter());
     }
 
-    public apply = () => {
+    apply = () => {
         var filteredComponents = this.components;
-        var componentFilters = _.filter(this.filters, f => f.setId == 'Component');
+        const componentFilters = _.filter(this.filters, f => f.setId === 'Component');
         if (componentFilters.length) {
             var componentRegexQueries = _.map(componentFilters, cf => new RegExp(cf.query, 'i'));
-            filteredComponents = _.filter(this.components, c => _.some(componentRegexQueries, crq => c.name.search(crq) != -1));
+            filteredComponents = _.filter(this.components, c => _.some(componentRegexQueries, crq => c.name.search(crq) !== -1));
         }
-        var setFilters = _.filter(this.filters, f => f.setId != 'Component');
-        var setFilterQueries: ISetValueFilter[] = _.map(setFilters, f => {
+        const setFilters = _.filter(this.filters, f => f.setId !== 'Component');
+        const setFilterQueries: ISetValueFilter[] = _.map(setFilters, f => {
             return {
                 id: f.setId,
                 query: new RegExp(f.query, 'i'),
@@ -61,7 +66,7 @@ export class CsvFiltering {
         this.filterCallback(filteredComponents, setFilterQueries);
     }
 
-    public clear = () => {
+    clear = () => {
         this.filters = [];
         this.filterCallback(this.components, []);
     }

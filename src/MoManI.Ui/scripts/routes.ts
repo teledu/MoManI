@@ -124,7 +124,7 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/parameter-data-csv.html'
             })
         .when(
-            '/models/:modelId/:scenarioId/data/csv/:filterType/:filteredItemId/:filterValue', {
+            '/models/:modelId/:scenarioId/data/csv/:filterType/:filteredItemId/:filterValue?', {
                 controller: parameterDataControllers.CsvParameterDataController,
                 templateUrl: 'partials/parameter-data-csv.html'
             })
@@ -134,9 +134,9 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/parameter-data-csv.html'
             })
         .when(
-            '/models/:modelId/:scenarioId/data/parameter/:parameterId/csv', {
-                controller: parameterDataControllers.CsvParameterDataForParameterController,
-                templateUrl: 'partials/parameter-data-parameter-csv.html'
+            '/models/:modelId/:scenarioId/data/:filterType/:filteredItemId/csv', {                  //TODO: remove this legacy url handler, handled by the initial filter above
+                controller: parameterDataControllers.CsvParameterDataController,
+                templateUrl: 'partials/parameter-data-csv.html'
             })
         .when(
             '/results', {
