@@ -4,6 +4,7 @@ import variableModel = require('models/variable')
 import variableResultModel = require('models/variableResult')
 import settingsModel = require('models/variableResultSettings');
 import csvData = require('models/csvData');
+import csvFiltering = require('models/csvFiltering');
 import setService = require('services/setService');
 import variableService = require('services/variableService');
 import modelService = require('services/modelService');
@@ -149,6 +150,7 @@ export interface ICsvVariableResultScope extends ng.IScope {
     model: IModel;
     scenario: IScenario;
     data: csvData.VariableResultCsv;
+    filtering: csvFiltering.CsvFiltering;
     changeColumnSet: () => void;
     downloadCsv: () => void;
     loading: boolean;
@@ -192,6 +194,7 @@ export class CsvVariableResultController {
                 var variableResults = <IVariableResult[]>dataRes[1];
 
                 $scope.data = new csvData.VariableResultCsv(modelId, scenarioId, variables, sets, variableResults, setDatas);
+                $scope.filtering = new csvFiltering.CsvFiltering(sets, variables, 'Variable', $scope.data.updateFilters);
                 $scope.loading = false;
             });
         });

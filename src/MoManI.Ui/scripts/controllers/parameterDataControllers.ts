@@ -2,6 +2,7 @@
 import _ = require('lodash');
 import parameterDataModel = require('models/parameterData');
 import csvData = require('models/csvData');
+import csvFiltering = require('models/csvFiltering');
 import setDataModel = require('models/setData');
 import setService = require('services/setService');
 import parameterService = require('services/parameterService');
@@ -96,6 +97,7 @@ export interface ICsvParameterDataScope extends ng.IScope {
     model: IModel;
     scenario: IScenario;
     data: csvData.ParameterDataCsv;
+    filtering: csvFiltering.CsvFiltering;
     changeColumnSet: () => void;
     save: () => void;
     downloadCsv: () => void;
@@ -140,6 +142,7 @@ export class CsvParameterDataController {
                 var parameterDatas = <IParameterData[]>dataRes[1];
 
                 $scope.data = new csvData.ParameterDataCsv(modelId, scenarioId, parameters, sets, parameterDatas, setDatas);
+                $scope.filtering = new csvFiltering.CsvFiltering(sets, parameters, 'Parameter', $scope.data.updateFilters);
                 $scope.loading = false;
             });
         });

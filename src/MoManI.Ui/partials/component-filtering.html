@@ -1,0 +1,24 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <label>Filters:</label>
+    </div>
+</div>
+<div class="row" ng-repeat="filter in filtering.filters">
+    <div class="col-md-6">
+        <select class="form-control" ng-options="set.id as set.name for set in filtering.sets" ng-model="filter.setId"></select>
+    </div>
+    <div class="col-md-6">
+        <input type="text" class="form-control" ng-model="filter.query"/>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-default" ng-click="filtering.addFilter()">Add filter</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-default" ng-click="filtering.apply()">Apply filters</button>
+        <button class="btn btn-default" ng-click="filtering.clear()">Clear filters</button>
+    </div>
+</div>

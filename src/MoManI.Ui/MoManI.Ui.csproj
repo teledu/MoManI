@@ -28,6 +28,7 @@
     <Content Include="index.html" />
     <Content Include="partials\clone-model-scenario-dialog.html" />
     <Content Include="partials\composition-details.html" />
+    <Content Include="partials\component-filtering.html" />
     <Content Include="partials\variable-result-csv.html" />
     <Content Include="partials\parameter-data-parameter-csv.html" />
     <Content Include="partials\parameter-data-set-csv.html" />
@@ -129,6 +130,7 @@
     <TypeScriptCompile Include="scripts\lib\angular-route.d.ts" />
     <TypeScriptCompile Include="scripts\lib\angular.d.ts" />
     <TypeScriptCompile Include="scripts\models\csvBuilder.ts" />
+    <TypeScriptCompile Include="scripts\models\csvFiltering.d.ts" />
     <TypeScriptCompile Include="scripts\models\dictionary.d.ts" />
     <TypeScriptCompile Include="scripts\models\dictionary.ts" />
     <TypeScriptCompile Include="scripts\lib\FileSaver.d.ts" />
@@ -141,6 +143,7 @@
     <TypeScriptCompile Include="scripts\models\dataStringBuilder.ts" />
     <TypeScriptCompile Include="scripts\models\constraintList.ts" />
     <TypeScriptCompile Include="scripts\models\csvData.ts" />
+    <TypeScriptCompile Include="scripts\models\csvFiltering.ts" />
     <TypeScriptCompile Include="scripts\models\scenario.ts" />
     <TypeScriptCompile Include="scripts\models\scenario.d.ts" />
     <TypeScriptCompile Include="scripts\models\constraintGroup.ts" />

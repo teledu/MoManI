@@ -54,7 +54,7 @@ class Dimension implements IDimension {
     }
 
     sameDimensionAs(other: Dimension) {
-        return this.setId == other.setId && this.index == other.index;
+        return this.setId === other.setId && this.index === other.index;
     }
 }
 
@@ -76,6 +76,10 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
     protected constructFullDataForComponent: (data: TData, dataArray: IDimensionalDataItem[]) => TData;
     protected valueSameAsDefault: (value: number, data: TData) => boolean;
 
+    protected currentComponentFilters: IDimensionalComponent[];
+    protected currentSetFilters: ISetValueFilter[];
+    protected hiddenFilteredRows: (number | string)[][];
+
     columnSetId: string;
     sets: ISet[];
 
@@ -91,8 +95,12 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
         this.datas = datas;
         this.dimensionStore = new CsvDimensionStore(modelId, sets, setDatas, components);
         var axisDimension = this.dimensionStore.getAxisDimension();
-        this.columnSetId = axisDimension ? _.find(this.sets, s => s.id == axisDimension.setId).id : null;
+        this.columnSetId = axisDimension ? _.find(this.sets, s => s.id === axisDimension.setId).id : null;
         this.unshownData = [];
+
+        this.currentComponentFilters = components;
+        this.currentSetFilters = [];
+        this.hiddenFilteredRows = [];
     }
 
     public clearSpreadsheet = () => {
@@ -106,19 +114,20 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
     public changeColumnSet = () => {
         this.dimensionStore.setAxisSet(this.columnSetId);
         this.showSpreadsheet();
+        this.filterData();
     }
 
     protected showSpreadsheet = () => {
         var componentDimensions = _.map(_.orderBy(this.components, c => c.name), component => {
             var dimensions = this.dimensionStore.getDimensionsForComponent(component);
-            var columnDimensions = _.filter(dimensions, d => d != this.dimensionStore.getAxisDimension());
-            return <IDimensionalCsvData<TComponent, TData>>{
+            var columnDimensions = _.filter(dimensions, d => d !== this.dimensionStore.getAxisDimension());
+            return {
                 component: component,
                 columnDimensions: columnDimensions,
                 rows: _.reduce(columnDimensions, (res, d) => res * d.values.length, 1 as number),
                 data: this.getDataForComponent(component.id),
-                usesValueColumn: dimensions.length == columnDimensions.length,
-            };
+                usesValueColumn: dimensions.length === columnDimensions.length,
+            } as IDimensionalCsvData<TComponent, TData>;
         });
 
         var rowCount = _.sumBy(componentDimensions, pd => pd.rows);
@@ -127,7 +136,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
         _.forEach(componentDimensions, (componentDimension, componentDimensionIndex) => {
             var startingRow = _.sum(_.map(componentDimensions.slice(0, componentDimensionIndex), ppd => ppd.rows));
 
-            for (var rowIndex = startingRow; rowIndex < startingRow + componentDimension.rows; rowIndex++) {
+            for (let rowIndex = startingRow; rowIndex < startingRow + componentDimension.rows; rowIndex++) {
                 this.spreadsheetItems[rowIndex][0] = componentDimension.component.name;
                 this.spreadsheetItems[rowIndex][this.spreadsheetSettings.columns.length] = componentDimension.component.id;
                 this.spreadsheetItems[rowIndex][this.spreadsheetSettings.columns.length + 1] = componentDimension.usesValueColumn ? 1 : 0;
@@ -135,16 +144,16 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
 
             var currentRowGroups = 1;
             _.forEach(this.dimensionStore.getColumnDimensions(), (setData, columnIndex) => {
-                if (_.some(componentDimension.columnDimensions, d => d == setData)) {
+                if (_.some(componentDimension.columnDimensions, d => d === setData)) {
 
                     var repetitionSize = componentDimension.rows / currentRowGroups;
                     var lumpSize = repetitionSize / setData.values.length;
-                    var repetitions = componentDimension.rows / repetitionSize;
+                    const repetitions = componentDimension.rows / repetitionSize;
 
                     for (var rep = 0; rep < repetitions; rep++) {
                         _.forEach(setData.values, (val, valueIndex) => {
-                            for (var i = 0; i < lumpSize; i++) {
-                                var rowIndex = startingRow + rep * repetitionSize + valueIndex * lumpSize + i;
+                            for (let i = 0; i < lumpSize; i++) {
+                                const rowIndex = startingRow + rep * repetitionSize + valueIndex * lumpSize + i;
                                 this.spreadsheetItems[rowIndex][columnIndex + 1] = val.value;
                             };
                         });
@@ -153,7 +162,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
 
 
                 } else {
-                    for (var rowIndex = startingRow; rowIndex < startingRow + componentDimension.rows; rowIndex++) {
+                    for (let rowIndex = startingRow; rowIndex < startingRow + componentDimension.rows; rowIndex++) {
                         this.spreadsheetItems[rowIndex][columnIndex + 1] = '-';
                     };
                 }
@@ -168,13 +177,13 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
     private setupSpreadsheet = (rowCount: number) => {
         var axisDimension = this.dimensionStore.getAxisDimension();
 
-        var columnProperties = <IColumnProperties[]>[{
+        var columnProperties = [{
             readOnly: true,
-        }];
+        }] as IColumnProperties[];
         _.forEach(this.dimensionStore.getColumnDimensions(), () => {
-            columnProperties.push(<IColumnProperties>{
+            columnProperties.push({
                 readOnly: true
-            });
+            } as IColumnProperties);
         });
         if (axisDimension) {
             _.forEach(axisDimension.values, () => {
@@ -214,7 +223,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
         };
 
         if (!this.allColumnsReadOnly) {
-            settings.cells = (row, col, prop) => {
+            settings.cells = (row, col) => {
                 var usesValueColumn = this.spreadsheetItems[row] && this.spreadsheetItems[row][columnHeaders.length - 1];
 
                 if (usesValueColumn && col < visibleColumnCount - 1) {
@@ -223,7 +232,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                     }
                 }
 
-                if (!usesValueColumn && needsValueColumn && col == visibleColumnCount - 1) {
+                if (!usesValueColumn && needsValueColumn && col === visibleColumnCount - 1) {
                     return {
                         readOnly: true,
                     }
@@ -246,9 +255,9 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
 
         var dataMappingFunction = (componentDimension: IDimensionalCsvData<TComponent, TData>, rowContents: (string | number)[], colValue?: string) => {
             var actualOrderedValues = _.map(componentDimension.data.sets, set => {
-                var dimension = _.find(componentDimension.columnDimensions, dim => dim.setId == set.id && dim.index == set.index);
+                var dimension = _.find(componentDimension.columnDimensions, dim => dim.setId === set.id && dim.index === set.index);
                 if (dimension == null) {
-                    if (axisDimension && axisDimension.setId == set.id && axisDimension.index == set.index)
+                    if (axisDimension && axisDimension.setId === set.id && axisDimension.index === set.index)
                         return colValue;
                     throw ('this.actualSetValue');
                 }
@@ -262,9 +271,9 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
             var startingRow = _.sum(_.map(componentDimensions.slice(0, componentDimensionIndex), ppd => ppd.rows));
 
             if (!componentDimension.data) {
-                for (var row = startingRow; row < startingRow + componentDimension.rows; row++) {
+                for (let row = startingRow; row < startingRow + componentDimension.rows; row++) {
                     if (componentDimension.usesValueColumn) {
-                        for (i = 0; i < axisDimension.values.length; i++) {
+                        for (let i = 0; i < axisDimension.values.length; i++) {
                             this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
                         }
                     } else {
@@ -278,47 +287,84 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                 return;
             }
             var stringgedData = _.map(componentDimension.data.data, data => {
-                return <IStringgedData>{
+                return {
                     c: data.c,
                     coordinateString: data.c.join('|'),
                     v: data.v,
-                };
+                } as IStringgedData;
             });
 
             if (componentDimension.usesValueColumn) {
-                for (var row = startingRow; row < startingRow + componentDimension.rows; row++) {
-                    var i;
-                    for (i = 0; i < axisDimension.values.length; i++) {
+                for (let row = startingRow; row < startingRow + componentDimension.rows; row++) {
+                    for (let i = 0; i < axisDimension.values.length; i++) {
                         this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
                     }
-                    var mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row]);
-                    var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
+                    const mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row]);
+                    const found = _.find(stringgedData, data => data.coordinateString === mappedCoordinates);
                     if (found) {
                         stringgedData.splice(stringgedData.indexOf(found), 1);
                     }
-                    var value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
-                    this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
+                    const value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
+                    this.spreadsheetItems[row][valueColumnStartIndex + axisDimension.values.length] = value;
                 }
             } else {
                 for (var row = startingRow; row < startingRow + componentDimension.rows; row++) {
-                    var i;
-                    for (i = 0; i < axisDimension.values.length; i++) {
-                        var mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row], axisDimension.values[i].value);
-                        var found = _.find(stringgedData, data => data.coordinateString == mappedCoordinates);
+                    for (let i = 0; i < axisDimension.values.length; i++) {
+                        const mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row], axisDimension.values[i].value);
+                        const found = _.find(stringgedData, data => data.coordinateString === mappedCoordinates);
                         if (found) {
                             stringgedData.splice(stringgedData.indexOf(found), 1);
                         }
-                        var value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
+                        const value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
                         this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
                     }
                     if (this.dimensionStore.needsValueColumn()) {
-                        this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
+                        this.spreadsheetItems[row][valueColumnStartIndex + axisDimension.values.length] = '-';
                     }
                 }
             }
             
             this.unshownData.push(this.getRemainingDataForComponent(componentDimension.data, stringgedData));
         });
+    }
+
+    private filterData = () => {
+        var sourceData = this.spreadsheetItems.concat(this.hiddenFilteredRows);
+        this.spreadsheetItems = [];
+        this.hiddenFilteredRows = [];
+
+        var parameterIdColumnIndex = this.spreadsheetSettings.columns.length;
+        var columnDimensionIds = _.map(this.dimensionStore.getColumnDimensions(), d => d.setId);
+        var activeSetFilters = _.filter(this.currentSetFilters, sf => _.some(columnDimensionIds, cdi => cdi === sf.id));
+        var indexFilters = _.map(activeSetFilters, sf => {
+            return {
+                index: _.indexOf(columnDimensionIds, sf.id) + 1,
+                regex: sf.query,
+            };
+        });
+
+        _.forEach(sourceData, row => {
+            if (_.some(this.currentComponentFilters, c => c.id === row[parameterIdColumnIndex])) {
+                if (activeSetFilters.length) {
+                    const passesAllSetFilters = _.every(indexFilters, f => (row[f.index] as string).search(f.regex) !== -1);
+                    if (passesAllSetFilters) {
+                        this.spreadsheetItems.push(row);
+                    } else {
+                        this.hiddenFilteredRows.push(row);
+                    }
+                } else {
+                    this.spreadsheetItems.push(row);
+                }
+            } else {
+                this.hiddenFilteredRows.push(row);
+            }
+        });
+    }
+
+    updateFilters = (filteredComponents: IDimensionalComponent[], setFilters: ISetValueFilter[]) => {
+        this.currentComponentFilters = filteredComponents;
+        this.currentSetFilters = setFilters;
+        this.filterData();
     }
 
     serialize: () => TData[] = () => {
@@ -330,7 +376,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
             var columns = this.dimensionStore.getColumnDimensions();
 
             var columnIndexMap = _.map(unshownData.sets, dimension => {
-                var index = _.findIndex(columns, col => col.setId == dimension.id && col.index == dimension.index);
+                var index = _.findIndex(columns, col => col.setId === dimension.id && col.index === dimension.index);
                 if (index < 0)
                     return null;
                 return index + 1;
@@ -340,7 +386,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                     var mappedColumnIndex = columnIndexMap[index];
                     if (mappedColumnIndex)
                         return row[mappedColumnIndex].toString();
-                    if (axisDimension.setId == dimension.id && axisDimension.index == dimension.index) {
+                    if (axisDimension.setId === dimension.id && axisDimension.index === dimension.index) {
                         return axisDimension.values[valueIndex].value;
                     }
                     throw 'err';
@@ -351,20 +397,20 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
             _.forEach(rows, row => {
                 var rowUsesValueColumn = !!row[this.spreadsheetSettings.columns.length + 1];
                 if (rowUsesValueColumn) {
-                    var val = +row[valueColumnIndex];
+                    const val = +row[valueColumnIndex];
                     if (this.valueSameAsDefault(val, unshownData))
                         return;
-                    var coordinates = coordinateFunction(row);
+                    const coordinates = coordinateFunction(row);
                     data.push({
                         c: coordinates,
                         v: val,
                     });
                 } else {
-                    for (var i = 0; i < axisDimension.values.length; i++) {
-                        var val = +row[axisColumnsStartIndex + i];
+                    for (let i = 0; i < axisDimension.values.length; i++) {
+                        const val = +row[axisColumnsStartIndex + i];
                         if (this.valueSameAsDefault(val, unshownData))
                             continue;
-                        var coordinates = coordinateFunction(row, i);
+                        const coordinates = coordinateFunction(row, i);
                         data.push({
                             c: coordinates,
                             v: val,
@@ -382,7 +428,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
         res.push(`${this.spreadsheetSettings.colHeaders.slice(0, this.spreadsheetSettings.columns.length).join(',')}\r\n`);
         _.forEach(this.spreadsheetItems, row => {
             var values = _.map(row.slice(0, this.spreadsheetSettings.columns.length), val => {
-                return val == '-' ? '' : val;
+                return val === '-' ? '' : val;
             });
             res.push(`${values.join(',')}\r\n`);
         });
@@ -401,11 +447,11 @@ export class ParameterDataCsv extends CsvData<IParameter, IParameterData> {
     }
 
     getDataForComponent = (componentId: string) => {
-        return _.find(this.datas, pd => pd.parameterId == componentId);
+        return _.find(this.datas, pd => pd.parameterId === componentId);
     }
 
     getUnshownDataForComponent = (componentId: string) => {
-        return _.find(this.unshownData, pd => pd.parameterId == componentId);
+        return _.find(this.unshownData, pd => pd.parameterId === componentId);
     }
 
     getDefaultDataForComponent = (component: IParameter) => {
@@ -415,7 +461,7 @@ export class ParameterDataCsv extends CsvData<IParameter, IParameterData> {
             parameterId: component.id,
             defaultValue: 0,
             sets: _.map(component.sets, (setId, index) => {
-                var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId == setId).value().length;
+                var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId === setId).value().length;
                 return {
                     id: setId,
                     index: instanceIndex,
@@ -457,7 +503,7 @@ export class ParameterDataCsv extends CsvData<IParameter, IParameterData> {
     }
 
     valueSameAsDefault = (value: number, data: IParameterData) => {
-        return value == data.defaultValue;
+        return value === data.defaultValue;
     }
 }
 
@@ -473,11 +519,11 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
     }
 
     getDataForComponent = (componentId: string) => {
-        return _.find(this.datas, pd => pd.variableId == componentId);
+        return _.find(this.datas, pd => pd.variableId === componentId);
     }
 
     getUnshownDataForComponent = (componentId: string) => {
-        return _.find(this.unshownData, pd => pd.variableId == componentId);
+        return _.find(this.unshownData, pd => pd.variableId === componentId);
     }
 
     getDefaultDataForComponent = (component: IVariable) => {
@@ -487,7 +533,7 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
             variableId: component.id,
             defaultValue: null,
             sets: _.map(component.sets, (setId, index) => {
-                var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId == setId).value().length;
+                var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId === setId).value().length;
                 return {
                     id: setId,
                     index: instanceIndex,
@@ -529,39 +575,39 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
     }
 
     valueSameAsDefault = (value: number, data: IVariableResult) => {
-        return value == data.defaultValue;
+        return value === data.defaultValue;
     }
 }
 
 class CsvDimensionStore {
-    private dimensions: IDimension[];
-    private components: IDimensionalComponent[];
-    private setDatas: setDataModel.SetData[];
+    private readonly dimensions: IDimension[];
+    private readonly components: IDimensionalComponent[];
+    private readonly setDatas: setDataModel.SetData[];
     private axisDimension: IDimension;
 
     constructor(modelId: string, sets: ISet[], setDatas: ISetData[], components: IDimensionalComponent[]) {
         this.dimensions = [];
         this.components = components;
         this.setDatas = _.map(setDatas, setData => {
-            var set = _.find(sets, s => s.id == setData.setId);
+            var set = _.find(sets, s => s.id === setData.setId);
             return new setDataModel.SetData(modelId, set, setData);
         });
         _.forEach(components, component => {
             _.forEach(component.sets, (setId, i) => {
                 var previousSetIds = component.sets.slice(0, i);
-                var index = _.filter(previousSetIds, psId => psId == setId).length;
-                var dimension = _.find(this.dimensions, d => d.setId == setId && d.index == index);
+                var index = _.filter(previousSetIds, psId => psId === setId).length;
+                var dimension = _.find(this.dimensions, d => d.setId === setId && d.index === index);
                 if (dimension) {
                     return;
                 }
-                var setData = _.find(this.setDatas, sd => sd.setId == setId);
+                var setData = _.find(this.setDatas, sd => sd.setId === setId);
                 dimension = {
                     setId: setId,
                     index: index,
                     name: setData.setName,
                     numeric: setData.numeric,
                     values: _.map(setData.getValueNamePairs(), valueName => {
-                        var onlyDisplayValue = valueName.value == valueName.name || !valueName.name;
+                        var onlyDisplayValue = valueName.value === valueName.name || !valueName.name;
                         return {
                             value: valueName.value,
                             displayName: onlyDisplayValue ? valueName.value : `${valueName.value} (${valueName.name})`,
@@ -576,7 +622,7 @@ class CsvDimensionStore {
     }
 
     private assignInitialAxisSet = () => {
-        if (this.dimensions.length == 0)
+        if (this.dimensions.length === 0)
             return;
         var numericSets = _.filter(this.setDatas, s => s.numeric);
         var initialSet = numericSets.length ? _.maxBy(numericSets, s => s.getValueCount()) : _.maxBy(this.setDatas, s => s.getValueCount());
@@ -584,14 +630,14 @@ class CsvDimensionStore {
     }
 
     setAxisSet = (setId: string) => {
-        this.axisDimension = _.find(this.dimensions, d => d.setId == setId && d.index == 0);
+        this.axisDimension = _.find(this.dimensions, d => d.setId === setId && d.index === 0);
     }
 
     getDimensionsForComponent = (component: IDimensionalComponent) => {
         return _.map(component.sets, (setId, i) => {
             var previousSetIds = component.sets.slice(0, i);
-            var index = _.filter(previousSetIds, psId => psId == setId).length;
-            return _.find(this.dimensions, d => d.setId == setId && d.index == index);
+            var index = _.filter(previousSetIds, psId => psId === setId).length;
+            return _.find(this.dimensions, d => d.setId === setId && d.index === index);
         });
     }
 
@@ -600,7 +646,7 @@ class CsvDimensionStore {
     }
 
     getColumnDimensions = () => {
-        return _.filter(this.dimensions, d => d != this.getAxisDimension());
+        return _.filter(this.dimensions, d => d !== this.getAxisDimension());
     }
 
     getAllDimensions = () => {
@@ -610,7 +656,7 @@ class CsvDimensionStore {
     needsValueColumn = () => {
         if (this.axisDimension == null)
             return true;
-        return !_.every(this.components, c => _.some(c.sets, sId => sId == this.axisDimension.setId));
+        return !_.every(this.components, c => _.some(c.sets, sId => sId === this.axisDimension.setId));
     }
 }
 
