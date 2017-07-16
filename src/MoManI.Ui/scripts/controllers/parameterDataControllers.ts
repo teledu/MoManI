@@ -111,8 +111,14 @@ export class CsvParameterDataController {
         ModelService: angular.resource.IResourceClass<IModelResource>, ScenarioService: angular.resource.IResourceClass<IScenarioResource>
     ) {
         $scope.loading = true;
-        var modelId = $routeParams['modelId'];
-        var scenarioId = $routeParams['scenarioId'];
+        const modelId = $routeParams['modelId'];
+        const scenarioId = $routeParams['scenarioId'];
+
+        const initialFilter = $routeParams['filterType'] ? {
+            filterType: $routeParams['filterType'],
+            filteredItemId: $routeParams['filteredItemId'],
+            filterValue: $routeParams['filterValue'],
+        } as IFilterDescription : null;
 
         var setReq = SetService.query().$promise;
         var parameterReq = ParameterService.query().$promise;
@@ -142,7 +148,7 @@ export class CsvParameterDataController {
                 var parameterDatas = <IParameterData[]>dataRes[1];
 
                 $scope.data = new csvData.ParameterDataCsv(modelId, scenarioId, parameters, sets, parameterDatas, setDatas);
-                $scope.filtering = new csvFiltering.CsvFiltering(sets, parameters, 'Parameter', $scope.data.updateFilters);
+                $scope.filtering = new csvFiltering.CsvFiltering(sets, parameters, 'Parameter', $scope.data.updateFilters, initialFilter);
                 $scope.loading = false;
             });
         });
@@ -225,93 +231,5 @@ export class CsvParameterDataForParameterController {
                 $scope.loading = false;
             });
         }
-    }
-}
-
-export interface ICsvParameterDataForSetScope extends ng.IScope {
-    data: csvData.LegacyParameterDataCsv;
-    set: ISet;
-    modelId: string;
-    scenarioId: string;
-    setValue: string;
-    save: () => void;
-    loading: boolean;
-}
-
-export class CsvParameterDataForSetController {
-    constructor($scope: ICsvParameterDataForSetScope, $routeParams: angular.route.IRouteParamsService, $window: angular.IWindowService, $q: angular.IQService,
-        ParameterService: ng.resource.IResourceClass<IParameterResource>, SetService: ng.resource.IResourceClass<ISetResource>,
-        ParameterDataService: angular.resource.IResourceClass<IParameterDataResource>, SetDataService: angular.resource.IResourceClass<ISetDataResource>,
-        ModelService: angular.resource.IResourceClass<IModelResource>
-    ) {
-        $scope.loading = true;
-        $scope.modelId = $routeParams['modelId'];
-        $scope.scenarioId = $routeParams['scenarioId'];
-        var setId = $routeParams['setId'];
-        $scope.setValue = $routeParams['setValue'];
-        
-        var setReq = SetService.query().$promise;
-        var parameterReq = ParameterService.query().$promise;
-        var modelReq = ModelService.get({ id: $scope.modelId }).$promise;
-
-        $q.all([setReq, parameterReq, modelReq]).then(res => {
-            var allSets = <ISet[]>res[0];
-            var allParameters = <IParameter[]>res[1];
-            var model = <IModel>res[2];
-            $scope.set = _.find(allSets, s => s.id == setId);
-            var parameters = _.filter(allParameters, p => _.includes(model.parameters, p.id) && _.includes(p.sets, setId));
-            if (parameters.length == 0) {
-                $scope.loading = false;
-                return;
-            }
-            var actualSetIds = _.uniq(_.flatten(_.map(parameters, p => p.sets)));
-            var setDataReqs = _.map(actualSetIds, s => {
-                return SetDataService.get({ setId: s, modelId: $scope.modelId }).$promise;
-            });
-
-            var parameterDataReqs = _.map(parameters, p => ParameterDataService.get({ parameterId: p.id, scenarioId: $scope.scenarioId }).$promise);
-            var allParameterDataReqs = $q.all(parameterDataReqs);
-            var allSetDataReqs = $q.all(setDataReqs);
-
-            $q.all([allSetDataReqs, allParameterDataReqs]).then((dataRes) => {
-                var setDatas = <ISetData[]>dataRes[0];
-                var parameterDatas = <IParameterData[]>dataRes[1];
-
-                var commonSets = _.filter(allSets, s => s != null && s.id != setId && _.every(parameters, p => _.includes(p.sets, s.id)));
-                var axisSet = this.determineCommonSet(commonSets, setDatas);
-                var axisSetId = axisSet ? axisSet.id : null;
-                
-                $scope.data = new csvData.LegacyParameterDataCsv($scope.modelId, $scope.scenarioId, parameters, allSets, parameterDatas, setDatas, axisSetId, setId, $scope.setValue);
-                $scope.loading = false;
-            });
-        });
-
-        $scope.save = () => {
-            $scope.loading = true;
-            var parameterDatas = $scope.data.serialize();
-            var saveReqs = _.map(parameterDatas, parameterData => ParameterDataService.save(parameterData).$promise);
-            $q.all(saveReqs).then(() => {
-                $window.location.href = `#/models/${$scope.modelId}/${$scope.scenarioId}/data`;
-            }, () => {
-                alert('An error has occured during saving');
-                $scope.loading = false;
-            });
-        }
-    }
-
-    private determineCommonSet = (sets: ISet[], setDatas: ISetData[]) => {
-        if (sets.length == 0)
-            return null;
-        var numericSets = _.filter(sets, s => s.numeric);
-        return numericSets.length
-            ? this.determineSetWithMostData(numericSets, setDatas)
-            : this.determineSetWithMostData(sets, setDatas);
-    }
-
-    private determineSetWithMostData = (sets: ISet[], setDatas: ISetData[]) => {
-        return _.maxBy(sets, s => {
-            var setData = _.find(setDatas, sd => sd.setId == s.id);
-            return setData ? setData.items.length : 0;
-        });
     }
 }

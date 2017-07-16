@@ -26,7 +26,7 @@
         </form>
     </div>
     <div class="row">
-        <a href="#/models/{{scenario.modelId}}/{{scenario.id}}/data/allParameters">Enter data for all parameters at once</a>
+        <a href="#/models/{{scenario.modelId}}/{{scenario.id}}/data/csv">Enter data for all parameters at once</a>
         <span>(might be slow when large amounts of data exist)</span>
     </div>
     <div class="row">
@@ -63,7 +63,7 @@
         <div ng-repeat="set in model.selectedSets() | orderBy: setOrderProp">
             <div class="scenario-set">{{set.name}}</div>
             <div class="scenario-set-parameter" ng-repeat="setDataItem in setData[set.id].items">
-                <a href="#/models/{{model.id}}/{{scenario.id}}/data/set/{{set.id}}/{{setDataItem.value}}">{{setDataItem.value}}</a>
+                <a href="#/models/{{model.id}}/{{scenario.id}}/data/csv/set/{{set.id}}/{{setDataItem.value}}">{{setDataItem.value}}</a>
             </div>
         </div>
     </div>

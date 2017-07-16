@@ -3,10 +3,10 @@
 export class Filter {
     setId: string;
     query: string;
-
-    constructor() {
-        this.setId = null;
-        this.query = '';
+    
+    constructor(id?: string, query?: string) {
+        this.setId = id;
+        this.query = query;
     }
 }
 
@@ -17,7 +17,7 @@ export class CsvFiltering {
     private components: IDimensionalComponent[];
     private filterCallback: (filteredComponents: IDimensionalComponent[], setFilters: ISetValueFilter[]) => void;
 
-    constructor(sets: ISet[], components: IDimensionalComponent[], componentType: string, filterCallback: (filteredComponents: IDimensionalComponent[], setFilters: ISetValueFilter[]) => void) {
+    constructor(sets: ISet[], components: IDimensionalComponent[], componentType: string, filterCallback: (filteredComponents: IDimensionalComponent[], setFilters: ISetValueFilter[]) => void, initialFilter?: IFilterDescription) {
         this.sets = sets;
         this.components = components;
         this.sets.unshift({
@@ -29,6 +29,15 @@ export class CsvFiltering {
         });
         this.filters = [];
         this.filterCallback = filterCallback;
+        if (initialFilter) {
+            //TODO: support component name filters
+            if (initialFilter.filterType.toLowerCase() === 'set' && _.some(this.sets, s => s.id == initialFilter.filteredItemId)) {
+                this.filters.push(new Filter(initialFilter.filteredItemId, initialFilter.filterValue));
+            }
+            if (this.filters.length) {
+                this.apply();
+            }
+        }
     }
 
     public addFilter = () => {

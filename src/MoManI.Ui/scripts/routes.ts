@@ -114,7 +114,22 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
                 templateUrl: 'partials/parameter-data.html'
             })
         .when(
-            '/models/:modelId/:scenarioId/data/allParameters', {
+            '/models/:modelId/:scenarioId/data/parameter/:parameterId/fromSet/:setId?', {
+                controller: parameterDataControllers.ParameterDataController,
+                templateUrl: 'partials/parameter-data.html'
+            })
+        .when(
+            '/models/:modelId/:scenarioId/data/csv', {
+                controller: parameterDataControllers.CsvParameterDataController,
+                templateUrl: 'partials/parameter-data-csv.html'
+            })
+        .when(
+            '/models/:modelId/:scenarioId/data/csv/:filterType/:filteredItemId/:filterValue', {
+                controller: parameterDataControllers.CsvParameterDataController,
+                templateUrl: 'partials/parameter-data-csv.html'
+            })
+        .when(
+            '/models/:modelId/:scenarioId/data/:filterType/:filteredItemId/:filterValue', {         //TODO: remove this legacy url handler, handled by the initial filter above
                 controller: parameterDataControllers.CsvParameterDataController,
                 templateUrl: 'partials/parameter-data-csv.html'
             })
@@ -122,16 +137,6 @@ application.config(($routeProvider: angular.route.IRouteProvider, $rootScopeProv
             '/models/:modelId/:scenarioId/data/parameter/:parameterId/csv', {
                 controller: parameterDataControllers.CsvParameterDataForParameterController,
                 templateUrl: 'partials/parameter-data-parameter-csv.html'
-            })
-        .when(
-            '/models/:modelId/:scenarioId/data/set/:setId/:setValue', {
-                controller: parameterDataControllers.CsvParameterDataForSetController,
-                templateUrl: 'partials/parameter-data-set-csv.html'
-            })
-        .when(
-            '/models/:modelId/:scenarioId/data/parameter/:parameterId/fromSet/:setId?', {
-                controller: parameterDataControllers.ParameterDataController,
-                templateUrl: 'partials/parameter-data.html'
             })
         .when(
             '/results', {

@@ -31,7 +31,6 @@
     <Content Include="partials\component-filtering.html" />
     <Content Include="partials\variable-result-csv.html" />
     <Content Include="partials\parameter-data-parameter-csv.html" />
-    <Content Include="partials\parameter-data-set-csv.html" />
     <Content Include="partials\parameter-data-csv.html" />
     <Content Include="partials\scenario-set-list.html" />
     <Content Include="partials\set-data-list.html" />
