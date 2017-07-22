@@ -58,10 +58,12 @@ export class SetData {
     }
 
     addValue = () => {
+        const colorNumber = Math.floor(Math.random() * 16777215).toString(16);
+        const colorPad = '000000';
         var value: ISetDataValue = {
             id: uuid.v4(),
             value: null,
-            color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+            color: `#${colorPad.substring(0, colorPad.length - colorNumber.length)}${colorNumber}`,
             groupId: null,
             name: null,
             editable: true,
