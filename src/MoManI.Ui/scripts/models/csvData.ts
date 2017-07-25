@@ -368,7 +368,8 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
     }
 
     serialize: () => TData[] = () => {
-        return _.map(_.groupBy(this.spreadsheetItems, r => r[this.spreadsheetSettings.columns.length]), (rows, componentId) => {
+        var allData = this.spreadsheetItems.concat(this.hiddenFilteredRows);
+        return _.map(_.groupBy(allData, r => r[this.spreadsheetSettings.columns.length]), (rows, componentId) => {
             var unshownData = this.getUnshownDataForComponent(componentId);
             var data = unshownData.data.slice();
 
