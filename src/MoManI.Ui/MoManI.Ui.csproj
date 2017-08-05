@@ -122,6 +122,7 @@
     <TypeScriptCompile Include="scripts\controllers\variableControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\parameterControllers.ts" />
     <TypeScriptCompile Include="scripts\controllers\setControllers.ts" />
+    <TypeScriptCompile Include="scripts\directives\angular-enter.ts" />
     <TypeScriptCompile Include="scripts\filters\checkmarkFilter.ts" />
     <TypeScriptCompile Include="scripts\lib\angular-bootstrap.d.ts" />
     <TypeScriptCompile Include="scripts\lib\angular-resource.d.ts" />

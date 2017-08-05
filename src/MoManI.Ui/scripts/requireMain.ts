@@ -26,6 +26,7 @@ require.config({
         'angularSpinner': 'lib/angular-spinner',
         'tinycolor': 'lib/tinycolor',
         'angular-color-picker': 'lib/angularjs-color-picker',
+        'angular-enter': 'directives/angular-enter',
     },
     shim: {
         'jquery': { exports: 'jquery' },
@@ -43,6 +44,7 @@ require.config({
         'treeGrid': { exports: 'treeGrid', deps: ['angular'] },
         'angularSpinner': { exports: 'angularSpinner', deps: ['angular', 'spin'] },
         'angular-color-picker': { exports: 'angular-color-picker', deps: ['angular', 'tinycolor'] },
+        'angular-enter': { exports: 'angular-enter', deps: ['angular'] },
     },
     urlArgs: (id, url) => {
         var args = `v=${version}`;
@@ -71,8 +73,8 @@ declare module 'angularSpinner' {
 declare module 'angular-color-picker' {
 }
 
-require(['jquery', 'angular', 'angular-route', 'angular-resource', 'angular-ui-bootstrap', 'angular-strap-navbar', 'angular-nvd3', 'angular-confirm', 'checklist-model', 'treeGrid', 'ngHandsontable', 'application', 'routes', 'angularSpinner', 'tinycolor', 'angular-color-picker'],
-    ($, angular, angularRoute, angularResource, angularUiBootstrap, angularStrapNavbar, angularNvd3, angularConfirm, checklistModel, treeGrid, ngHandsontable, application, routes, angularSpinner, tinycolor, angularColorPicker) => {
+require(['jquery', 'angular', 'angular-route', 'angular-resource', 'angular-ui-bootstrap', 'angular-strap-navbar', 'angular-nvd3', 'angular-confirm', 'checklist-model', 'treeGrid', 'ngHandsontable', 'application', 'routes', 'angularSpinner', 'tinycolor', 'angular-color-picker', 'angular-enter'],
+    ($, angular, angularRoute, angularResource, angularUiBootstrap, angularStrapNavbar, angularNvd3, angularConfirm, checklistModel, treeGrid, ngHandsontable, application, routes, angularSpinner, tinycolor, angularColorPicker, angularEnter) => {
         window['tinycolor'] = tinycolor;
         $(() => { angular.bootstrap(document, ['application']); });
     });
