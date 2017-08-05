@@ -7,8 +7,13 @@
     <div class="col-md-6">
         <select class="form-control" ng-options="set.id as set.name for set in filtering.sets" ng-model="filter.setId"></select>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-5">
         <input type="text" class="form-control" ng-model="filter.query" ng-enter="filtering.apply()"/>
+    </div>
+    <div class="col-md-1">
+        <button type="button" class="btn btn-default" ng-click="filtering.removeFilter(filter)">
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>
     </div>
 </div>
 <div class="row">

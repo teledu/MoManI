@@ -49,6 +49,10 @@ export class CsvFiltering {
         this.filters.push(new Filter());
     }
 
+    removeFilter = (filter: Filter) => {
+        _.remove(this.filters, filter);
+    }
+
     apply = () => {
         var filteredComponents = this.components;
         const componentFilters = _.filter(this.filters, f => f.setId === 'Component');
