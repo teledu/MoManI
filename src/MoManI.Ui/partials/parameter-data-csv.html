@@ -9,10 +9,17 @@
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-6">
-                            <label for="columnSetSelector" class="col-md-6 control-label">Change column set</label>
-                            <div class="col-md-6">
-                                <select id="columnSetSelector" class="form-control" ng-options="set.id as set.name for set in data.sets" ng-model="data.columnSetId" ng-change="changeColumnSet()">
-                                </select>
+                            <div>
+                                <label for="columnSetSelector" class="col-md-6 control-label">Change column set</label>
+                                <div class="col-md-6">
+                                    <select id="columnSetSelector" class="form-control" ng-options="set.id as set.name for set in data.sets" ng-model="data.columnSetId" ng-change="changeColumnSet()">
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-default" ng-click="save()">Save</button>
+                                <a href="#/models/{{model.id}}/{{scenario.id}}/data" class="btn btn-default">Cancel</a>
+                                <button class="btn btn-default" ng-click="downloadCsv()">Download as CSV</button>
                             </div>
                         </div>
                         <div class="col-md-6" ng-include="'partials/component-filtering.html'">
