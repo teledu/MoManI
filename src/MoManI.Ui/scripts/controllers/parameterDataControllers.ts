@@ -98,7 +98,7 @@ export interface ICsvParameterDataScope extends ng.IScope {
     model: IModel;
     scenario: IScenario;
     data: csvData.ParameterDataCsv;
-    filtering: csvFiltering.CsvFiltering;
+    filtering: csvFiltering.CsvDropdownFiltering;
     changeColumnSet: () => void;
     save: () => void;
     downloadCsv: () => void;
@@ -151,7 +151,7 @@ export class CsvParameterDataController {
                 const parameterDatas = dataRes[1] as IParameterData[];
 
                 $scope.data = new csvData.ParameterDataCsv(modelId, scenarioId, parameters, sets, parameterDatas, setDatas);
-                $scope.filtering = new csvFiltering.CsvFiltering(sets, parameters, 'Parameter', $scope.data.updateFilters, initialFilter);
+                $scope.filtering = new csvFiltering.CsvDropdownFiltering(sets, setDatas, parameters, 'Parameter', $scope.data.updateFilters, initialFilter);
                 $scope.loading = false;
             });
         });

@@ -27,8 +27,9 @@
     <Content Include="images\spinner.gif" />
     <Content Include="index.html" />
     <Content Include="partials\clone-model-scenario-dialog.html" />
+    <Content Include="partials\component-dropdown-filtering.html" />
     <Content Include="partials\composition-details.html" />
-    <Content Include="partials\component-filtering.html" />
+    <Content Include="partials\component-regex-filtering.html" />
     <Content Include="partials\variable-result-csv.html" />
     <Content Include="partials\parameter-data-csv.html" />
     <Content Include="partials\scenario-set-list.html" />

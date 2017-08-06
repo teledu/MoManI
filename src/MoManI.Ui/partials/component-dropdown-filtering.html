@@ -1,0 +1,29 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <label>Filters:</label>
+    </div>
+</div>
+<div class="row" ng-repeat="filter in filtering.filters">
+    <div class="col-md-6">
+        <select class="form-control" ng-options="set.id as set.name for set in filtering.sets" ng-model="filter.selectedComponentId" ng-change="filter.selectComponent(filter.selectedComponentId)"></select>
+    </div>
+    <div class="col-md-5">
+        <select class="form-control" ng-options="item.id as item.name for item in filter.queryItems" ng-model="filter.selectedQuery" ng-change="filtering.apply()"></select>
+    </div>
+    <div class="col-md-1">
+        <button type="button" class="btn btn-default" ng-click="filtering.removeFilter(filter)">
+            <span class="glyphicon glyphicon-trash"></span>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-default" ng-click="filtering.addFilter()">Add filter</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <button class="btn btn-default" ng-click="filtering.apply()">Apply filters</button>
+        <button class="btn btn-default" ng-click="filtering.clear()">Clear filters</button>
+    </div>
+</div>

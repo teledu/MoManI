@@ -151,7 +151,7 @@ export interface ICsvVariableResultScope extends ng.IScope {
     model: IModel;
     scenario: IScenario;
     data: csvData.VariableResultCsv;
-    filtering: csvFiltering.CsvFiltering;
+    filtering: csvFiltering.CsvDropdownFiltering;
     changeColumnSet: () => void;
     downloadCsv: () => void;
     loading: boolean;
@@ -197,7 +197,7 @@ export class CsvVariableResultController {
                 var variableResults = <IVariableResult[]>dataRes[1];
 
                 $scope.data = new csvData.VariableResultCsv(modelId, scenarioId, variables, sets, variableResults, setDatas);
-                $scope.filtering = new csvFiltering.CsvFiltering(sets, variables, 'Variable', $scope.data.updateFilters);
+                $scope.filtering = new csvFiltering.CsvDropdownFiltering(sets, setDatas, variables, 'Variable', $scope.data.updateFilters);
                 $scope.loading = false;
             });
         });

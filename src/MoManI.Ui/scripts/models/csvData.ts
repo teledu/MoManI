@@ -205,7 +205,8 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
         var columnHeaders = [this.typeColumnName].concat(_.map(this.dimensionStore.getColumnDimensions(), s => s.name));
         if (axisDimension) {
             _.forEach(axisDimension.values, v => {
-                columnHeaders.push(v.value);
+                var headerHtml = `<span title="${v.displayName}">${v.value}</span>`;
+                columnHeaders.push(headerHtml);
             });
         };
         if (this.dimensionStore.needsValueColumn()) {
