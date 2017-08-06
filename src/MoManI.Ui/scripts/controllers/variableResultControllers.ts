@@ -12,6 +12,7 @@ import scenarioService = require('services/scenarioService');
 import setDataService = require('services/setDataService');
 import variableResultService = require('services/variableResultService');
 import csvBuilder = require('models/csvBuilder');
+import seriesLoader = require('models/seriesLoader');
 
 var forceLoad = [setService, variableService, modelService, scenarioService, setDataService, variableResultService];
 
@@ -187,9 +188,11 @@ export class CsvVariableResultController {
                 return SetDataService.get({ setId: sId, modelId: modelId }).$promise;
             });
 
-            var variableResultReqs = _.map(variables, v => VariableResultService.get({ id: v.id, scenarioId: scenarioId }).$promise);
-
-            $q.all([$q.all(setDataReqs), $q.all(variableResultReqs)]).then((dataRes) => {
+            var variableResultLoaderReqs = _.map(variables, v => (() => VariableResultService.get({ id: v.id, scenarioId: scenarioId }).$promise));
+            var variableResultLoader = new seriesLoader.SeriesLoader($q, variableResultLoaderReqs);
+            var seriesLoadingVariableResultReqs = variableResultLoader.load();
+            
+            $q.all([$q.all(setDataReqs), seriesLoadingVariableResultReqs]).then((dataRes) => {
                 var setDatas = <ISetData[]>dataRes[0];
                 var variableResults = <IVariableResult[]>dataRes[1];
 

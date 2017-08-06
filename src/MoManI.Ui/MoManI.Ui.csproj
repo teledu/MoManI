@@ -129,6 +129,7 @@
     <TypeScriptCompile Include="scripts\lib\angular-route.d.ts" />
     <TypeScriptCompile Include="scripts\lib\angular.d.ts" />
     <TypeScriptCompile Include="scripts\models\csvBuilder.ts" />
+    <TypeScriptCompile Include="scripts\models\seriesLoader.ts" />
     <TypeScriptCompile Include="scripts\models\csvFiltering.d.ts" />
     <TypeScriptCompile Include="scripts\models\dictionary.d.ts" />
     <TypeScriptCompile Include="scripts\models\dictionary.ts" />

@@ -10,6 +10,7 @@ import setDataService = require('services/setDataService');
 import parameterDataService = require('services/parameterDataService');
 import modelService = require('services/modelService');
 import scenarioService = require('services/scenarioService');
+import seriesLoader = require('models/seriesLoader');
 
 var forceLoad = [setService, parameterService, setDataService, parameterDataService, modelService, scenarioService];
 
@@ -141,9 +142,11 @@ export class CsvParameterDataController {
                 return SetDataService.get({ setId: sId, modelId: modelId }).$promise;
             });
 
-            const parameterDataReqs = _.map(parameters, p => ParameterDataService.get({ parameterId: p.id, scenarioId: scenarioId }).$promise);
+            var parameterDataLoaderReqs = _.map(parameters, p => (() => ParameterDataService.get({ parameterId: p.id, scenarioId: scenarioId }).$promise));
+            var parameterDataLoader = new seriesLoader.SeriesLoader($q, parameterDataLoaderReqs);
+            var seriesLoadingParameterDataReqs = parameterDataLoader.load();
 
-            $q.all([$q.all(setDataReqs), $q.all(parameterDataReqs)]).then((dataRes) => {
+            $q.all([$q.all(setDataReqs), seriesLoadingParameterDataReqs]).then((dataRes) => {
                 const setDatas = dataRes[0] as ISetData[];
                 const parameterDatas = dataRes[1] as IParameterData[];
 
