@@ -590,8 +590,8 @@ class CsvDimensionStore {
     constructor(modelId: string, sets: ISet[], setDatas: ISetData[], components: IDimensionalComponent[]) {
         this.dimensions = [];
         this.components = components;
-        this.setDatas = _.map(setDatas, setData => {
-            var set = _.find(sets, s => s.id === setData.setId);
+        this.setDatas = _.map(sets, set => {
+            var setData = _.find(setDatas, sd => sd.setId === set.id);
             return new setDataModel.SetData(modelId, set, setData);
         });
         _.forEach(components, component => {
