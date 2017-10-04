@@ -221,6 +221,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
             columnSorting: true,
             colHeaders: columnHeaders,
             columns: columnProperties,
+            manualColumnMove: true,
         };
 
         if (!this.allColumnsReadOnly) {
