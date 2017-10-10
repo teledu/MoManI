@@ -20,10 +20,6 @@ interface IDimension {
     values: IDimensionItem[];
 }
 
-interface IStringgedData extends IDimensionalDataItem {
-    coordinateString: string
-}
-
 interface IDimensionalCsvData<TComponent extends IDimensionalComponent, TData extends IDimensionalData> {
     component: TComponent;
     columnDimensions: IDimension[];
@@ -71,7 +67,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
     protected getDataForComponent: (componentId: string) => TData;
     protected getUnshownDataForComponent: (componentId: string) => TData;
     protected getDefaultDataForComponent: (component: TComponent) => TData;
-    protected getRemainingDataForComponent: (data: TData, striggedData: IStringgedData[]) => TData;
+    protected getRemainingDataForComponent: (data: TData, remainingItems: IDimensionalDataItem[]) => TData;
     protected getDefaultValueForData: (data: TData) => string | number;
     protected constructFullDataForComponent: (data: TData, dataArray: IDimensionalDataItem[]) => TData;
     protected valueSameAsDefault: (value: number, data: TData) => boolean;
@@ -251,7 +247,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
     }
 
     private loadData = (componentDimensions: IDimensionalCsvData<TComponent, TData>[]) => {
-
+        
         var valueColumnStartIndex = this.dimensionStore.getColumnDimensions().length + 1;
         var axisDimension = this.dimensionStore.getAxisDimension();
 
@@ -288,23 +284,20 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                 this.unshownData.push(this.getDefaultDataForComponent(componentDimension.component));
                 return;
             }
-            var stringgedData = _.map(componentDimension.data.data, data => {
-                return {
-                    c: data.c,
-                    coordinateString: data.c.join('|'),
-                    v: data.v,
-                } as IStringgedData;
+            var stringgedDataMap: { [key: string]: IDimensionalDataItem; } = {};
+            _.forEach(componentDimension.data.data, data => {
+                stringgedDataMap[data.c.join('|')] = data;
             });
-
+            
             if (componentDimension.usesValueColumn) {
                 for (let row = startingRow; row < startingRow + componentDimension.rows; row++) {
                     for (let i = 0; i < axisDimension.values.length; i++) {
                         this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
                     }
                     const mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row]);
-                    const found = _.find(stringgedData, data => data.coordinateString === mappedCoordinates);
+                    const found = stringgedDataMap[mappedCoordinates];
                     if (found) {
-                        stringgedData.splice(stringgedData.indexOf(found), 1);
+                        delete stringgedDataMap[mappedCoordinates];
                     }
                     const value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
                     this.spreadsheetItems[row][valueColumnStartIndex + axisDimension.values.length] = value;
@@ -313,9 +306,9 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                 for (var row = startingRow; row < startingRow + componentDimension.rows; row++) {
                     for (let i = 0; i < axisDimension.values.length; i++) {
                         const mappedCoordinates = dataMappingFunction(componentDimension, this.spreadsheetItems[row], axisDimension.values[i].value);
-                        const found = _.find(stringgedData, data => data.coordinateString === mappedCoordinates);
+                        const found = stringgedDataMap[mappedCoordinates];
                         if (found) {
-                            stringgedData.splice(stringgedData.indexOf(found), 1);
+                            delete stringgedDataMap[mappedCoordinates];
                         }
                         const value = found ? found.v : this.getDefaultValueForData(componentDimension.data);
                         this.spreadsheetItems[row][valueColumnStartIndex + i] = value;
@@ -325,8 +318,9 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                     }
                 }
             }
-            
-            this.unshownData.push(this.getRemainingDataForComponent(componentDimension.data, stringgedData));
+            var remainingData: IDimensionalDataItem[] = [];
+            _.forOwn(stringgedDataMap, val => remainingData.push(val));
+            this.unshownData.push(this.getRemainingDataForComponent(componentDimension.data, remainingData));
         });
     }
 
@@ -474,19 +468,14 @@ export class ParameterDataCsv extends CsvData<IParameter, IParameterData> {
         };
     }
 
-    getRemainingDataForComponent = (data: IParameterData, stringedData: IStringgedData[]) => {
+    getRemainingDataForComponent = (data: IParameterData, remainingItems: IDimensionalDataItem[]) => {
         return {
             modelId: data.modelId,
             scenarioId: data.scenarioId,
             parameterId: data.parameterId,
             defaultValue: data.defaultValue,
             sets: data.sets,
-            data: _.map(stringedData, d => {
-                return {
-                    c: d.c,
-                    v: d.v,
-                }
-            })
+            data: remainingItems,
         }
     }
 
@@ -546,19 +535,14 @@ export class VariableResultCsv extends CsvData<IVariable, IVariableResult> {
         };
     }
 
-    getRemainingDataForComponent = (data: IVariableResult, stringedData: IStringgedData[]) => {
+    getRemainingDataForComponent = (data: IVariableResult, remainingItems: IDimensionalDataItem[]) => {
         return {
             modelId: data.modelId,
             scenarioId: data.scenarioId,
             variableId: data.variableId,
             defaultValue: data.defaultValue,
             sets: data.sets,
-            data: _.map(stringedData, d => {
-                return {
-                    c: d.c,
-                    v: d.v,
-                }
-            })
+            data: remainingItems,
         }
     }
 
