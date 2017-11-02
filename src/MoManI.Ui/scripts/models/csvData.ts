@@ -284,7 +284,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                 this.unshownData.push(this.getDefaultDataForComponent(componentDimension.component));
                 return;
             }
-            var stringgedDataMap: { [key: string]: IDimensionalDataItem; } = {};
+            let stringgedDataMap: { [key: string]: IDimensionalDataItem; } = {};
             _.forEach(componentDimension.data.data, data => {
                 stringgedDataMap[data.c.join('|')] = data;
             });
@@ -318,7 +318,7 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
                     }
                 }
             }
-            var remainingData: IDimensionalDataItem[] = [];
+            let remainingData: IDimensionalDataItem[] = [];
             _.forOwn(stringgedDataMap, val => remainingData.push(val));
             this.unshownData.push(this.getRemainingDataForComponent(componentDimension.data, remainingData));
         });

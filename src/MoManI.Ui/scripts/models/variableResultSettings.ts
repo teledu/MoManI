@@ -38,6 +38,7 @@ export class VariableResultSettings {
     private setDataGroups: SetDataGroup[];
     private setDataFilterSubscribers: ((selectedDataValues: string[]) => void)[];
     private chartHeightSubscribers: ((height: number) => void)[];
+    allSelected: boolean;
     chartHeight: number;
 
     constructor() {
@@ -49,6 +50,7 @@ export class VariableResultSettings {
         this.useSetDataDescriptionsSubscribers = [];
         this.setDataFilterSubscribers = [];
         this.chartHeightSubscribers = [];
+        this.allSelected = true;
     }
 
     addLegendSubscriber = (subscriber: (legendVisible: boolean) => void) => {
@@ -73,6 +75,18 @@ export class VariableResultSettings {
         _.forEach(this.useSetDataDescriptionsSubscribers, subscriber => {
             subscriber(this.useSetDataDescriptions);
         });
+    }
+
+    toggleAllSetGroupItems = $event => {
+        var checkbox = <ICheckbox>$event.target;
+        this.allSelected = checkbox.checked;
+        _.forEach(this.setDataGroups, setDataGroup => {
+            setDataGroup.selected = checkbox.checked;
+            _.forEach(setDataGroup.items, item => {
+                item.selected = checkbox.checked;
+            });
+        });
+        this.notifySetDataFilterSubscribers();
     }
 
     updateSetData = (setData: ISetData) => {
