@@ -24,6 +24,7 @@
   <ItemGroup>
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="images\optimus-logo.png" />
     <Content Include="images\spinner.gif" />
     <Content Include="index.html" />
     <Content Include="partials\clone-model-scenario-dialog.html" />

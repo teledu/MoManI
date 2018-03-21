@@ -111,3 +111,7 @@ td.set-data-name {
     margin-top: 20px;
     padding-bottom: 20px;
 }
+
+.navbar-nav > li > a.logo-link {
+    padding-top: 6px;
+}
