@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using MoManI.Api.Models;
+﻿using System;
+using System.Threading.Tasks;
 using MongoDB.Driver;
 
 namespace MoManI.Api.Infrastructure.Persistence.Migrations
@@ -15,9 +15,14 @@ namespace MoManI.Api.Infrastructure.Persistence.Migrations
 
         protected override async Task RunMigration()
         {
-            var userIndexes = Builders<VariableResultItemStorageModel>.IndexKeys;
-            var variableResultItemCollection = Database.GetCollection<VariableResultItemStorageModel>("VariableResultItem");
+            var userIndexes = Builders<FakeVariableResultItemStorageModel>.IndexKeys;
+            var variableResultItemCollection = Database.GetCollection<FakeVariableResultItemStorageModel>("VariableResultItem");
             await variableResultItemCollection.Indexes.CreateOneAsync(userIndexes.Ascending(i => i.VariableResultId), new CreateIndexOptions { Name = "VariableResultId_index" });
+        }
+
+        private class FakeVariableResultItemStorageModel
+        {
+            public Guid VariableResultId { get; set; }
         }
     }
 }

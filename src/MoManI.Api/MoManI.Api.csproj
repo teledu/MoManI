@@ -163,6 +163,7 @@
     <Compile Include="Controllers\ParameterDataController.cs" />
     <Compile Include="Controllers\SetDataController.cs" />
     <Compile Include="Infrastructure\Persistence\Migration.cs" />
+    <Compile Include="Infrastructure\Persistence\Migrations\BundledParameterAndVariableDataStorage.cs" />
     <Compile Include="Infrastructure\Persistence\Migrations\VariableResultDefaultValue.cs" />
     <Compile Include="Infrastructure\Persistence\Migrations\SetDataColorsAndGroups.cs" />
     <Compile Include="Infrastructure\Persistence\Migrations\SetDataNames.cs" />
@@ -191,8 +192,6 @@
     <Compile Include="Models\SetData.cs" />
     <Compile Include="Models\Variable.cs" />
     <Compile Include="Models\Parameter.cs" />
-    <Compile Include="Models\VariableResultItemStorageModel.cs" />
-    <Compile Include="Models\VariableResultStorageModel.cs" />
     <Compile Include="Services\IResultsRepository.cs" />
     <Compile Include="Services\IModelRepository.cs" />
     <Compile Include="Services\IComponentsRepository.cs" />

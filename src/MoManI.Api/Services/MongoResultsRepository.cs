@@ -9,13 +9,15 @@ namespace MoManI.Api.Services
 {
     public class MongoResultsRepository : IResultsRepository
     {
+        private const int ItemStorageBundleSize = 10000;
+
         private readonly IMongoCollection<VariableResultStorageModel> _variableResultsCollection;
-        private readonly IMongoCollection<VariableResultItemStorageModel> _variableResultItemsCollection;
+        private readonly IMongoCollection<VariableResultItemBundleStorageModel> _variableResultItemsBundleCollection;
 
         public MongoResultsRepository(IMongoDatabase database)
         {
             _variableResultsCollection = database.GetCollection<VariableResultStorageModel>("VariableResult");
-            _variableResultItemsCollection = database.GetCollection<VariableResultItemStorageModel>("VariableResultItem");
+            _variableResultItemsBundleCollection = database.GetCollection<VariableResultItemBundleStorageModel>("VariableResultItemBundle");
         }
 
         public async Task<IEnumerable<VariableResult>> GetVariableResults(Guid scenarioId)
@@ -37,18 +39,15 @@ namespace MoManI.Api.Services
             {
                 return null;
             }
-            var items = await GetVariableResultItemStorageModels(data.Id);
+            var itemBundles = await GetVariableResultItemStorageModels(data.Id);
+            var items = itemBundles.SelectMany(b => b.ItemBundle);
             return new VariableResult
             {
                 VariableId = data.VariableId,
                 ModelId = data.ModelId,
                 ScenarioId = data.ScenarioId,
                 Sets = data.Sets,
-                Data = items.Select(i => new VariableResultItem
-                {
-                    C = i.Coordinates,
-                    V = i.Value,
-                })
+                Data = items,
             };
         }
 
@@ -63,20 +62,23 @@ namespace MoManI.Api.Services
                 VariableId = data.VariableId,
                 Sets = data.Sets,
             };
-            var itemsModel = data.Data.Select(d => new VariableResultItemStorageModel
-            {
-                VariableResultId = dataModel.Id,
-                Coordinates = d.C,
-                Value = d.V,
-            }).ToList();
+            var itemBundles = data.Data
+                .Select((val, index) => new { Index = index, Value = val })
+                .GroupBy(i => i.Index / ItemStorageBundleSize)
+                .Select(x => new VariableResultItemBundleStorageModel
+                {
+                    VariableResultId = dataModel.Id,
+                    ItemBundle = x.Select(v => v.Value).ToList(),
+                })
+                .ToList();
             await _variableResultsCollection.ReplaceOneAsync(x => x.Id == dataModel.Id, dataModel, new UpdateOptions
             {
                 IsUpsert = true,
             });
-            await _variableResultItemsCollection.DeleteManyAsync(x => x.VariableResultId == dataModel.Id);
-            if (itemsModel.Any())
+            await _variableResultItemsBundleCollection.DeleteManyAsync(x => x.VariableResultId == dataModel.Id);
+            if (itemBundles.Any())
             {
-                await _variableResultItemsCollection.InsertManyAsync(itemsModel);
+                await _variableResultItemsBundleCollection.InsertManyAsync(itemBundles);
             }
         }
 
@@ -91,7 +93,7 @@ namespace MoManI.Api.Services
             var variableResults = await _variableResultsCollection.Find(vr => vr.ScenarioId == scenarioId).ToListAsync();
             foreach (var variableResultStorageModel in variableResults)
             {
-                await _variableResultItemsCollection.DeleteManyAsync(vri => vri.VariableResultId == variableResultStorageModel.Id);
+                await _variableResultItemsBundleCollection.DeleteManyAsync(vri => vri.VariableResultId == variableResultStorageModel.Id);
             }
             await _variableResultsCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
         }
@@ -101,9 +103,26 @@ namespace MoManI.Api.Services
             return await _variableResultsCollection.Find(vr => vr.VariableId == variableId && vr.ScenarioId == scenarioId).FirstOrDefaultAsync();
         }
 
-        private async Task<IEnumerable<VariableResultItemStorageModel>> GetVariableResultItemStorageModels(Guid variableResultId)
+        private async Task<IEnumerable<VariableResultItemBundleStorageModel>> GetVariableResultItemStorageModels(Guid variableResultId)
         {
-            return await _variableResultItemsCollection.Find(vri => vri.VariableResultId == variableResultId).ToListAsync();
+            return await _variableResultItemsBundleCollection.Find(vri => vri.VariableResultId == variableResultId).ToListAsync();
+        }
+
+
+        private class VariableResultStorageModel
+        {
+            public Guid Id { get; set; }
+            public Guid VariableId { get; set; }
+            public Guid ScenarioId { get; set; }
+            public Guid ModelId { get; set; }
+            public IEnumerable<VariableSet> Sets { get; set; }
+            public decimal DefaultValue { get; set; }
+        }
+
+        private class VariableResultItemBundleStorageModel
+        {
+            public Guid VariableResultId { get; set; }
+            public IEnumerable<VariableResultItem> ItemBundle { get; set; }
         }
     }
 }

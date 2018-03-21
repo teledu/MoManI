@@ -66,6 +66,12 @@ namespace MoManI.Api.Infrastructure.Persistence
                 await migrator.Migrate();
                 latestVersion = migrator.Version;
             }
+            if (latestVersion == 4)
+            {
+                var migrator = new BundledParameterAndVariableDataStorage(database);
+                await migrator.Migrate();
+                latestVersion = migrator.Version;
+            }
         }
     }
 

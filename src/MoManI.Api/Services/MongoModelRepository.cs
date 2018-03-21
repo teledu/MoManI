@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MoManI.Api.Infrastructure.Extensions;
 using MoManI.Api.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -11,18 +10,20 @@ namespace MoManI.Api.Services
 {
     public class MongoModelRepository : IModelRepository
     {
+        private const int ItemStorageBundleSize = 10000;
+
         private readonly IMongoCollection<ComposedModel> _composedModelsCollection;
         private readonly IMongoCollection<Scenario> _scenariosCollection;
         private readonly IMongoCollection<SetData> _setDataCollection;
         private readonly IMongoCollection<ParameterDataStorageModel> _parameterDataCollection;
-        private readonly IMongoCollection<ParameterDataItemStorageModel> _parameterDataItemCollection;
+        private readonly IMongoCollection<ParameterDataItemBundleStorageModel> _parameterDataItemBundleCollection;
 
         public MongoModelRepository(IMongoDatabase database)
         {
             _composedModelsCollection = database.GetCollection<ComposedModel>("ComposedModel");
             _setDataCollection = database.GetCollection<SetData>("SetData");
             _parameterDataCollection = database.GetCollection<ParameterDataStorageModel>("ParameterData");
-            _parameterDataItemCollection = database.GetCollection<ParameterDataItemStorageModel>("ParameterDataItem");
+            _parameterDataItemBundleCollection = database.GetCollection<ParameterDataItemBundleStorageModel>("ParameterDataItemBundle");
             _scenariosCollection = database.GetCollection<Scenario>("Scenario");
         }
 
@@ -114,7 +115,7 @@ namespace MoManI.Api.Services
             var parameters = await _parameterDataCollection.Find(x => x.ScenarioId == scenarioId).ToListAsync();
             foreach (var parameter in parameters)
             {
-                await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == parameter.Id);
+                await _parameterDataItemBundleCollection.DeleteManyAsync(x => x.ParameterDataId == parameter.Id);
             }
             await _parameterDataCollection.DeleteManyAsync(x => x.ScenarioId == scenarioId);
             await _scenariosCollection.DeleteOneAsync(x => x.Id == scenarioId);
@@ -167,7 +168,8 @@ namespace MoManI.Api.Services
             {
                 return null;
             }
-            var items = await GetParameterDataItemStorageModels(data.Id);
+            var itemBundles = await GetParameterDataItemStorageModels(data.Id);
+            var items = itemBundles.SelectMany(i => i.ItemBundle).ToList();
             return new ParameterData
             {
                 ParameterId = data.ParameterId,
@@ -175,11 +177,7 @@ namespace MoManI.Api.Services
                 ScenarioId = data.ScenarioId,
                 DefaultValue = data.DefaultValue,
                 Sets = data.Sets,
-                Data = items.Select(i => new ParameterDataItem
-                {
-                    C = i.Coordinates,
-                    V = i.Value,
-                })
+                Data = items,
             };
         }
 
@@ -195,20 +193,23 @@ namespace MoManI.Api.Services
                 DefaultValue = parameterData.DefaultValue,
                 Sets = parameterData.Sets,
             };
-            var itemsModel = parameterData.Data.Select(d => new ParameterDataItemStorageModel
-            {
-                ParameterDataId = dataModel.Id,
-                Coordinates = d.C.ToList(),
-                Value = d.V,
-            }).ToList();
+            var itemBundles = parameterData.Data
+                .Select((val, index) => new {Index = index, Value = val})
+                .GroupBy(i => i.Index / ItemStorageBundleSize)
+                .Select(x => new ParameterDataItemBundleStorageModel
+                {
+                    ParameterDataId = dataModel.Id,
+                    ItemBundle = x.Select(v => v.Value).ToList(),
+                })
+                .ToList();
             await _parameterDataCollection.ReplaceOneAsync(x => x.Id == dataModel.Id, dataModel, new UpdateOptions
             {
                 IsUpsert = true,
             });
-            await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == dataModel.Id);
-            if (itemsModel.Any())
+            await _parameterDataItemBundleCollection.DeleteManyAsync(x => x.ParameterDataId == dataModel.Id);
+            if (itemBundles.Any())
             {
-                await _parameterDataItemCollection.InsertManyAsync(itemsModel);
+                await _parameterDataItemBundleCollection.InsertManyAsync(itemBundles);
             }
         }
 
@@ -217,16 +218,8 @@ namespace MoManI.Api.Services
             var existingData = await GetParameterDataStorageModel(parameterId, scenarioId);
             if (existingData == null)
                 return;
-            await _parameterDataItemCollection.DeleteManyAsync(x => x.ParameterDataId == existingData.Id);
+            await _parameterDataItemBundleCollection.DeleteManyAsync(x => x.ParameterDataId == existingData.Id);
             await _parameterDataCollection.DeleteOneAsync(x => x.Id == existingData.Id);
-        }
-
-        private async Task<List<ParameterDataStorageModel>> GetParametersUsingSet(Guid scenarioId, Guid setId)
-        {
-            var parameterBuilder = Builders<ParameterDataStorageModel>.Filter;
-            var parameterFilter = parameterBuilder.Eq("scenarioId", scenarioId) & parameterBuilder.Where(p => p.Sets.Any(s => s.Id == setId));
-            var parameters = await _parameterDataCollection.Find(parameterFilter).ToListAsync();
-            return parameters;
         }
 
         private async Task CloneParameterData(Guid sourceScenarioId, Guid scenarioId)
@@ -237,10 +230,9 @@ namespace MoManI.Api.Services
             {
                 var newParameterData = parameterData.Clone(scenarioId);
                 await _parameterDataCollection.InsertOneAsync(newParameterData);
-                var items = await GetParameterDataItemStorageModels(parameterData.Id);
-                var parameterDataItemStorageModels = items as ParameterDataItemStorageModel[] ?? items.ToArray();
+                var parameterDataItemStorageModels = await GetParameterDataItemStorageModels(parameterData.Id);
                 if (!parameterDataItemStorageModels.Any()) continue;
-                await _parameterDataItemCollection.InsertManyAsync(parameterDataItemStorageModels.Select(i => i.Clone(newParameterData.Id)));
+                await _parameterDataItemBundleCollection.InsertManyAsync(parameterDataItemStorageModels.Select(i => i.Clone(newParameterData.Id)));
             }
         }
 
@@ -251,11 +243,11 @@ namespace MoManI.Api.Services
             return await _parameterDataCollection.Find(filter).FirstOrDefaultAsync();
         }
 
-        private async Task<IEnumerable<ParameterDataItemStorageModel>> GetParameterDataItemStorageModels(Guid parameterDataId)
+        private async Task<List<ParameterDataItemBundleStorageModel>> GetParameterDataItemStorageModels(Guid parameterDataId)
         {
-            var builder = Builders<ParameterDataItemStorageModel>.Filter;
+            var builder = Builders<ParameterDataItemBundleStorageModel>.Filter;
             var filter = builder.Eq("parameterDataId", parameterDataId);
-            return await _parameterDataItemCollection.Find(filter).ToListAsync();
+            return await _parameterDataItemBundleCollection.Find(filter).ToListAsync();
         }
 
         private class ParameterDataStorageModel
@@ -281,19 +273,17 @@ namespace MoManI.Api.Services
             }
         }
 
-        private class ParameterDataItemStorageModel
+        private class ParameterDataItemBundleStorageModel
         {
             public Guid ParameterDataId { get; set; }
-            public List<string> Coordinates { get; set; }
-            public decimal Value { get; set; }
+            public IEnumerable<ParameterDataItem> ItemBundle { get; set; }
 
-            public ParameterDataItemStorageModel Clone(Guid parameterDataId)
+            public ParameterDataItemBundleStorageModel Clone(Guid parameterDataId)
             {
-                return new ParameterDataItemStorageModel
+                return new ParameterDataItemBundleStorageModel
                 {
                     ParameterDataId = parameterDataId,
-                    Coordinates = Coordinates.ToList(),
-                    Value = Value,
+                    ItemBundle = ItemBundle.ToList(),
                 };
             }
         }
