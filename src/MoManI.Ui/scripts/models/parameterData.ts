@@ -95,7 +95,7 @@ export class ParameterData {
                 return res;
             });
         } else {
-            this.defaultValue = 0;
+            this.defaultValue = parameter.defaultValue;
             this.data = [];
         }
         if (this.dimensions.length > 2) {

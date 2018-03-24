@@ -17,6 +17,8 @@ export class Parameter implements IRenderable {
     description: string;
     sets: ParameterSet[];
     setOptions: ISet[];
+    defaultValue: number;
+    unit: string;
     
     constructor(setOptions: ISet[], parameter?: IParameter) {
         this.setOptions = setOptions;
@@ -27,11 +29,15 @@ export class Parameter implements IRenderable {
             this.sets = _.map(parameter.sets, setId => {
                 return new ParameterSet(setId);
             });
+            this.defaultValue = parameter.defaultValue;
+            this.unit = parameter.unit;
         } else {
             this.id = uuid.v4();
             this.name = '';
             this.description = '';
             this.sets = [];
+            this.defaultValue = 0;
+            this.unit = '';
         }
     }
 
@@ -56,6 +62,8 @@ export class Parameter implements IRenderable {
             name: this.name,
             description: this.description,
             sets: _.map(this.sets, set => set.value),
+            defaultValue: this.defaultValue,
+            unit: this.unit,
         }
     }
 

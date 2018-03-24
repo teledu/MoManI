@@ -269,19 +269,24 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
             var startingRow = _.sum(_.map(componentDimensions.slice(0, componentDimensionIndex), ppd => ppd.rows));
 
             if (!componentDimension.data) {
+                var defaultComponentData = this.getDefaultDataForComponent(componentDimension.component);
                 for (let row = startingRow; row < startingRow + componentDimension.rows; row++) {
                     if (componentDimension.usesValueColumn) {
                         for (let i = 0; i < axisDimension.values.length; i++) {
                             this.spreadsheetItems[row][valueColumnStartIndex + i] = '-';
                         }
+                        this.spreadsheetItems[row][valueColumnStartIndex + axisDimension.values.length] = defaultComponentData.defaultValue;
                     } else {
+                        for (let i = 0; i < axisDimension.values.length; i++) {
+                            this.spreadsheetItems[row][valueColumnStartIndex + i] = defaultComponentData.defaultValue;
+                        }
                         if (this.dimensionStore.needsValueColumn()) {
                             this.spreadsheetItems[row][valueColumnStartIndex + axisDimension.values.length] = '-';
                         }
                     }
                 }
                 
-                this.unshownData.push(this.getDefaultDataForComponent(componentDimension.component));
+                this.unshownData.push(defaultComponentData);
                 return;
             }
             let stringgedDataMap: { [key: string]: IDimensionalDataItem; } = {};
@@ -456,7 +461,7 @@ export class ParameterDataCsv extends CsvData<IParameter, IParameterData> {
             modelId: this.modelId,
             scenarioId: this.scenarioId,
             parameterId: component.id,
-            defaultValue: 0,
+            defaultValue: component.defaultValue,
             sets: _.map(component.sets, (setId, index) => {
                 var instanceIndex = _(component.sets).slice(0, index).filter(sId => sId === setId).value().length;
                 return {

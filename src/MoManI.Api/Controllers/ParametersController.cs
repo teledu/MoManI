@@ -40,6 +40,8 @@ namespace MoManI.Api.Controllers
                 Name = parameter.Name,
                 Description = parameter.Description,
                 Sets = parameter.Sets,
+                DefaultValue = parameter.DefaultValue,
+                Unit = parameter.Unit,
             });
             return Request.CreateResponse(HttpStatusCode.OK);
         }
@@ -56,5 +58,7 @@ namespace MoManI.Api.Controllers
         public string Name { get; set; }
         public string Description { get; set; }
         public IEnumerable<Guid> Sets { get; set; }
+        public decimal DefaultValue { get; set; }
+        public string Unit { get; set; }
     }
 }

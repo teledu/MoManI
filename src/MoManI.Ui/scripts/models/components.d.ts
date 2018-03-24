@@ -25,6 +25,8 @@ interface IDimensionalComponent {
 
 
 interface IParameter extends IDimensionalComponent {
+    defaultValue: number;
+    unit: string;
 }
 
 interface IParameterResource extends IParameter, ng.resource.IResource<IParameterResource> {

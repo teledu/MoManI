@@ -17,7 +17,7 @@ export class ParameterData {
     constructor(parameter: IParameter, setDatas: setDataModel.SetData[], parameterData: IParameterData) {
         this.name = parameter.name;
         this.setCount = setDatas.length;
-        this.defaultValue = parameterData.defaultValue || 0;
+        this.defaultValue = parameterData.defaultValue || parameter.defaultValue;
 
         if (this.setCount == 0) {
             this.defaultValue = parameterData.data.length > 0 ? _.first(parameterData.data).v : this.defaultValue;
