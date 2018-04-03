@@ -190,6 +190,7 @@ export class ParameterData {
             colHeaders: dimension2 ? this.columns : false,
             rowHeaders: this.rows,
             maxRows: this.rows.length,
+            maxCols: this.columns.length,
         };
         this.spreadsheetItems = _.map(this.rows, () => {
             return _.map(this.columns, () => null);
