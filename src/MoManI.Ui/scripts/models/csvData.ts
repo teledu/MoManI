@@ -218,6 +218,8 @@ abstract class CsvData<TComponent extends IDimensionalComponent, TData extends I
             colHeaders: columnHeaders,
             columns: columnProperties,
             manualColumnMove: true,
+            manualColumnFreeze: true,
+            contextMenu: ['freeze_column'],
         };
 
         if (!this.allColumnsReadOnly) {
