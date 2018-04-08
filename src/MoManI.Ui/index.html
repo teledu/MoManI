@@ -1,9 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta itemprop="momani-settings-api" content="http://localhost/MoManI.Api/" />
+    <meta id="jsVersion" itemprop="momani-settings-jsVersion" content="11" />
     <title>Model Management Infrastructure (OSEMOSyS)</title>
     <link rel="stylesheet" href="styles/bootstrap.css">
     <link rel="stylesheet" href="styles/handsontable.full.css">
@@ -16,24 +16,26 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-default" role="navigation" bs-navbar>
+        <ul class="nav navbar-nav">
+            <li data-match-route="/$"><a class="logo-link" href="http://www.optimus.community/"><img alt="OpTIMUS" src="images/optimus-logo.png"></a></li>
+            <li data-match-route="/sets"><a href="#/sets">Sets</a></li>
+            <li data-match-route="/parameters"><a href="#/parameters">Parameters</a></li>
+            <li data-match-route="/variables"><a href="#/variables">Variables</a></li>
+            <li data-match-route="/functions"><a href="#/functions">Objective functions</a></li>
+            <li data-match-route="/(constraints|constraintGroups)"><a href="#/constraints">Constraints</a></li>
+            <li data-match-route="/models"><a href="#/models">Models</a></li>
+            <li data-match-route="/results"><a href="#/results">Results</a></li>
+        </ul>
+        <div class="version">
+            Version <span id="versionDisplay"></span>
+        </div>
+    </nav>
 
-<nav class="navbar navbar-default" role="navigation" bs-navbar>
-    <ul class="nav navbar-nav">
-        <li data-match-route="/$"><a class="logo-link" href="http://www.optimus.community/"><img alt="OpTIMUS" src="images/optimus-logo.png"></a></li>
-        <li data-match-route="/sets"><a href="#/sets">Sets</a></li>
-        <li data-match-route="/parameters"><a href="#/parameters">Parameters</a></li>
-        <li data-match-route="/variables"><a href="#/variables">Variables</a></li>
-        <li data-match-route="/functions"><a href="#/functions">Objective functions</a></li>
-        <li data-match-route="/(constraints|constraintGroups)"><a href="#/constraints">Constraints</a></li>
-        <li data-match-route="/models"><a href="#/models">Models</a></li>
-        <li data-match-route="/results"><a href="#/results">Results</a></li>
-    </ul>
-</nav>
-
-<div class="view-container">
-    <div ng-view class="view-frame"></div>
-</div>
-
+    <div class="view-container">
+        <div ng-view class="view-frame"></div>
+    </div>
 </body>
-
 </html>
+
+<script>document.getElementById("versionDisplay").innerHTML = document.getElementById("jsVersion").content</script>
