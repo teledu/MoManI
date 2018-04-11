@@ -14,6 +14,7 @@ export interface IExecutableRenderingModalScope extends ng.IScope {
     cancel: () => void;
     loading: boolean;
     cloneScenarioForm: angular.IFormController;
+    cloningParameters: ICloningParameters;
 }
 
 export class ModelCloningModalController {
@@ -30,14 +31,18 @@ export class ModelCloningModalController {
             $scope.loading = false;
         });
 
+        //$scope.cloningParameters = { modelId: model.id, scenarioIds: [$scope.selectedScenario.id], name: $scope.newName }
+
         $scope.clone = () => {
             if ($scope.cloneScenarioForm.$invalid)
                 return;
             $scope.loading = true;
+            
             var cloneReq = $http({
                 url: urls.modelCloning,
                 method: 'POST',
-                params: { modelId: model.id, scenarioId: $scope.selectedScenario.id, name: $scope.newName },
+                params: { modelId: model.id, scenarioIds: [$scope.selectedScenario.id], name: $scope.newName } as ICloningParameters,
+                
             });
             $q.when(cloneReq).finally(() => {
                 $scope.loading = false;

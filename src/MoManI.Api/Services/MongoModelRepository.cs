@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MoManI.Api.Controllers;
 using MoManI.Api.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -52,17 +53,23 @@ namespace MoManI.Api.Services
             await _composedModelsCollection.DeleteOneAsync(x => x.Id == id);
         }
 
-        public async Task CloneComposedModel(Guid modelId, Guid scenarioId, string name)
+        public async Task CloneComposedModel(ICloningParameters parameters)
         {
-            var model = await CreateClonedModel(modelId, name);
-            var scenario = await CreateClonedScenario(scenarioId, model);
-            var sourceSetData = await GetAllModelSetData(modelId);
-            var setData = sourceSetData.Select(s => s.CloneToModel(model.Id));
+            var model = await CreateClonedModel(parameters.ModelId, parameters.Name);
+            var sourceSetData = await GetAllModelSetData(parameters.ModelId);
+            var setData = sourceSetData.Select(s => s.CloneToModel(model.Id));//model specific
             foreach (var setDataValue in setData)
             {
                 await SaveSetData(setDataValue);
             }
-            await CloneParameterData(scenarioId, scenario.Id);
+            
+            foreach (var scenarioId in parameters.ScenarioIds)
+            {
+                var scenario = await CreateClonedScenario(scenarioId, model);//
+                await CloneParameterData(scenarioId, scenario.Id);
+            }
+
+            //KITAS VARIANTAS //var scenarios = await CreateClonedScenarios(parameters.ScenarioIds, model);
         }
 
         private async Task<ComposedModel> CreateClonedModel(Guid modelId, string name)
@@ -77,7 +84,7 @@ namespace MoManI.Api.Services
         private async Task<Scenario> CreateClonedScenario(Guid scenarioId, ComposedModel model)
         {
             var sourceScenario = await GetScenario(scenarioId);
-            var scenario = sourceScenario.Clone(1);
+            var scenario = sourceScenario.Clone(1);//paziuret // manau kad ok, nes klonuoji scenarijus pagal skirtingus ID
             scenario.ModelId = model.Id;
             scenario.ParentScenarioId = null;
             await SaveScenario(scenario);

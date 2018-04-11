@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -16,16 +18,27 @@ namespace MoManI.Api.Controllers
             _modelRepository = modelRepository;
         }
 
-        public async Task<HttpResponseMessage> PostClone(Guid modelId, Guid scenarioId, string name)
+        public async Task<HttpResponseMessage> PostClone(ICloningParameters parameters) //ICloneElement scenarios
         {
-            var model = await _modelRepository.GetComposedModel(modelId);
-            var scenario = await _modelRepository.GetScenario(scenarioId);
-            if (model == null || scenario == null || scenario.ModelId != modelId)
+            var model = await _modelRepository.GetComposedModel(parameters.ModelId);
+            //var scenario = await _modelRepository.GetScenario(scenarioId);
+
+            var modelScenarios = await _modelRepository.GetScenarios(parameters.ModelId);
+            var scenariosToClone = modelScenarios.Where(s => parameters.ScenarioIds.Any(x => x == s.Id));
+
+            if (model == null || !scenariosToClone.Any()) //|| scenario.ModelId != parameters.ModelId nebereik, nes traukiam pagal model id
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Invalid parameters");
             }
-            await _modelRepository.CloneComposedModel(modelId, scenarioId, name);
+            await _modelRepository.CloneComposedModel(parameters);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
+    }
+
+    public interface ICloningParameters
+    {
+        Guid ModelId { get; set; }
+        IEnumerable<Guid> ScenarioIds { get; set; }//[] paziuret kad butu consistent tipas
+        string Name { get; set; }
     }
 }
