@@ -53,7 +53,7 @@ namespace MoManI.Api.Services
             await _composedModelsCollection.DeleteOneAsync(x => x.Id == id);
         }
 
-        public async Task CloneComposedModel(ICloningParameters parameters)
+        public async Task CloneComposedModel(CloningParameters parameters)
         {
             var model = await CreateClonedModel(parameters.ModelId, parameters.Name);
             var sourceSetData = await GetAllModelSetData(parameters.ModelId);

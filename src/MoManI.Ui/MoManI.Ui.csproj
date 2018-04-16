@@ -17,6 +17,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -176,6 +177,7 @@
     <TypeScriptCompile Include="scripts\routes.ts" />
     <TypeScriptCompile Include="scripts\services\constraintGroupService.ts" />
     <TypeScriptCompile Include="scripts\services\constraintService.ts" />
+    <TypeScriptCompile Include="scripts\services\modelCloningService.ts" />
     <TypeScriptCompile Include="scripts\services\scenarioService.ts" />
     <TypeScriptCompile Include="scripts\services\objectiveFunctionService.ts" />
     <TypeScriptCompile Include="scripts\services\modelService.ts" />

@@ -18,10 +18,10 @@ namespace MoManI.Api.Controllers
             _modelRepository = modelRepository;
         }
 
-        public async Task<HttpResponseMessage> PostClone(ICloningParameters parameters) //ICloneElement scenarios
+        public async Task<HttpResponseMessage> PostClone(CloningParameters parameters) //ICloneElement scenarios
         {
+
             var model = await _modelRepository.GetComposedModel(parameters.ModelId);
-            //var scenario = await _modelRepository.GetScenario(scenarioId);
 
             var modelScenarios = await _modelRepository.GetScenarios(parameters.ModelId);
             var scenariosToClone = modelScenarios.Where(s => parameters.ScenarioIds.Any(x => x == s.Id));
@@ -35,10 +35,12 @@ namespace MoManI.Api.Controllers
         }
     }
 
-    public interface ICloningParameters
+    public class CloningParameters
     {
-        Guid ModelId { get; set; }
-        IEnumerable<Guid> ScenarioIds { get; set; }//[] paziuret kad butu consistent tipas
-        string Name { get; set; }
+        public Guid ModelId { get; set; }
+        public IEnumerable<Guid> ScenarioIds { get; set; }//[] paziuret kad butu consistent tipas
+        public string Name { get; set; }
     }
+
+
 }

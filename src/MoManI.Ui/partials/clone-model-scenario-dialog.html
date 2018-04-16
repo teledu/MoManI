@@ -4,9 +4,10 @@
 <form name="cloneScenarioForm">
     <div class="modal-body">
         <div class="form-group">
-            <div class="radio" ng-repeat="scenario in scenarios | orderBy: orderProp">
+            <div class="checkbox" ng-repeat="scenario in scenarios | orderBy: orderProp">
                 <label>
-                    <input type="radio" ng-model="$parent.selectedScenario" name="scenarioRadio" ng-value="scenario" required>
+                    <input type="checkbox" ng-model="$parent.selectedScenarios[scenario.id]">
+                    <!--<input type="radio" ng-model="$parent.selectedScenario" name="scenarioRadio" ng-value="scenario" required>-->
                     <span>{{scenario.name}} (rev. {{scenario.revision}})</span>
                     <br />
                 </label>

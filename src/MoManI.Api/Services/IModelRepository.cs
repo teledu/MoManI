@@ -12,7 +12,7 @@ namespace MoManI.Api.Services
         Task<ComposedModel> GetComposedModel(Guid id);
         Task SaveComposedModel(ComposedModel composedModel);
         Task DeleteComposedModel(Guid id);
-        Task CloneComposedModel(ICloningParameters parameters);
+        Task CloneComposedModel(CloningParameters parameters);
 
         Task<IEnumerable<Scenario>> GetScenarios(Guid modelId);
         Task<Scenario> GetScenario(Guid scenarioId);
