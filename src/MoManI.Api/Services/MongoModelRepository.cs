@@ -84,7 +84,7 @@ namespace MoManI.Api.Services
         private async Task<Scenario> CreateClonedScenario(Guid scenarioId, ComposedModel model)
         {
             var sourceScenario = await GetScenario(scenarioId);
-            var scenario = sourceScenario.Clone(1);//paziuret // manau kad ok, nes klonuoji scenarijus pagal skirtingus ID
+            var scenario = sourceScenario.Clone(sourceScenario.Revision);//paziuret // manau kad ok, nes klonuoji scenarijus pagal skirtingus ID
             scenario.ModelId = model.Id;
             scenario.ParentScenarioId = null;
             await SaveScenario(scenario);
