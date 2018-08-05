@@ -1,6 +1,6 @@
 ﻿declare var require: any;
+var version = (<HTMLMetaElement>document.getElementById('jsVersion')).content;
 
-var version = 11;
 require.config({
     baseUrl: 'scripts',
     paths: {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MoManI.Api.Controllers;
 using MoManI.Api.Models;
 
 namespace MoManI.Api.Services
@@ -11,7 +12,7 @@ namespace MoManI.Api.Services
         Task<ComposedModel> GetComposedModel(Guid id);
         Task SaveComposedModel(ComposedModel composedModel);
         Task DeleteComposedModel(Guid id);
-        Task CloneComposedModel(Guid modelId, Guid scenarioId, string name);
+        Task CloneComposedModel(CloningParameters parameters);
 
         Task<IEnumerable<Scenario>> GetScenarios(Guid modelId);
         Task<Scenario> GetScenario(Guid scenarioId);

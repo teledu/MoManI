@@ -12,6 +12,12 @@
 interface IModelResource extends IModel, ng.resource.IResource<IModelResource> {
 }
 
+interface ICloningParameters {
+    modelId: string;
+    scenarioIds: string[];
+    name: string;
+}
+
 interface ISelectableEntry<T>  {
     selected: boolean;
     data: T;
